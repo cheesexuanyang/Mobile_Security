@@ -46,34 +46,25 @@ class AuthViewModel(
     }
 
     fun signUp(email: String, password: String, name: String, username: String) {
-        if (!isInputValid(email, password, name, username)) return  // run the validation check first
-
-        _uiState.value = AuthUiState.Loading
-
         auth.createUserWithEmailAndPassword(email, password)
-            .addOnSuccessListener { result ->
-                val uid = result.user?.uid
-                if (uid != null) {
-                    val newUser = User(
-                        id = uid,
-                        name = name,
-                        username = username,
-                        email = email,
-                        role = "PATIENT"
-                    )
+            .addOnSuccessListener { authResult ->
+                val uid = authResult.user?.uid ?: return@addOnSuccessListener
 
-                    db.collection("users").document(uid).set(newUser)
-                        .addOnSuccessListener {
-                            _currentUser.value = newUser
-                            _uiState.value = AuthUiState.Success(role = "PATIENT")
+                db.collection("users")
+                    .whereEqualTo("email", email)
+                    .get()
+                    .addOnSuccessListener { querySnapshot ->
+                        if (!querySnapshot.isEmpty) {
+                            // profile exists so update it with the real UID
+                            val existingDocId = querySnapshot.documents[0].id
+                            db.collection("users").document(existingDocId)
+                                .update("id", uid) // Claim the ID
+                        } else {
+                            // No profile exists, create a new one as a default PATIENT
+                            val newUser = User(id = uid, name = name, email = email, username = username, role = "PATIENT")
+                            db.collection("users").document(uid).set(newUser)
                         }
-                        .addOnFailureListener { e ->
-                            _uiState.value = AuthUiState.Error("Auth created, but profile failed: ${e.message}")
-                        }
-                }
-            }
-            .addOnFailureListener { e ->
-                _uiState.value = AuthUiState.Error(e.message ?: "Sign up failed")
+                    }
             }
     }
 

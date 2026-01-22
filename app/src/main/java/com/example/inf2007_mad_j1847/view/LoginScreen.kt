@@ -5,6 +5,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -49,10 +50,21 @@ fun LoginScreen(navController: NavHostController, authViewModel: AuthViewModel) 
         TextField(value = email, onValueChange = { email = it }, label = { Text("Email") })
         TextField(value = password, onValueChange = { password = it }, label = { Text("Password") }, visualTransformation = PasswordVisualTransformation())
 
+        Spacer(modifier = Modifier.height(16.dp))
+
         if (uiState is AuthViewModel.AuthUiState.Loading) {
             CircularProgressIndicator()
         } else {
             Button(onClick = { authViewModel.login(email, password) }) { Text("Login") }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        TextButton(
+            onClick = { navController.navigate("signup_screen") },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Don't have an account? Sign Up")
         }
 
         if (uiState is AuthViewModel.AuthUiState.Error) {

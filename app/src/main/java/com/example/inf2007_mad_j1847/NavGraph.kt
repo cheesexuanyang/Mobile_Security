@@ -7,21 +7,14 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.example.inf2007_mad_j1847.view.AdminHomeScreen
-import com.example.inf2007_mad_j1847.view.DoctorHomeScreen
-import com.example.inf2007_mad_j1847.view.LoginScreen
-import com.example.inf2007_mad_j1847.view.PatientHomeScreen
-import com.example.inf2007_mad_j1847.view.SignUpScreen
+import com.example.inf2007_mad_j1847.view.*
+import com.example.inf2007_mad_j1847.viewmodel.AdminViewModel
 import com.example.inf2007_mad_j1847.viewmodel.AuthViewModel
 
-/**
- * The main navigation graph that manages screen routing.
- * Uses nested graphs to handle authentication flow separately from the main app flow.
- */
 @Composable
 fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
-    // Shared viewmodel instance to maintain state across screens
     val authViewModel: AuthViewModel = viewModel()
+    val adminViewModel: AdminViewModel = viewModel()
 
     NavHost(
         navController = navController,
@@ -31,21 +24,36 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
         // Auth graph
         navigation(startDestination = "login_screen", route = "auth_graph") {
             composable("login_screen") { LoginScreen(navController, authViewModel) }
-            composable("signup_screen") {
-                SignUpScreen(navController, authViewModel)
-            }
+            composable("signup_screen") { SignUpScreen(navController, authViewModel) }
         }
 
         // Patient Graph
         navigation(startDestination = "patient_home", route = "patient_graph") {
             composable("patient_home") { PatientHomeScreen(navController, authViewModel) }
-            // Include other routes for patient here
         }
 
         // Doctor Graph
         composable("doctor_home") { DoctorHomeScreen(navController, authViewModel) }
 
         // Admin Graph
-        composable("admin_home") { AdminHomeScreen(navController, authViewModel) }
+        navigation(startDestination = "admin_home", route = "admin_graph") {
+            composable("admin_home") {
+                AdminHomeScreen(navController, authViewModel)
+            }
+
+            composable("user_management") {
+                UserManagementScreen(navController, adminViewModel)
+            }
+
+            composable("add_user") {
+                AddUserScreen(navController, adminViewModel)
+            }
+
+            // Dynamic route for User Details
+            composable("user_detail/{userId}") { backStackEntry ->
+                val userId = backStackEntry.arguments?.getString("userId") ?: ""
+                UserDetailScreen(userId, navController, adminViewModel)
+            }
+        }
     }
 }
