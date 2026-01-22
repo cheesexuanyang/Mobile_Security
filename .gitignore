@@ -1,0 +1,19 @@
+# Firebase configuration file
+app/google-services.json
+
+# Android Studio / IntelliJ files
+.idea/
+*.iml
+.gradle/
+local.properties
+build/
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Module-specific build folders
+app/build/
+
+# System files
+.DS_Store
+Thumbs.db
