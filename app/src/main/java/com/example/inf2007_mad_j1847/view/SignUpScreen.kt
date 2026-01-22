@@ -1,268 +1,75 @@
 package com.example.inf2007_mad_j1847.view
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
+import androidx.navigation.NavHostController
+import com.example.inf2007_mad_j1847.viewmodel.AuthViewModel
 
 @Composable
-fun SignUpScreen(navController: NavController) {
-    var name by rememberSaveable { mutableStateOf("") }
-    var username by rememberSaveable { mutableStateOf("") }
-    var email by rememberSaveable { mutableStateOf("") }
-    var password by rememberSaveable { mutableStateOf("") }
-    var confirmPassword by rememberSaveable { mutableStateOf("") }
+fun SignUpScreen(navController: NavHostController, authViewModel: AuthViewModel) {
+    val uiState by authViewModel.uiState.collectAsState()
 
-    var isNameError by rememberSaveable { mutableStateOf(false) }
-    var isUsernameError by rememberSaveable { mutableStateOf(false) }
-    var isEmailError by rememberSaveable { mutableStateOf(false) }
-    var isPasswordError by rememberSaveable { mutableStateOf(false) }
-    var isConfirmPasswordError by rememberSaveable { mutableStateOf(false) }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var name by remember { mutableStateOf("") }
+    var username by remember { mutableStateOf("") }
 
-    var errorMessages by rememberSaveable { mutableStateOf<List<String>>(emptyList()) }
+    // Navigation logic upon successful registration
+    LaunchedEffect(uiState) {
+        if (uiState is AuthViewModel.AuthUiState.Success) {
+            // New users are always patient by default
+            navController.navigate("patient_graph") {
+                popUpTo("auth_graph") { inclusive = true }
+            }
+        }
+    }
 
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(
-            text = "Sign Up",
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-
+        Text("Create Account", style = MaterialTheme.typography.headlineLarge)
         Spacer(modifier = Modifier.height(16.dp))
 
-        TextField(
-            value = name,
-            onValueChange = {
-                name = it
-                isNameError = false
-                errorMessages = emptyList()
-            },
-            label = { Text("Name") },
-            isError = isNameError,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-
-        TextField(
-            value = username,
-            onValueChange = {
-                username = it
-                isUsernameError = false
-                errorMessages = emptyList()
-            },
-            label = { Text("Username") },
-            isError = isUsernameError,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-
-        TextField(
-            value = email,
-            onValueChange = {
-                email = it
-                isEmailError = false
-                errorMessages = emptyList()
-            },
-            label = { Text("Email") },
-            isError = isEmailError,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-
+        TextField(value = name, onValueChange = { name = it }, label = { Text("Full Name") })
+        TextField(value = username, onValueChange = { username = it }, label = { Text("Username") })
+        TextField(value = email, onValueChange = { email = it }, label = { Text("Email") })
         TextField(
             value = password,
-            onValueChange = {
-                password = it
-                isPasswordError = false
-                errorMessages = emptyList()
-            },
+            onValueChange = { password = it },
             label = { Text("Password") },
-            visualTransformation = PasswordVisualTransformation(),
-            isError = isPasswordError,
-            modifier = Modifier.padding(bottom = 16.dp)
+            visualTransformation = PasswordVisualTransformation()
         )
 
-        TextField(
-            value = confirmPassword,
-            onValueChange = {
-                confirmPassword = it
-                isConfirmPasswordError = false
-                errorMessages = emptyList()
-            },
-            label = { Text("Confirm Password") },
-            visualTransformation = PasswordVisualTransformation(),
-            isError = isConfirmPasswordError,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
+        Spacer(modifier = Modifier.height(24.dp))
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        if (errorMessages.isNotEmpty()) {
-            Column(
-                modifier = Modifier
-                    .padding(8.dp)
+        if (uiState is AuthViewModel.AuthUiState.Loading) {
+            CircularProgressIndicator()
+        } else {
+            Button(
+                onClick = { authViewModel.signUp(email, password, name, username) },
+                modifier = Modifier.fillMaxWidth(0.7f)
             ) {
-                errorMessages.forEach { message ->
-                    Text(
-                        text = "• $message",
-                        color = MaterialTheme.colorScheme.error
-                    )
-                }
+                Text("Sign Up")
             }
         }
 
-        Button(
-            onClick = {
-                errorMessages = validateSignUpFields(
-                    name, username, email, password, confirmPassword,
-                    onNameError = { isNameError = it },
-                    onUsernameError = { isUsernameError = it },
-                    onEmailError = { isEmailError = it },
-                    onPasswordError = { isPasswordError = it },
-                    onConfirmPasswordError = { isConfirmPasswordError = it }
-                )
-                if (errorMessages.isEmpty()) {
-                    signUpWithFireBase(
-                        name = name,
-                        username = username,
-                        email = email,
-                        password = password
-                    ) { error ->
-                        if (error != null) {
-                            errorMessages = listOf(error)
-                            if (error.contains("Email")) isEmailError = true
-                            if (error.contains("Username")) isUsernameError = true
-                        } else {
-                            navController.navigate("login_screen") {
-                                popUpTo(0) // so that the users cannot go back to any other screen. like it clears the entire backstack
-                            }
-                        }
-                    }
-                }
-
-            })
-        {
-            Text(text = "Sign Up")
+        TextButton(onClick = { navController.popBackStack() }) {
+            Text("Already have an account? Login")
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Button(onClick = { navController.popBackStack() }) {
-            Text(text = "Back to Login")
+        if (uiState is AuthViewModel.AuthUiState.Error) {
+            Text(
+                text = (uiState as AuthViewModel.AuthUiState.Error).message,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(top = 8.dp)
+            )
         }
     }
-}
-
-fun validateSignUpFields(
-    name: String,
-    username: String,
-    email: String,
-    password: String,
-    confirmPassword: String,
-    onNameError: (Boolean) -> Unit,
-    onUsernameError: (Boolean) -> Unit,
-    onEmailError: (Boolean) -> Unit,
-    onPasswordError: (Boolean) -> Unit,
-    onConfirmPasswordError: (Boolean) -> Unit
-): List<String> {
-    val errors = mutableListOf<String>()
-
-    if (name.isBlank()) {
-        onNameError(true)
-        errors.add("Name cannot be empty")
-    }
-
-    if (username.isBlank()) {
-        onUsernameError(true)
-        errors.add("Username is required")
-    }
-
-    if (!email.matches(Regex("""^[\w-\.]+@([\w-]+\.)+[\w-]{2,}$"""))) {
-        onEmailError(true)
-        errors.add("Invalid email format")
-    }
-
-    if (password.length < 6) {
-        onPasswordError(true)
-        errors.add("Password must be at least 6 characters long")
-    }
-
-    if (confirmPassword != password) {
-        onConfirmPasswordError(true)
-        errors.add("Passwords do not match")
-    }
-
-    return errors
-}
-
-fun signUpWithFireBase(
-    name: String,
-    username: String,
-    email: String,
-    password: String,
-    onResult: (String?) -> Unit
-) {
-    val db = FirebaseFirestore.getInstance()
-    val auth = FirebaseAuth.getInstance()
-
-    // Email already handled by Firebase Auth (It handles email uniqueness)
-
-    // Check if username exists in Firestore
-    db.collection("users")
-        .whereEqualTo("username", username)
-        .get()
-        .addOnSuccessListener { usernameQuery ->
-            if (!usernameQuery.isEmpty) {
-                onResult("Username already exists")  // Error if username is taken
-                return@addOnSuccessListener
-            }
-
-            auth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        val uid = auth.currentUser?.uid
-
-                        if (uid != null) {
-                            db.collection("users").document(uid)
-                                .set(
-                                    hashMapOf(
-                                        "name" to name,
-                                        "username" to username,
-                                        "email" to email
-                                    )
-                                )
-                                .addOnSuccessListener {
-                                    onResult(null)
-                                }
-                                .addOnFailureListener { e ->
-                                    onResult(e.message)
-                                }
-                        } else {
-                            onResult("Failed to create user")
-                        }
-                    } else {
-                        onResult(task.exception?.message)
-                    }
-                }
-                .addOnFailureListener { e ->
-                    onResult(e.message)
-                }
-        }
-        .addOnFailureListener { e ->
-            onResult(e.message)
-        }
 }
