@@ -29,7 +29,38 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
 
         // Patient Graph
         navigation(startDestination = "patient_home", route = "patient_graph") {
-            composable("patient_home") { PatientHomeScreen(navController, authViewModel) }
+            composable("patient_home") {
+                PatientHomeScreen(navController, authViewModel)
+            }
+
+            /**
+             * Booking Flow (as a contained flow)
+             * patient_home -> booking_graph -> select_doctor -> select_time/{doctorId}
+             */
+            navigation(
+                startDestination = "select_doctor",
+                route = "booking_graph"
+            ) {
+                // Step 1: Select Doctor
+                composable("select_doctor") {
+                    SelectDoctorScreen.kt(navController = navController)
+                }
+
+                // Step 2: Select Time (requires doctorId)
+                composable(
+                    route = "select_time_slot/{doctorId}",
+                    arguments = listOf(navArgument("doctorId") { type = NavType.StringType })
+                ) { backStackEntry ->
+                    val doctorId = backStackEntry.arguments?.getString("doctorId") ?: ""
+                    SelectTimeSlotScreen(
+                        navController = navController,
+                        doctorId = doctorId
+                    )
+                }
+            }
+            
+
+
         }
 
         // Doctor Graph
