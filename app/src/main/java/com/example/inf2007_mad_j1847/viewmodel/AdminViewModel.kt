@@ -3,6 +3,7 @@ package com.example.inf2007_mad_j1847.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.inf2007_mad_j1847.model.User
+import com.example.inf2007_mad_j1847.model.Role
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.*
 
@@ -23,7 +24,7 @@ class AdminViewModel : ViewModel() {
         _userList, _searchQuery, _selectedRoleFilter
     ) { users, query, role ->
         users.filter { user ->
-            val matchesRole = role == "ALL" || user.role == role
+            val matchesRole = role == "ALL" || user.role.name == role
             val matchesQuery = user.name.contains(query, ignoreCase = true) ||
                     user.email.contains(query, ignoreCase = true)
             matchesRole && matchesQuery
@@ -56,7 +57,7 @@ class AdminViewModel : ViewModel() {
             .addOnFailureListener { isLoading.value = false }
     }
 
-    fun addUserProfile(name: String, email: String, username: String, role: String, onSuccess: () -> Unit) {
+    fun addUserProfile(name: String, email: String, username: String, role: Role, onSuccess: () -> Unit) {
         val newUser = User(name = name, email = email, username = username, role = role)
         db.collection("users").add(newUser)
             .addOnSuccessListener { onSuccess() }

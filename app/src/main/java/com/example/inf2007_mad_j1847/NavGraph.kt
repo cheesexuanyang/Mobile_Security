@@ -10,6 +10,11 @@ import androidx.navigation.navigation
 import com.example.inf2007_mad_j1847.view.*
 import com.example.inf2007_mad_j1847.viewmodel.AdminViewModel
 import com.example.inf2007_mad_j1847.viewmodel.AuthViewModel
+import androidx.navigation.navArgument
+import androidx.navigation.NavType
+import com.example.inf2007_mad_j1847.view.patient.PatientHomeScreen
+import com.example.inf2007_mad_j1847.view.patient.SelectDoctorScreen
+import com.example.inf2007_mad_j1847.view.patient.SelectTimeSlotScreen
 
 @Composable
 fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
@@ -19,6 +24,8 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
     NavHost(
         navController = navController,
         startDestination = "auth_graph",
+        // debug screen bypass
+        //startDestination = "patient_graph",
         modifier = modifier
     ) {
         // Auth graph
@@ -29,7 +36,38 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
 
         // Patient Graph
         navigation(startDestination = "patient_home", route = "patient_graph") {
-            composable("patient_home") { PatientHomeScreen(navController, authViewModel) }
+            composable("patient_home") {
+                PatientHomeScreen(navController, authViewModel)
+            }
+
+            /**
+             * Booking Flow (as a contained flow)
+             * patient_home -> booking_graph -> select_doctor -> select_time/{doctorId}
+             */
+            navigation(
+                startDestination = "select_doctor",
+                route = "booking_graph"
+            ) {
+                // Step 1: Select Doctor
+                composable("select_doctor") {
+                    SelectDoctorScreen(navController = navController)
+                }
+
+                // Step 2: Select Time (requires doctorId)
+                composable(
+                    route = "select_time_slot/{doctorId}",
+                    arguments = listOf(navArgument("doctorId") { type = NavType.StringType })
+                ) { backStackEntry ->
+                    val doctorId = backStackEntry.arguments?.getString("doctorId") ?: ""
+                    SelectTimeSlotScreen(
+                        navController = navController,
+                        doctorId = doctorId
+                    )
+                }
+            }
+
+
+
         }
 
         // Doctor Graph
