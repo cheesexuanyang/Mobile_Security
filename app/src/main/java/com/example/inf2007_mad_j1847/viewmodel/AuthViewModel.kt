@@ -7,6 +7,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import com.example.inf2007_mad_j1847.model.Role
 
 class AuthViewModel(
     private val auth: FirebaseAuth = FirebaseAuth.getInstance(),
@@ -61,7 +62,7 @@ class AuthViewModel(
                                 .update("id", uid) // Claim the ID
                         } else {
                             // No profile exists, create a new one as a default PATIENT
-                            val newUser = User(id = uid, name = name, email = email, username = username, role = "PATIENT")
+                            val newUser = User(id = uid, name = name, email = email, username = username, role = (Role.PATIENT))
                             db.collection("users").document(uid).set(newUser)
                         }
                     }
@@ -86,7 +87,7 @@ class AuthViewModel(
 
                 val user = doc.toObject(User::class.java)
                 _currentUser.value = user
-                _uiState.value = AuthUiState.Success(role = user?.role ?: "PATIENT")
+                _uiState.value = AuthUiState.Success(role = user?.role?.name ?: Role.PATIENT.name)
             }
             .addOnFailureListener { e ->
                 _uiState.value = AuthUiState.Error(e.message ?: "Failed to fetch user profile")

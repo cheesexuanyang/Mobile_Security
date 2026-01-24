@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.inf2007_mad_j1847.viewmodel.AdminViewModel
+import com.example.inf2007_mad_j1847.model.Role
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -16,7 +17,7 @@ fun AddUserScreen(navController: NavHostController, adminViewModel: AdminViewMod
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var username by remember { mutableStateOf("") }
-    var selectedRole by remember { mutableStateOf("PATIENT") }
+    var selectedRole by remember { mutableStateOf(Role.PATIENT) }
 
     Scaffold(
         topBar = {
@@ -64,16 +65,16 @@ fun AddUserScreen(navController: NavHostController, adminViewModel: AdminViewMod
             Row(modifier = Modifier.fillMaxWidth()) {
                 Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
                     RadioButton(
-                        selected = selectedRole == "PATIENT",
-                        onClick = { selectedRole = "PATIENT" }
+                        selected = selectedRole == Role.PATIENT,
+                        onClick = { selectedRole = Role.PATIENT}
                     )
                     Text("Patient")
                 }
                 Spacer(modifier = Modifier.width(20.dp))
                 Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
                     RadioButton(
-                        selected = selectedRole == "DOCTOR",
-                        onClick = { selectedRole = "DOCTOR" }
+                        selected = selectedRole == Role.DOCTOR,
+                        onClick = { selectedRole = Role.DOCTOR }
                     )
                     Text("Doctor")
                 }

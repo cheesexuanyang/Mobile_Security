@@ -77,7 +77,7 @@ fun UserDetailScreen(userId: String, navController: NavHostController, adminView
                         Divider(modifier = Modifier.padding(vertical = 12.dp))
 
                         Text("System Role", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
-                        Text(text = it.role, style = MaterialTheme.typography.bodyLarge)
+                        Text(text = it.role.displayName, style = MaterialTheme.typography.bodyLarge)
                     }
                 }
 
