@@ -23,9 +23,9 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
 
     NavHost(
         navController = navController,
-        //startDestination = "auth_graph",
+        startDestination = "auth_graph",
         // debug screen bypass
-        startDestination = "patient_graph",
+        //startDestination = "patient_graph",
         modifier = modifier
     ) {
         // Auth graph
