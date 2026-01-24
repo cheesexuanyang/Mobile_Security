@@ -30,9 +30,14 @@ class BookingViewModel : ViewModel() {
                 val db = Firebase.firestore
                 val result = db.collection("users")
                     // This is the key Firestore query!
-                    .whereEqualTo("role", Role.DOCTOR.name) // Use .name to get the String "DOCTOR"
+                    //.whereEqualTo("role", Role.DOCTOR.name) // Use .name to get the String "DOCTOR"
                     .get()
                     .await()
+
+                android.util.Log.d(
+                    "BookingVM",
+                    "Fetched ${result.documents.size} doctor docs"
+                )
 
                 // Convert the Firestore documents into User objects
                 _doctors.value = result.toObjects(User::class.java)
