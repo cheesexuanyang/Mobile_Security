@@ -1,4 +1,4 @@
-package com.example.inf2007_mad_j1847.view
+package com.example.inf2007_mad_j1847.view.patient
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
