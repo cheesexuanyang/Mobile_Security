@@ -31,10 +31,7 @@ data class ConversationPreview(
 @Composable
 fun ConversationListScreen(navController: NavController) {
     // Dummy Data: In the future, this comes from Firestore
-    val conversations = listOf(
-        ConversationPreview("1", "Dr. Smith", "See you on Monday!", "10:30 AM"),
-        ConversationPreview("2", "Dr. Lee", "The results look good.", "Yesterday")
-    )
+    val conversations = listOf<ConversationPreview>()
 
     Scaffold(
         topBar = {
