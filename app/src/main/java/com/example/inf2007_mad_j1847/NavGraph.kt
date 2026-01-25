@@ -7,14 +7,15 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.example.inf2007_mad_j1847.view.*
-import com.example.inf2007_mad_j1847.viewmodel.AdminViewModel
-import com.example.inf2007_mad_j1847.viewmodel.AuthViewModel
 import androidx.navigation.navArgument
 import androidx.navigation.NavType
+// Imports for your screens
+import com.example.inf2007_mad_j1847.view.*
 import com.example.inf2007_mad_j1847.view.patient.PatientHomeScreen
 import com.example.inf2007_mad_j1847.view.patient.SelectDoctorScreen
 import com.example.inf2007_mad_j1847.view.patient.SelectTimeSlotScreen
+import com.example.inf2007_mad_j1847.viewmodel.AdminViewModel
+import com.example.inf2007_mad_j1847.viewmodel.AuthViewModel
 
 @Composable
 fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
@@ -24,36 +25,29 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
     NavHost(
         navController = navController,
         startDestination = "auth_graph",
-        // debug screen bypass
-        //startDestination = "patient_graph",
         modifier = modifier
     ) {
-        // Auth graph
+        // --- Auth Graph (Login/Signup) ---
         navigation(startDestination = "login_screen", route = "auth_graph") {
             composable("login_screen") { LoginScreen(navController, authViewModel) }
             composable("signup_screen") { SignUpScreen(navController, authViewModel) }
         }
 
-        // Patient Graph
+        // --- Patient Graph ---
         navigation(startDestination = "patient_home", route = "patient_graph") {
             composable("patient_home") {
                 PatientHomeScreen(navController, authViewModel)
             }
 
-            /**
-             * Booking Flow (as a contained flow)
-             * patient_home -> booking_graph -> select_doctor -> select_time/{doctorId}
-             */
+            // Booking Flow
             navigation(
                 startDestination = "select_doctor",
                 route = "booking_graph"
             ) {
-                // Step 1: Select Doctor
                 composable("select_doctor") {
                     SelectDoctorScreen(navController = navController)
                 }
 
-                // Step 2: Select Time (requires doctorId)
                 composable(
                     route = "select_time_slot/{doctorId}",
                     arguments = listOf(navArgument("doctorId") { type = NavType.StringType })
@@ -65,15 +59,12 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
                     )
                 }
             }
-
-
-
         }
 
-        // Doctor Graph
+        // --- Doctor Graph ---
         composable("doctor_home") { DoctorHomeScreen(navController, authViewModel) }
 
-        // Admin Graph
+        // --- Admin Graph ---
         navigation(startDestination = "admin_home", route = "admin_graph") {
             composable("admin_home") {
                 AdminHomeScreen(navController, authViewModel)
@@ -87,11 +78,54 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
                 AddUserScreen(navController, adminViewModel)
             }
 
-            // Dynamic route for User Details
             composable("user_detail/{userId}") { backStackEntry ->
                 val userId = backStackEntry.arguments?.getString("userId") ?: ""
                 UserDetailScreen(userId, navController, adminViewModel)
             }
+        }
+
+        // --- Messaging / Chat Routes (New) ---
+
+        // 1. The List of Conversations (Inbox)
+        composable("conversation_list_screen") {
+            ConversationListScreen(navController)
+        }
+
+        // 2. The Contact Selection Screen (New Chat)
+        composable("select_contact_screen") {
+            SelectContactScreen(navController)
+        }
+
+        // 3. The Messaging Screen (Chat Room)
+        composable(
+            route = "messaging_screen/{chatId}/{chatName}",
+            arguments = listOf(
+                navArgument("chatId") { type = NavType.StringType },
+                navArgument("chatName") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val chatId = backStackEntry.arguments?.getString("chatId") ?: ""
+            val chatName = backStackEntry.arguments?.getString("chatName") ?: "Chat"
+            MessagingScreen(navController, chatId, chatName)
+        }
+
+        // --- Other Existing Routes ---
+        composable("map_screen") { MapScreen(navController) }
+        composable("qr_scanner_screen") { QRScannerScreen(navController) }
+        composable("book_appointment_screen") { BookAppointmentScreen(navController) }
+        composable("appointments") { AppointmentScreen(navController) }
+        // Ensure AppointmentDetailsScreen exists or import it
+        composable("appointment_details/{appointmentId}") { backStackEntry ->
+            val appointmentId = backStackEntry.arguments?.getString("appointmentId") ?: ""
+            AppointmentDetailsScreen(navController, appointmentId)
+        }
+        composable("profile_screen") { com.example.inf2007_mad_j1847.screens.ProfileScreen(navController) }
+        composable("chatbot_screen") { ChatbotScreen(navController) }
+
+        // Dynamic route for appointment selection after QR scan
+        composable("appointment_selection/{hospitalName}") { backStackEntry ->
+            val hospitalName = backStackEntry.arguments?.getString("hospitalName") ?: ""
+            AppointmentSelectionScreen(navController, hospitalName)
         }
     }
 }

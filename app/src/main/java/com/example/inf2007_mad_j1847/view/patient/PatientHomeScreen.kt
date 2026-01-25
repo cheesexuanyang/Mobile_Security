@@ -55,6 +55,7 @@ fun PatientHomeScreen(navController: NavHostController, authViewModel: AuthViewM
                 icon = Icons.Default.Email, // Using a suitable icon
                 onClick = {
                     // TODO: Navigate to a future messaging screen
+                    navController.navigate("conversation_list_screen")
                 }
             )
         }
@@ -69,8 +70,7 @@ fun PatientHomeScreen(navController: NavHostController, authViewModel: AuthViewM
                 navController.navigate("auth_graph") {
                     popUpTo(0) { inclusive = true }
                 }
-            },
-            modifier = Modifier.fillMaxWidth()
+            }
         ) {
             Text("Logout")
         }
