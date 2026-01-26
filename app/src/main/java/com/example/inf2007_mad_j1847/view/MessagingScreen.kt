@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -20,23 +21,40 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-
-data class UIMessage(val text: String, val isMe: Boolean)
+import com.example.inf2007_mad_j1847.viewmodel.MessagingViewModel
+import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MessagingScreen(
     navController: NavController,
-    chatId: String,   // Passed from navigation
-    chatName: String  // Passed from navigation
+    chatId: String,   // NOTE: This is actually the RECIPIENT'S ID passed from the previous screen
+    chatName: String,
+    viewModel: MessagingViewModel = viewModel()
 ) {
+    // 1. Observe the real message list from ViewModel
+    val messages by viewModel.messages.collectAsState()
+
+    // 2. Get Current User ID to check "isMe"
+    val auth = FirebaseAuth.getInstance()
+    val currentUserId = auth.currentUser?.uid ?: ""
+
+    // 3. Start listening to Firestore when this screen opens
+    LaunchedEffect(chatId) {
+        viewModel.listenToMessages(recipientId = chatId)
+    }
+
+    // Auto-scroll to bottom when new messages arrive
+    val listState = rememberLazyListState()
+    LaunchedEffect(messages.size) {
+        if (messages.isNotEmpty()) {
+            listState.animateScrollToItem(messages.size - 1)
+        }
+    }
+
     var userInput by remember { mutableStateOf("") }
-    // Dummy initial data
-    var messages by remember { mutableStateOf(listOf(
-        UIMessage("Hello!", isMe = true),
-        UIMessage("Hi, this is $chatName. How can I help?", isMe = false)
-    )) }
 
     Scaffold(
         topBar = {
@@ -62,10 +80,13 @@ fun MessagingScreen(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth(),
-                reverseLayout = false // Standard chat order
+                state = listState
             ) {
                 items(messages) { message ->
-                    MessageBubble(text = message.text, isMe = message.isMe)
+                    MessageBubble(
+                        text = message.text,
+                        isMe = message.senderId == currentUserId
+                    )
                 }
             }
 
@@ -85,7 +106,8 @@ fun MessagingScreen(
                     keyboardActions = KeyboardActions(
                         onSend = {
                             if (userInput.isNotBlank()) {
-                                messages = messages + UIMessage(userInput, true)
+                                // 4. Send Message via ViewModel
+                                viewModel.sendMessage(recipientId = chatId, text = userInput)
                                 userInput = ""
                             }
                         }
@@ -110,7 +132,8 @@ fun MessagingScreen(
                 Button(
                     onClick = {
                         if (userInput.isNotBlank()) {
-                            messages = messages + UIMessage(userInput, true)
+                            // 4. Send Message via ViewModel
+                            viewModel.sendMessage(recipientId = chatId, text = userInput)
                             userInput = ""
                         }
                     }
@@ -122,7 +145,7 @@ fun MessagingScreen(
     }
 }
 
-// Reusing the bubble UI logic from ChatbotScreen
+// Reusing the bubble UI logic
 @Composable
 fun MessageBubble(text: String, isMe: Boolean) {
     val backgroundColor = if (isMe) MaterialTheme.colorScheme.primary else Color.LightGray
