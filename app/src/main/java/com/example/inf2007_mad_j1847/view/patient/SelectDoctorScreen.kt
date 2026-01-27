@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -25,6 +26,12 @@ fun SelectDoctorScreen(
     // Observe the state from the ViewModel
     val doctors by bookingViewModel.doctors.collectAsState()
     val isLoading by bookingViewModel.isLoading.collectAsState()
+
+    // Trigger the data load when this screen is composed for the first time.
+    // The `key1 = true` ensures it only runs once.
+    LaunchedEffect(key1 = true) {
+        bookingViewModel.loadDoctors()
+    }
 
     Scaffold(
         topBar = {

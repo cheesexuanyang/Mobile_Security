@@ -23,9 +23,9 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
 
     NavHost(
         navController = navController,
-        startDestination = "auth_graph",
+        //startDestination = "auth_graph",
         // debug screen bypass
-        //startDestination = "patient_graph",
+        startDestination = "patient_graph",
         modifier = modifier
     ) {
         // Auth graph
@@ -53,7 +53,11 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
                     SelectDoctorScreen(navController = navController)
                 }
 
+
+
                 // Step 2: Select Time (requires doctorId)
+
+
                 composable(
                     route = "select_time_slot/{doctorId}",
                     arguments = listOf(navArgument("doctorId") { type = NavType.StringType })
