@@ -16,12 +16,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.inf2007_mad_j1847.viewmodel.ConversationViewModel
 
-// Dummy data model for a conversation preview
+// Keep the data class here or move to model package
 data class ConversationPreview(
-    val id: String,
+    val id: String, // This is the recipient's User ID
     val name: String,
     val lastMessage: String,
     val time: String
@@ -29,9 +30,13 @@ data class ConversationPreview(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ConversationListScreen(navController: NavController) {
-    // Dummy Data: In the future, this comes from Firestore
-    val conversations = listOf<ConversationPreview>()
+fun ConversationListScreen(
+    navController: NavController,
+    viewModel: ConversationViewModel = viewModel() // Inject the new ViewModel
+) {
+    // Observe real data from Firestore
+    val conversations by viewModel.conversations.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
 
     Scaffold(
         topBar = {
@@ -50,17 +55,30 @@ fun ConversationListScreen(navController: NavController) {
             }
         }
     ) { innerPadding ->
-        LazyColumn(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            items(conversations) { chat ->
-                ConversationItem(chat) {
-                    // Navigate to Messaging Screen with specific user details
-                    navController.navigate("messaging_screen/${chat.id}/${chat.name}")
+            if (isLoading) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            } else if (conversations.isEmpty()) {
+                Text(
+                    text = "No conversations yet.",
+                    modifier = Modifier.align(Alignment.Center),
+                    color = Color.Gray
+                )
+            } else {
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    items(conversations) { chat ->
+                        ConversationItem(chat) {
+                            // Navigate to Messaging Screen
+                            // Ensure MessagingScreen accepts {chatId} (recipientId) and {chatName}
+                            navController.navigate("messaging_screen/${chat.id}/${chat.name}")
+                        }
+                        HorizontalDivider()
+                    }
                 }
-                HorizontalDivider()
             }
         }
     }
