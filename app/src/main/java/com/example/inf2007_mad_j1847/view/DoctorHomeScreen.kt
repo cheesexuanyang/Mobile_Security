@@ -1,6 +1,9 @@
 package com.example.inf2007_mad_j1847.view
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -10,29 +13,107 @@ import androidx.navigation.NavHostController
 import com.example.inf2007_mad_j1847.viewmodel.AuthViewModel
 
 @Composable
-fun DoctorHomeScreen(navController: NavHostController, authViewModel: AuthViewModel) {
+fun DoctorHomeScreen(
+    navController: NavHostController,
+    authViewModel: AuthViewModel
+) {
     val user by authViewModel.currentUser.collectAsState()
 
     Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
-        Text("Doctor Portal", style = MaterialTheme.typography.headlineLarge)
-        Spacer(modifier = Modifier.height(20.dp))
+        Text("Doctor Dashboard", style = MaterialTheme.typography.headlineLarge)
 
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // Doctor welcome (similar style to Admin)
         user?.let {
-            Text("Logged in: Dr. ${it.name}", style = MaterialTheme.typography.bodyLarge)
-            // Add Doctor-specific features: e.g., Patient list, Appointment schedule
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {
+                Column(modifier = Modifier.padding(20.dp)) {
+                    Text(
+                        text = "Welcome Back,",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = "Dr. ${it.name}",
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                }
+            }
+        } ?: run {
+            // Fallback for debug bypass (no logged-in user yet)
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {
+                Column(modifier = Modifier.padding(20.dp)) {
+                    Text(
+                        text = "Welcome Back,",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = "Doctor",
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                }
+            }
         }
 
-        Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.height(48.dp))
 
-        Button(onClick = {
-            authViewModel.logout() // Clear the session first
-            navController.navigate("auth_graph") {
-                popUpTo(0) { inclusive = true } // Clear the entire backstack
+        // Big, squarish central buttons (vertical)
+        Button(
+            onClick = { navController.navigate("doctor_appointments") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(90.dp),
+            shape = MaterialTheme.shapes.medium
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Icon(imageVector = Icons.Default.DateRange, contentDescription = null)
+                Spacer(modifier = Modifier.height(6.dp))
+                Text("Appointments")
             }
-        }) {
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = { navController.navigate("doctor_messaging") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(90.dp),
+            shape = MaterialTheme.shapes.medium
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Icon(imageVector = Icons.Default.Email, contentDescription = null)
+                Spacer(modifier = Modifier.height(6.dp))
+                Text("Messages")
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        OutlinedButton(
+            onClick = {
+                authViewModel.logout()
+                navController.navigate("auth_graph") {
+                    popUpTo(0) { inclusive = true }
+                }
+            },
+            modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.medium,
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
+        ) {
             Text("Logout")
         }
     }
