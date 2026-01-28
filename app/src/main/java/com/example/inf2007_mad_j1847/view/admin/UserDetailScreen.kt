@@ -1,4 +1,4 @@
-package com.example.inf2007_mad_j1847.view
+package com.example.inf2007_mad_j1847.view.admin
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -59,41 +59,52 @@ fun UserDetailScreen(userId: String, navController: NavHostController, adminView
         }
     ) { padding ->
         Column(
-            modifier = Modifier
+            modifier = Modifier.Companion
                 .padding(padding)
                 .fillMaxSize()
                 .padding(24.dp)
         ) {
             user?.let {
                 // Profile Information Section
-                Card(modifier = Modifier.fillMaxWidth()) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text("Personal Info", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
-                        Spacer(modifier = Modifier.height(8.dp))
+                Card(modifier = Modifier.Companion.fillMaxWidth()) {
+                    Column(modifier = Modifier.Companion.padding(16.dp)) {
+                        Text(
+                            "Personal Info",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.Companion.height(8.dp))
                         Text("Name: ${it.name}", style = MaterialTheme.typography.titleLarge)
                         Text("Username: ${it.username}")
                         Text("Email: ${it.email}")
 
-                        Divider(modifier = Modifier.padding(vertical = 12.dp))
+                        Divider(modifier = Modifier.Companion.padding(vertical = 12.dp))
 
-                        Text("System Role", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+                        Text(
+                            "System Role",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.primary
+                        )
                         Text(text = it.role.displayName, style = MaterialTheme.typography.bodyLarge)
                     }
                 }
 
-                Spacer(modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.Companion.weight(1f))
 
                 // Delete Action at the bottom
                 Button(
                     onClick = { showDeleteDialog = true },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.Companion.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
                 ) {
                     Text("Remove User Profile")
                 }
             } ?: run {
                 // Fallback if user is not found
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Box(
+                    modifier = Modifier.Companion.fillMaxSize(),
+                    contentAlignment = Alignment.Companion.Center
+                ) {
                     Text("User not found.")
                 }
             }

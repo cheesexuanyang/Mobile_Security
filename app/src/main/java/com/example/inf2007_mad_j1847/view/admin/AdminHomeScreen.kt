@@ -1,4 +1,4 @@
-package com.example.inf2007_mad_j1847.view
+package com.example.inf2007_mad_j1847.view.admin
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -15,27 +15,31 @@ fun AdminHomeScreen(navController: NavHostController, authViewModel: AuthViewMod
     val user by authViewModel.currentUser.collectAsState()
 
     Column(
-        modifier = Modifier
+        modifier = Modifier.Companion
             .fillMaxSize()
             .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalAlignment = Alignment.Companion.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Text("Admin Dashboard", style = MaterialTheme.typography.headlineLarge)
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.Companion.height(32.dp))
 
         // Profile Details Card
         user?.let {
             Card(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.Companion.fillMaxWidth(),
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
-                Column(modifier = Modifier.padding(20.dp)) {
-                    Text("Welcome Back,", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+                Column(modifier = Modifier.Companion.padding(20.dp)) {
+                    Text(
+                        "Welcome Back,",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
                     Text(text = it.name, style = MaterialTheme.typography.headlineSmall)
 
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
+                    HorizontalDivider(modifier = Modifier.Companion.padding(vertical = 12.dp))
 
                     Text("Username: ${it.username}", style = MaterialTheme.typography.bodyMedium)
                     Text("Email: ${it.email}", style = MaterialTheme.typography.bodyMedium)
@@ -43,18 +47,18 @@ fun AdminHomeScreen(navController: NavHostController, authViewModel: AuthViewMod
             }
         }
 
-        Spacer(modifier = Modifier.height(48.dp))
+        Spacer(modifier = Modifier.Companion.height(48.dp))
 
         // Menu Actions
         Button(
             onClick = { navController.navigate("user_management") },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.Companion.fillMaxWidth(),
             shape = MaterialTheme.shapes.medium
         ) {
             Text("Manage All Users")
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.Companion.height(16.dp))
 
         OutlinedButton(
             onClick = {
@@ -63,7 +67,7 @@ fun AdminHomeScreen(navController: NavHostController, authViewModel: AuthViewMod
                     popUpTo(0) { inclusive = true }
                 }
             },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.Companion.fillMaxWidth(),
             shape = MaterialTheme.shapes.medium,
             colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
         ) {

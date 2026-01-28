@@ -1,4 +1,4 @@
-package com.example.inf2007_mad_j1847.view
+package com.example.inf2007_mad_j1847.view.admin
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -48,7 +48,7 @@ fun UserManagementScreen(navController: NavHostController, adminViewModel: Admin
         }
     ) { padding ->
         Column(
-            modifier = Modifier
+            modifier = Modifier.Companion
                 .padding(padding)
                 .fillMaxSize()
                 .padding(horizontal = 16.dp)
@@ -58,7 +58,7 @@ fun UserManagementScreen(navController: NavHostController, adminViewModel: Admin
                 value = searchQuery,
                 onValueChange = { adminViewModel.onSearchQueryChange(it) },
                 label = { Text("Search by name or email") },
-                modifier = Modifier
+                modifier = Modifier.Companion
                     .fillMaxWidth()
                     .padding(vertical = 8.dp),
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
@@ -67,7 +67,7 @@ fun UserManagementScreen(navController: NavHostController, adminViewModel: Admin
 
             // 2. Filter Chips Row
             Row(
-                modifier = Modifier
+                modifier = Modifier.Companion
                     .fillMaxWidth()
                     .padding(vertical = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -91,26 +91,32 @@ fun UserManagementScreen(navController: NavHostController, adminViewModel: Admin
 
             // 3. Loading Indicator
             if (isLoading) {
-                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                Box(
+                    modifier = Modifier.Companion.fillMaxWidth(),
+                    contentAlignment = Alignment.Companion.Center
+                ) {
+                    LinearProgressIndicator(modifier = Modifier.Companion.fillMaxWidth())
                 }
             }
 
             // 4. User List
             if (users.isEmpty() && !isLoading) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Box(
+                    modifier = Modifier.Companion.fillMaxSize(),
+                    contentAlignment = Alignment.Companion.Center
+                ) {
                     Text("No users found matching your criteria.")
                 }
             } else {
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.Companion.fillMaxSize(),
                     contentPadding = PaddingValues(vertical = 8.dp)
                 ) {
                     items(users, key = { it.id }) { user ->
                         ListItem(
                             headlineContent = { Text(user.name) },
                             supportingContent = { Text("${user.role} • ${user.email}") },
-                            modifier = Modifier
+                            modifier = Modifier.Companion
                                 .clickable {
                                     navController.navigate("user_detail/${user.id}")
                                 }

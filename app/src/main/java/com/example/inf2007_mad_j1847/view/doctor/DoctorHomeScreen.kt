@@ -1,4 +1,4 @@
-package com.example.inf2007_mad_j1847.view
+package com.example.inf2007_mad_j1847.view.doctor
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -20,23 +20,23 @@ fun DoctorHomeScreen(
     val user by authViewModel.currentUser.collectAsState()
 
     Column(
-        modifier = Modifier
+        modifier = Modifier.Companion
             .fillMaxSize()
             .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalAlignment = Alignment.Companion.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Text("Doctor Dashboard", style = MaterialTheme.typography.headlineLarge)
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.Companion.height(32.dp))
 
         // Doctor welcome (similar style to Admin)
         user?.let {
             Card(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.Companion.fillMaxWidth(),
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
-                Column(modifier = Modifier.padding(20.dp)) {
+                Column(modifier = Modifier.Companion.padding(20.dp)) {
                     Text(
                         text = "Welcome Back,",
                         style = MaterialTheme.typography.labelLarge,
@@ -51,10 +51,10 @@ fun DoctorHomeScreen(
         } ?: run {
             // Fallback for debug bypass (no logged-in user yet)
             Card(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.Companion.fillMaxWidth(),
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
-                Column(modifier = Modifier.padding(20.dp)) {
+                Column(modifier = Modifier.Companion.padding(20.dp)) {
                     Text(
                         text = "Welcome Back,",
                         style = MaterialTheme.typography.labelLarge,
@@ -68,40 +68,40 @@ fun DoctorHomeScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(48.dp))
+        Spacer(modifier = Modifier.Companion.height(48.dp))
 
         // Big, squarish central buttons (vertical)
         Button(
             onClick = { navController.navigate("doctor_appointments") },
-            modifier = Modifier
+            modifier = Modifier.Companion
                 .fillMaxWidth()
                 .height(90.dp),
             shape = MaterialTheme.shapes.medium
         ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(horizontalAlignment = Alignment.Companion.CenterHorizontally) {
                 Icon(imageVector = Icons.Default.DateRange, contentDescription = null)
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.Companion.height(6.dp))
                 Text("Appointments")
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.Companion.height(16.dp))
 
         Button(
             onClick = { navController.navigate("doctor_messaging") },
-            modifier = Modifier
+            modifier = Modifier.Companion
                 .fillMaxWidth()
                 .height(90.dp),
             shape = MaterialTheme.shapes.medium
         ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(horizontalAlignment = Alignment.Companion.CenterHorizontally) {
                 Icon(imageVector = Icons.Default.Email, contentDescription = null)
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.Companion.height(6.dp))
                 Text("Messages")
             }
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.Companion.height(24.dp))
 
         OutlinedButton(
             onClick = {
@@ -110,7 +110,7 @@ fun DoctorHomeScreen(
                     popUpTo(0) { inclusive = true }
                 }
             },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.Companion.fillMaxWidth(),
             shape = MaterialTheme.shapes.medium,
             colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
         ) {
