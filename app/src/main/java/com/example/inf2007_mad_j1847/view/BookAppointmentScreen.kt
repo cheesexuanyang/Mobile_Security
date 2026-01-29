@@ -45,163 +45,163 @@ import com.example.inf2007_mad_j1847.utils.SoundUtils
  * The appointment details are saved to Firestore via the AppointmentViewModel.
  */
 
-//@OptIn(ExperimentalMaterial3Api::class)
-//@Composable
-//fun BookAppointmentScreen(navController: NavController, viewModel: AppointmentViewModel = viewModel()) {
-//
-//    val coroutineScope = rememberCoroutineScope()
-//    val auth = FirebaseAuth.getInstance()
-//
-//    // Form field states
-//    var hospital by remember { mutableStateOf("") }
-//    var service by remember { mutableStateOf("") }
-//    var date by remember { mutableStateOf("") }
-//    var timeSlot by remember { mutableStateOf("") }
-//    var doctor by remember { mutableStateOf("") }
-//    var username by remember { mutableStateOf("Patient") } // Default username
-//    val snackbarHostState = remember { SnackbarHostState() }
-//
-//    val context = LocalContext.current
-//
-//    val userId = auth.currentUser?.uid ?: "" // Current user UID from Firebase Auth
-//
-//    // Fetch username from Firebase when userId is available
-//    LaunchedEffect(userId) {
-//        if (userId.isNotBlank()) {
-//            try {
-//                val userDoc = FirebaseFirestore.getInstance().collection("users").document(userId).get().await()
-//                val fetchedUsername = userDoc.getString("username")
-//                if (!fetchedUsername.isNullOrBlank()) {
-//                    username = fetchedUsername
-//                }
-//            } catch (e: Exception) {
-//                Log.e("BookAppointmentScreen", "Error fetching username", e)
-//            }
-//        }
-//    }
-//
-//
-//    // State to show loading indicator during async ops
-//    val isLoading by viewModel.loading.collectAsState()
-//
-//    // Static dropdown options
-//    val hospitals = listOf("Sengkang Community Hospital", "Singapore General Hospital", "National University Hospital", "Khoo Teck Puat Hospital", "Mount Elizabeth Novena Hospital", "Changi General Hospital", "Dr Beef's Clinic")
-//    val services = listOf("General Checkup", "Dental Checkup", "Cardiology", "Dermatology", "Orthopedics")
-//    val doctors = listOf("Dr. Smith", "Dr. Lee", "Dr. Alex")
-//
-//    Scaffold(
-//        topBar = {
-//            TopAppBar(
-//                title = { Text("Book Appointment") },
-//                navigationIcon = {
-//                    IconButton(onClick = { navController.popBackStack() }) {
-//                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
-//                    }
-//                }
-//            )
-//        }
-//    ) { innerPadding ->
-//        // Scrollable column of form inputs
-//        LazyColumn(
-//            modifier = Modifier
-//                .fillMaxSize()
-//                .padding(innerPadding)
-//                .padding(16.dp),
-//            horizontalAlignment = Alignment.CenterHorizontally
-//        ) {
-//            item {
-//                SnackbarHost(hostState = snackbarHostState)
-//                Spacer(modifier = Modifier.height(16.dp))
-//
-//                // Hospital Dropdown with Label
-//                Text(text = "Select a Hospital", style = MaterialTheme.typography.labelMedium)
-//                ExposedDropdownMenuBox(hospital, hospitals) { hospital = it }
-//
-//                Spacer(modifier = Modifier.height(16.dp))
-//
-//                // Service Dropdown with Label
-//                Text(text = "Select Appointment Type", style = MaterialTheme.typography.labelMedium)
-//                ExposedDropdownMenuBox(service, services) { service = it }
-//
-//                Spacer(modifier = Modifier.height(16.dp))
-//
-//                // Date Picker with Label
-//                Text(text = "Select Appointment Date", style = MaterialTheme.typography.labelMedium)
-//                DatePickerField(selectedDate = date) { date = it }
-//
-//                Spacer(modifier = Modifier.height(16.dp))
-//
-//                // Time slot picker - appears only after date is picked
-//                if (date.isNotBlank()) {
-//                    Text(text = "Select Appointment Time", style = MaterialTheme.typography.labelMedium)
-//                    TimeSlotPicker(selectedTimeSlot = timeSlot) { timeSlot = it }
-//                    Spacer(modifier = Modifier.height(16.dp))
-//                }
-//
-//                // Doctor Dropdown with Label
-//                Text(text = "Select a Doctor", style = MaterialTheme.typography.labelMedium)
-//                ExposedDropdownMenuBox(doctor, doctors) { doctor = it }
-//
-//                Spacer(modifier = Modifier.height(24.dp))
-//
-//                if (isLoading) {
-//                    CircularProgressIndicator()
-//                    Spacer(modifier = Modifier.height(16.dp))
-//                }
-//            }
-//
-//            item {
-//                // Submit Button
-//                Button(
-//                    onClick = {
-//                        coroutineScope.launch {
-//                            // Input Fields Validation
-//                            if (hospital.isBlank() || service.isBlank() || date.isBlank() || doctor.isBlank() || timeSlot.isBlank()) {
-//                                showCustomToast(context, "⚠ Please fill in all fields!")
-//                                return@launch
-//                            }
-//
-//                            val timestamp = createTimestamp(date, timeSlot) // convert to Firebase-compatible timestamp
-//
-//                            // Prevent null timestamps from causing crashes
-//                            if (timestamp == null) {
-//                                showCustomToast(context, "⚠ Invalid date selected!")
-//                                return@launch
-//                            }
-//
-//                            // Create appointment object
-//                            val appointment = Appointment(
-//                                id = "",
-//                                date = timestamp,
-//                                doctor = doctor,
-//                                location = hospital,
-//                                type = service,
-//                                username = username,
-//                                status = "upcoming",
-//                                completion_time = null,
-//                                uid = userId
-//                            )
-//
-//                            viewModel.bookAppointment(appointment,
-//                                onSuccess = {
-//                                    showCustomToast(context, "✅ Appointment Booked!")
-//                                    navController.popBackStack()
-//                                },
-//                                onFailure = { error ->
-//                                    showCustomToast(context, "❌ Error: $error")
-//                                }
-//                            )
-//                        }
-//                    },
-//                    modifier = Modifier.fillMaxWidth(),
-//                    enabled = !isLoading
-//                ) {
-//                    Text(text = "Confirm Appointment")
-//                }
-//            }
-//        }
-//    }
-//}
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun BookAppointmentScreen(navController: NavController, viewModel: AppointmentViewModel = viewModel()) {
+
+    val coroutineScope = rememberCoroutineScope()
+    val auth = FirebaseAuth.getInstance()
+
+    // Form field states
+    var hospital by remember { mutableStateOf("") }
+    var service by remember { mutableStateOf("") }
+    var date by remember { mutableStateOf("") }
+    var timeSlot by remember { mutableStateOf("") }
+    var doctor by remember { mutableStateOf("") }
+    var username by remember { mutableStateOf("Patient") } // Default username
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    val context = LocalContext.current
+
+    val userId = auth.currentUser?.uid ?: "" // Current user UID from Firebase Auth
+
+    // Fetch username from Firebase when userId is available
+    LaunchedEffect(userId) {
+        if (userId.isNotBlank()) {
+            try {
+                val userDoc = FirebaseFirestore.getInstance().collection("users").document(userId).get().await()
+                val fetchedUsername = userDoc.getString("username")
+                if (!fetchedUsername.isNullOrBlank()) {
+                    username = fetchedUsername
+                }
+            } catch (e: Exception) {
+                Log.e("BookAppointmentScreen", "Error fetching username", e)
+            }
+        }
+    }
+
+
+    // State to show loading indicator during async ops
+    val isLoading by viewModel.loading.collectAsState()
+
+    // Static dropdown options
+    val hospitals = listOf("Sengkang Community Hospital", "Singapore General Hospital", "National University Hospital", "Khoo Teck Puat Hospital", "Mount Elizabeth Novena Hospital", "Changi General Hospital", "Dr Beef's Clinic")
+    val services = listOf("General Checkup", "Dental Checkup", "Cardiology", "Dermatology", "Orthopedics")
+    val doctors = listOf("Dr. Smith", "Dr. Lee", "Dr. Alex")
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Book Appointment") },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
+                    }
+                }
+            )
+        }
+    ) { innerPadding ->
+        // Scrollable column of form inputs
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            item {
+                SnackbarHost(hostState = snackbarHostState)
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Hospital Dropdown with Label
+                Text(text = "Select a Hospital", style = MaterialTheme.typography.labelMedium)
+                ExposedDropdownMenuBox(hospital, hospitals) { hospital = it }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Service Dropdown with Label
+                Text(text = "Select Appointment Type", style = MaterialTheme.typography.labelMedium)
+                ExposedDropdownMenuBox(service, services) { service = it }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Date Picker with Label
+                Text(text = "Select Appointment Date", style = MaterialTheme.typography.labelMedium)
+                DatePickerField(selectedDate = date) { date = it }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Time slot picker - appears only after date is picked
+                if (date.isNotBlank()) {
+                    Text(text = "Select Appointment Time", style = MaterialTheme.typography.labelMedium)
+                    TimeSlotPicker(selectedTimeSlot = timeSlot) { timeSlot = it }
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+
+                // Doctor Dropdown with Label
+                Text(text = "Select a Doctor", style = MaterialTheme.typography.labelMedium)
+                ExposedDropdownMenuBox(doctor, doctors) { doctor = it }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                if (isLoading) {
+                    CircularProgressIndicator()
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+            }
+
+            item {
+                // Submit Button
+                Button(
+                    onClick = {
+                        coroutineScope.launch {
+                            // Input Fields Validation
+                            if (hospital.isBlank() || service.isBlank() || date.isBlank() || doctor.isBlank() || timeSlot.isBlank()) {
+                                showCustomToast(context, "⚠ Please fill in all fields!")
+                                return@launch
+                            }
+
+                            val timestamp = createTimestamp(date, timeSlot) // convert to Firebase-compatible timestamp
+
+                            // Prevent null timestamps from causing crashes
+                            if (timestamp == null) {
+                                showCustomToast(context, "⚠ Invalid date selected!")
+                                return@launch
+                            }
+
+                            // Create appointment object
+                            val appointment = Appointment(
+                                id = "",
+                                date = timestamp,
+                                doctor = doctor,
+                                location = hospital,
+                                type = service,
+                                username = username,
+                                status = "upcoming",
+                                completion_time = null,
+                                uid = userId
+                            )
+
+                            viewModel.bookAppointment(appointment,
+                                onSuccess = {
+                                    showCustomToast(context, "✅ Appointment Booked!")
+                                    navController.popBackStack()
+                                },
+                                onFailure = { error ->
+                                    showCustomToast(context, "❌ Error: $error")
+                                }
+                            )
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !isLoading
+                ) {
+                    Text(text = "Confirm Appointment")
+                }
+            }
+        }
+    }
+}
 
 // Dropdown Menu Component
 @Composable
