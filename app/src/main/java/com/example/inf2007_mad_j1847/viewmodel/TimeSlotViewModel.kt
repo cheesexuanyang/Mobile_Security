@@ -14,6 +14,9 @@ import java.util.Calendar
 import java.util.Locale
 import com.google.firebase.Timestamp
 
+import com.example.inf2007_mad_j1847.model.AppointmentSlot
+
+
 class TimeSlotViewModel : ViewModel() {
 
     private val db = FirebaseFirestore.getInstance()
@@ -67,15 +70,18 @@ class TimeSlotViewModel : ViewModel() {
             _loading.value = true
             _error.value = null
             try {
-                val snap = db.collection("appointment")
-                    .whereEqualTo("doctorId", doctorId)
+                val snap = db.collection("appointments")
+                    .whereEqualTo("doctorUid", doctorId)
                     .whereEqualTo("date", date)
-                    // If you have status and want to ignore cancelled, uncomment:
-                    // .whereIn("status", listOf("booked", "upcoming"))
+                    // .whereIn("status", listOf("booked", "upcoming")) // optional
                     .get()
                     .await()
 
-                val booked = snap.documents.mapNotNull { it.getString("timeSlot") }.toSet()
+                val booked = snap.toObjects(AppointmentSlot::class.java)
+                    .map { it.timeSlot }
+                    .filter { it.isNotBlank() }
+                    .toSet()
+
                 _bookedSlots.value = booked
 
                 // If current selection became booked, clear it
@@ -120,72 +126,65 @@ class TimeSlotViewModel : ViewModel() {
      * - Creates 1 doc per doctorId+date+timeSlot
      * - Uses transaction to avoid double booking
      */
+
     fun confirmBooking(
         doctorId: String,
         patientUid: String,
         onSuccess: () -> Unit,
         onFailure: (String) -> Unit
     ) {
-        Log.d("TimeSlotVM", "confirmBooking called")
-
-        Log.d(
-            "TimeSlotVM",
-            "doctorId=$doctorId, date=${_selectedDate.value}, time=${_selectedTimeSlot.value}"
-        )
         val date = _selectedDate.value
         val timeSlot = _selectedTimeSlot.value
 
-        // basic guards
         if (doctorId.isBlank()) return onFailure("doctorId missing")
-        if (patientUid.isBlank()) return onFailure("User not logged in")
-        if (date.isBlank()) return onFailure("Please select a date")
-        if (timeSlot.isBlank()) return onFailure("Please select a time slot")
+        if (patientUid.isBlank()) return onFailure("Not logged in")
+        if (date.isBlank()) return onFailure("Select a date")
+        if (timeSlot.isBlank()) return onFailure("Select a time slot")
         if (_bookedSlots.value.contains(timeSlot)) return onFailure("Slot already booked")
+
+        // safer docId (avoid ':' in IDs)
+        val safeSlot = timeSlot.replace(":", "")
+        val docId = "${doctorId}_${date}_$safeSlot"
+        val docRef = db.collection("appointments").document(docId)
 
         viewModelScope.launch {
             _loading.value = true
             _error.value = null
-
-            val docId = "${doctorId}_${date}_${timeSlot}"
-            val docRef = db.collection("appointments").document(docId)
-
             try {
                 db.runTransaction { txn ->
-                    val snapshot = txn.get(docRef)
-
-                    if (snapshot.exists()) {
-                        val status = snapshot.getString("status") ?: "booked"
-                        // If you allow re-booking cancelled slots:
+                    val snap = txn.get(docRef)
+                    if (snap.exists()) {
+                        val status = snap.getString("status") ?: "booked"
                         if (status.lowercase() != "cancelled") {
                             throw IllegalStateException("Slot already booked")
                         }
                     }
 
-                    val data = hashMapOf(
-                        "doctorId" to doctorId,
-                        "uid" to patientUid,
-                        "date" to date,           // yyyy-MM-dd
-                        "timeSlot" to timeSlot,   // HH:mm
-                        "createdAt" to Timestamp.now()
+                    val appointment = AppointmentSlot(
+                        doctorUid = doctorId,
+                        PatientUid = patientUid,
+                        date = date,
+                        timeSlot = timeSlot,
+                        status = "booked",
+                        createdAt = Timestamp.now()
                     )
 
-                    txn.set(docRef, data)
+                    txn.set(docRef, appointment)
                 }.await()
 
-                // update local state immediately
                 _bookedSlots.value = _bookedSlots.value + timeSlot
                 onSuccess()
             } catch (e: Exception) {
-                val msg = e.message ?: "Failed to book"
+                Log.e("TimeSlotVM", "confirmBooking failed", e)
+                val msg = e.message ?: "Booking failed"
                 _error.value = msg
                 onFailure(msg)
             } finally {
                 _loading.value = false
             }
-
-            Log.d("TimeSlotVM", "confirmBooking end")
         }
     }
+
 
 
 
