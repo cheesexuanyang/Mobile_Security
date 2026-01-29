@@ -162,11 +162,9 @@ fun SelectTimeSlotScreen(
                             Toast.LENGTH_SHORT
                         ).show()
 
-                        navController.popBackStack(
-                            route = "patient_graph",
-                            inclusive = false
-                        )
-
+                            navController.navigate("patient_home") {
+                                popUpTo("patient_home") { inclusive = false }
+                            }
                                     },
                         onFailure = { err ->
                             Toast.makeText(
