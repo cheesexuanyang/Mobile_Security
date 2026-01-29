@@ -1,4 +1,4 @@
-package com.example.inf2007_mad_j1847.view
+package com.example.inf2007_mad_j1847.view.auth
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -30,12 +30,12 @@ fun SignUpScreen(navController: NavHostController, authViewModel: AuthViewModel)
     }
 
     Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.Companion.fillMaxSize().padding(16.dp),
+        horizontalAlignment = Alignment.Companion.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Text("Create Account", style = MaterialTheme.typography.headlineLarge)
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.Companion.height(16.dp))
 
         TextField(value = name, onValueChange = { name = it }, label = { Text("Full Name") })
         TextField(value = username, onValueChange = { username = it }, label = { Text("Username") })
@@ -47,14 +47,14 @@ fun SignUpScreen(navController: NavHostController, authViewModel: AuthViewModel)
             visualTransformation = PasswordVisualTransformation()
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.Companion.height(24.dp))
 
         if (uiState is AuthViewModel.AuthUiState.Loading) {
             CircularProgressIndicator()
         } else {
             Button(
                 onClick = { authViewModel.signUp(email, password, name, username) },
-                modifier = Modifier.fillMaxWidth(0.7f)
+                modifier = Modifier.Companion.fillMaxWidth(0.7f)
             ) {
                 Text("Sign Up")
             }
@@ -68,7 +68,7 @@ fun SignUpScreen(navController: NavHostController, authViewModel: AuthViewModel)
             Text(
                 text = (uiState as AuthViewModel.AuthUiState.Error).message,
                 color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(top = 8.dp)
+                modifier = Modifier.Companion.padding(top = 8.dp)
             )
         }
     }

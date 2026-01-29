@@ -7,14 +7,15 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.example.inf2007_mad_j1847.view.*
 import com.example.inf2007_mad_j1847.viewmodel.AdminViewModel
 import com.example.inf2007_mad_j1847.viewmodel.AuthViewModel
 import androidx.navigation.navArgument
 import androidx.navigation.NavType
-import com.example.inf2007_mad_j1847.view.patient.PatientHomeScreen
-import com.example.inf2007_mad_j1847.view.patient.SelectDoctorScreen
-import com.example.inf2007_mad_j1847.view.patient.SelectTimeSlotScreen
+import com.example.inf2007_mad_j1847.view.SelectTimeSlotScreen
+import com.example.inf2007_mad_j1847.view.admin.*
+import com.example.inf2007_mad_j1847.view.auth.*
+import com.example.inf2007_mad_j1847.view.doctor.*
+import com.example.inf2007_mad_j1847.view.patient.*
 
 @Composable
 fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
@@ -23,9 +24,9 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
 
     NavHost(
         navController = navController,
-        startDestination = "auth_graph",
+        //startDestination = "auth_graph",
         // debug screen bypass
-        //startDestination = "patient_graph",
+        startDestination = "patient_graph",
         modifier = modifier
     ) {
         // Auth graph
@@ -53,16 +54,17 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
                     SelectDoctorScreen(navController = navController)
                 }
 
+
+
                 // Step 2: Select Time (requires doctorId)
+
+
                 composable(
                     route = "select_time_slot/{doctorId}",
                     arguments = listOf(navArgument("doctorId") { type = NavType.StringType })
                 ) { backStackEntry ->
-                    val doctorId = backStackEntry.arguments?.getString("doctorId") ?: ""
-                    SelectTimeSlotScreen(
-                        navController = navController,
-                        doctorId = doctorId
-                    )
+                    val doctorId = backStackEntry.arguments?.getString("doctorId").orEmpty()
+                    SelectTimeSlotScreen(navController = navController, doctorId = doctorId)
                 }
             }
 

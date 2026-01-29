@@ -1,10 +1,11 @@
-package com.example.inf2007_mad_j1847.view
+package com.example.inf2007_mad_j1847.view.admin
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -32,7 +33,7 @@ fun AddUserScreen(navController: NavHostController, adminViewModel: AdminViewMod
         }
     ) { padding ->
         Column(
-            modifier = Modifier
+            modifier = Modifier.Companion
                 .padding(padding)
                 .fillMaxSize()
                 .padding(24.dp),
@@ -42,36 +43,36 @@ fun AddUserScreen(navController: NavHostController, adminViewModel: AdminViewMod
                 value = name,
                 onValueChange = { name = it },
                 label = { Text("Full Name") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.Companion.fillMaxWidth()
             )
 
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
                 label = { Text("Email Address") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.Companion.fillMaxWidth()
             )
 
             OutlinedTextField(
                 value = username,
                 onValueChange = { username = it },
                 label = { Text("Username") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.Companion.fillMaxWidth()
             )
 
             Text("Select User Role", style = MaterialTheme.typography.titleMedium)
 
             // Role Selection Logic
-            Row(modifier = Modifier.fillMaxWidth()) {
-                Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+            Row(modifier = Modifier.Companion.fillMaxWidth()) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     RadioButton(
                         selected = selectedRole == Role.PATIENT,
-                        onClick = { selectedRole = Role.PATIENT}
+                        onClick = { selectedRole = Role.PATIENT }
                     )
                     Text("Patient")
                 }
-                Spacer(modifier = Modifier.width(20.dp))
-                Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                Spacer(modifier = Modifier.Companion.width(20.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     RadioButton(
                         selected = selectedRole == Role.DOCTOR,
                         onClick = { selectedRole = Role.DOCTOR }
@@ -80,7 +81,7 @@ fun AddUserScreen(navController: NavHostController, adminViewModel: AdminViewMod
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.Companion.height(24.dp))
 
             Button(
                 onClick = {
@@ -90,7 +91,7 @@ fun AddUserScreen(navController: NavHostController, adminViewModel: AdminViewMod
                         }
                     }
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.Companion.fillMaxWidth()
             ) {
                 Text("Create Placeholder Profile")
             }
