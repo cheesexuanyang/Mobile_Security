@@ -9,21 +9,37 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.inf2007_mad_j1847.components.TimeSlotPicker
+import com.example.inf2007_mad_j1847.viewmodel.TimeSlotViewModel
+import com.google.firebase.auth.FirebaseAuth
 import java.util.Calendar
 import java.util.Locale
+import android.widget.Toast
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelectTimeSlotScreen(
     navController: NavController,
-    doctorId: String
+    doctorId: String,
+    viewModel: TimeSlotViewModel = viewModel()
 ) {
     val context = LocalContext.current
 
-    var selectedDate by remember { mutableStateOf("") }     // yyyy-MM-dd
-    var selectedTimeSlot by remember { mutableStateOf("") } // HH:mm from TimeSlotPicker
+    val selectedDate by viewModel.selectedDate.collectAsState()
+    val dateError by viewModel.dateError.collectAsState()
+    val selectedTimeSlot by viewModel.selectedTimeSlot.collectAsState()
+    val bookedSlots by viewModel.bookedSlots.collectAsState()
+    val loading by viewModel.loading.collectAsState()
+    val error by viewModel.error.collectAsState()
+
+    // load booked slots whenever doctorId + date changes and date is valid
+    LaunchedEffect(doctorId, selectedDate, dateError) {
+        if (doctorId.isNotBlank() && selectedDate.isNotBlank() && dateError == null) {
+            viewModel.loadBookedSlots(doctorId)
+        }
+    }
 
     fun openDatePicker() {
         val cal = Calendar.getInstance()
@@ -31,7 +47,6 @@ fun SelectTimeSlotScreen(
         val month = cal.get(Calendar.MONTH)
         val day = cal.get(Calendar.DAY_OF_MONTH)
 
-        // tomorrow as min selectable date
         val minDateMillis = Calendar.getInstance().apply {
             add(Calendar.DAY_OF_MONTH, 1)
         }.timeInMillis
@@ -40,8 +55,7 @@ fun SelectTimeSlotScreen(
             context,
             { _, y, m, d ->
                 val formatted = String.format(Locale.US, "%04d-%02d-%02d", y, m + 1, d)
-                selectedDate = formatted
-                selectedTimeSlot = "" // clear time when date changes
+                viewModel.setDate(formatted) // ✅ update via VM (also clears time)
             },
             year, month, day
         ).apply {
@@ -49,7 +63,12 @@ fun SelectTimeSlotScreen(
         }.show()
     }
 
-    val canConfirm = selectedDate.isNotBlank() && selectedTimeSlot.isNotBlank()
+    val canConfirm =
+        selectedDate.isNotBlank() &&
+                dateError == null &&
+                selectedTimeSlot.isNotBlank() &&
+                !bookedSlots.contains(selectedTimeSlot) &&
+                !loading
 
     Scaffold(
         topBar = {
@@ -73,45 +92,89 @@ fun SelectTimeSlotScreen(
 
             Spacer(Modifier.height(12.dp))
 
-            // ---- DATE SELECTOR ----
             OutlinedTextField(
                 value = selectedDate,
-                onValueChange = { /* read-only */ },
+                onValueChange = { },
                 modifier = Modifier.fillMaxWidth(),
                 readOnly = true,
                 label = { Text("Appointment Date (yyyy-MM-dd)") },
+                isError = dateError != null,
+                supportingText = {
+                    if (dateError != null) Text(dateError!!)
+                    else Text("Tomorrow onwards only")
+                },
                 trailingIcon = {
-                    TextButton(onClick = { openDatePicker() }) {
-                        Text("Pick")
-                    }
+                    TextButton(onClick = { openDatePicker() }) { Text("Pick") }
                 }
             )
 
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(12.dp))
 
-            // ---- TIME SLOT PICKER ----
-            if (selectedDate.isNotBlank()) {
+            if (loading) {
+                Row {
+                    CircularProgressIndicator(modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(10.dp))
+                    Text("Loading availability…")
+                }
+                Spacer(Modifier.height(12.dp))
+            }
+
+            if (!error.isNullOrBlank()) {
+                Text(error!!, color = MaterialTheme.colorScheme.error)
+                Spacer(Modifier.height(12.dp))
+            }
+
+            if (selectedDate.isNotBlank() && dateError == null) {
                 Text("Select Appointment Time", style = MaterialTheme.typography.labelLarge)
                 Spacer(Modifier.height(8.dp))
 
                 TimeSlotPicker(
                     selectedTimeSlot = selectedTimeSlot,
-                    onTimeSelected = { selectedTimeSlot = it }
+                    onTimeSelected = { viewModel.setTimeSlot(it) },
+                    disabledSlots = bookedSlots
                 )
+
+                if (bookedSlots.isNotEmpty()) {
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        text = "Booked slots: ${bookedSlots.sorted().joinToString()}",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
             } else {
-                Text("Pick a date first to see time slots.")
+                Spacer(Modifier.height(8.dp))
+                Text("Pick a valid date first to see time slots.")
             }
 
             Spacer(Modifier.height(24.dp))
 
-            // ---- CONFIRM ----
             Button(
                 modifier = Modifier.fillMaxWidth(),
                 enabled = canConfirm,
                 onClick = {
-                    // For now: just return to previous screen or navigate next
-                    // Later: create appointment record using doctorId + selectedDate + selectedTimeSlot
-                    navController.popBackStack()
+                    // next step: write booking doc (doctorId + selectedDate + selectedTimeSlot)
+                    viewModel.confirmBooking(
+                        doctorId = doctorId,
+                        patientUid = FirebaseAuth.getInstance().currentUser?.uid.orEmpty(),
+                        onSuccess = { Toast.makeText(
+                            context,
+                            "✅ Appointment booked successfully",
+                            Toast.LENGTH_SHORT
+                        ).show()
+
+                        navController.popBackStack(
+                            route = "patient_graph",
+                            inclusive = false
+                        )
+
+                                    },
+                        onFailure = { err ->
+                            Toast.makeText(
+                                context,
+                                "❌ $err",
+                                Toast.LENGTH_LONG
+                            ).show()}
+                    )
                 }
             ) {
                 Text("Confirm")
