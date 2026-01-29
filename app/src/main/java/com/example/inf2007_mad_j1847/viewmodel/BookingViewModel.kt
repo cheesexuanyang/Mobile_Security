@@ -38,7 +38,9 @@ class BookingViewModel : ViewModel() {
                     "Fetched ${result.documents.size} doctor docs"
                 )
 
-                _doctors.value = result.toObjects(User::class.java)
+                _doctors.value = result.documents.mapNotNull { doc ->
+                    doc.toObject(User::class.java)?.copy(id = doc.id)
+                }
             } catch (e: Exception) {
                 android.util.Log.e("BookingVM", "Failed to fetch doctors", e)
                 _doctors.value = emptyList()

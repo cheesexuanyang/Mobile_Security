@@ -11,6 +11,7 @@ import com.example.inf2007_mad_j1847.viewmodel.AdminViewModel
 import com.example.inf2007_mad_j1847.viewmodel.AuthViewModel
 import androidx.navigation.navArgument
 import androidx.navigation.NavType
+import com.example.inf2007_mad_j1847.view.SelectTimeSlotScreen
 import com.example.inf2007_mad_j1847.view.admin.*
 import com.example.inf2007_mad_j1847.view.auth.*
 import com.example.inf2007_mad_j1847.view.doctor.*
@@ -62,11 +63,8 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
                     route = "select_time_slot/{doctorId}",
                     arguments = listOf(navArgument("doctorId") { type = NavType.StringType })
                 ) { backStackEntry ->
-                    val doctorId = backStackEntry.arguments?.getString("doctorId") ?: ""
-                    SelectTimeSlotScreen(
-                        navController = navController,
-                        doctorId = doctorId
-                    )
+                    val doctorId = backStackEntry.arguments?.getString("doctorId").orEmpty()
+                    SelectTimeSlotScreen(navController = navController, doctorId = doctorId)
                 }
             }
 

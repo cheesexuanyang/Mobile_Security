@@ -27,11 +27,11 @@ fun SelectDoctorScreen(
     val doctors by bookingViewModel.doctors.collectAsState()
     val isLoading by bookingViewModel.isLoading.collectAsState()
 
-    // Trigger the data load when this screen is composed for the first time.
-    // The `key1 = true` ensures it only runs once.
-    //    LaunchedEffect(key1 = true) {
-    //        bookingViewModel.loadDoctors()
-    //    }
+//     Trigger the data load when this screen is composed for the first time.
+//     The `key1 = true` ensures it only runs once.
+        LaunchedEffect(key1 = true) {
+            bookingViewModel.loadDoctors()
+        }
 
     Scaffold(
         topBar = {
