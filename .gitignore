@@ -1,5 +1,5 @@
 # Firebase configuration file
-google-services.json
+app/google-services.json
 
 # Android Studio / IntelliJ files
 .idea/
@@ -17,4 +17,3 @@ app/build/
 # System files
 .DS_Store
 Thumbs.db
-app/google-services.json

@@ -12,7 +12,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.inf2007_mad_j1847.mobSec"
+        applicationId = "com.example.inf2007_mad_j1847"
         minSdk = 26
         targetSdk = 35
         versionCode = 1
