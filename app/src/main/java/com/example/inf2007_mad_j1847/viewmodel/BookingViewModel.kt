@@ -19,18 +19,17 @@ class BookingViewModel : ViewModel() {
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
 
-    init {
-        fetchDoctors()
-    }
-
-    private fun fetchDoctors() {
+    /**
+     * Call this explicitly from the screen.
+     * Safe to call multiple times (will just reload).
+     */
+    fun loadDoctors() {
         viewModelScope.launch {
             _isLoading.value = true
             try {
                 val db = Firebase.firestore
                 val result = db.collection("users")
-                    // This is the key Firestore query!
-                    .whereEqualTo("role", Role.DOCTOR.name) // Use .name to get the String "DOCTOR"
+                    .whereEqualTo("role", Role.DOCTOR.name)
                     .get()
                     .await()
 
@@ -39,10 +38,9 @@ class BookingViewModel : ViewModel() {
                     "Fetched ${result.documents.size} doctor docs"
                 )
 
-                // Convert the Firestore documents into User objects
                 _doctors.value = result.toObjects(User::class.java)
             } catch (e: Exception) {
-                // Handle errors, e.g., log them or show a message
+                android.util.Log.e("BookingVM", "Failed to fetch doctors", e)
                 _doctors.value = emptyList()
             } finally {
                 _isLoading.value = false
