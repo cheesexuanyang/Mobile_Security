@@ -1,99 +1,98 @@
 package com.example.inf2007_mad_j1847
 
-import com.example.inf2007_mad_j1847.view.ChatbotScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.navArgument
 import androidx.navigation.navigation
-import com.example.inf2007_mad_j1847.screens.ProfileScreen
-import com.example.inf2007_mad_j1847.view.AppointmentDetailsScreen
-import com.example.inf2007_mad_j1847.view.AppointmentScreen
-import com.example.inf2007_mad_j1847.view.AppointmentSelectionScreen
-import com.example.inf2007_mad_j1847.view.BookAppointmentScreen
-import com.example.inf2007_mad_j1847.view.HomeScreen
-import com.example.inf2007_mad_j1847.view.LoginScreen
-import com.example.inf2007_mad_j1847.view.SignUpScreen
-import com.example.inf2007_mad_j1847.view.EditAppointmentScreen
-import com.example.inf2007_mad_j1847.view.MapScreen
-import com.example.inf2007_mad_j1847.view.QRScannerScreen
+import com.example.inf2007_mad_j1847.viewmodel.AdminViewModel
+import com.example.inf2007_mad_j1847.viewmodel.AuthViewModel
+import androidx.navigation.navArgument
+import androidx.navigation.NavType
+import com.example.inf2007_mad_j1847.view.SelectTimeSlotScreen
+import com.example.inf2007_mad_j1847.view.admin.*
+import com.example.inf2007_mad_j1847.view.auth.*
+import com.example.inf2007_mad_j1847.view.doctor.*
+import com.example.inf2007_mad_j1847.view.patient.*
 
-/**
- * The main navigation graph that manages screen routing.
- * Uses nested graphs to handle authentication flow separately from the main app flow.
- */
 @Composable
-fun NavGraph(
-    navController: NavHostController,
-    modifier: Modifier = Modifier
-) {
-    val user = false // Change this based on authentication logic
+fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
+    val authViewModel: AuthViewModel = viewModel()
+    val adminViewModel: AdminViewModel = viewModel()
 
     NavHost(
         navController = navController,
-        startDestination = if (user) "main_graph" else "auth_graph", // Decide where to start based on login state
+        //startDestination = "auth_graph",
+        // debug screen bypass
+        startDestination = "patient_graph",
         modifier = modifier
     ) {
-        // ──────────────────────────────── AUTH GRAPH ────────────────────────────────
+        // Auth graph
         navigation(startDestination = "login_screen", route = "auth_graph") {
-            composable("login_screen") { LoginScreen(navController) }
-            composable("signup_screen") { SignUpScreen(navController) }
+            composable("login_screen") { LoginScreen(navController, authViewModel) }
+            composable("signup_screen") { SignUpScreen(navController, authViewModel) }
         }
 
-        // ──────────────────────────────── MAIN GRAPH ────────────────────────────────
-        navigation(startDestination = "home_screen", route = "main_graph") {
-            composable("home_screen") { HomeScreen(navController) }
-            composable("profile_screen") { ProfileScreen(navController) }
-            composable("chatbot_screen") { ChatbotScreen(navController) }
-            composable("book_appointment_screen") { BookAppointmentScreen(navController) }
-
-            composable("map_screen") {
-                MapScreen(navController)
+        // Patient Graph
+        navigation(startDestination = "patient_home", route = "patient_graph") {
+            composable("patient_home") {
+                PatientHomeScreen(navController, authViewModel)
             }
 
-            composable("qr_scanner_screen") {
-                QRScannerScreen(navController)
+            /**
+             * Booking Flow (as a contained flow)
+             * patient_home -> booking_graph -> select_doctor -> select_time/{doctorId}
+             */
+            navigation(
+                startDestination = "select_doctor",
+                route = "booking_graph"
+            ) {
+                // Step 1: Select Doctor
+                composable("select_doctor") {
+                    SelectDoctorScreen(navController = navController)
+                }
+
+
+
+                // Step 2: Select Time (requires doctorId)
+
+
+                composable(
+                    route = "select_time_slot/{doctorId}",
+                    arguments = listOf(navArgument("doctorId") { type = NavType.StringType })
+                ) { backStackEntry ->
+                    val doctorId = backStackEntry.arguments?.getString("doctorId").orEmpty()
+                    SelectTimeSlotScreen(navController = navController, doctorId = doctorId)
+                }
             }
 
-            composable("appointments") {
-                AppointmentScreen(navController)
+
+
+        }
+
+        // Doctor Graph
+        composable("doctor_home") { DoctorHomeScreen(navController, authViewModel) }
+
+        // Admin Graph
+        navigation(startDestination = "admin_home", route = "admin_graph") {
+            composable("admin_home") {
+                AdminHomeScreen(navController, authViewModel)
             }
 
-            // ───── DYNAMIC ROUTE: Appointment Details ─────
-            composable(
-                route = "appointment_details/{appointmentId}",
-                arguments = listOf(
-                    navArgument("appointmentId") { type = NavType.StringType }
-                )
-            ) { backStackEntry ->
-                val appointmentId = backStackEntry.arguments?.getString("appointmentId") ?: ""
-                AppointmentDetailsScreen(
-                    navController = navController,
-                    appointmentId = appointmentId
-                )
+            composable("user_management") {
+                UserManagementScreen(navController, adminViewModel)
             }
 
-            // ───── DYNAMIC ROUTE: Edit Appointment ────
-            composable("edit_appointment/{appointmentId}") { backStackEntry ->
-                val appointmentId = backStackEntry.arguments?.getString("appointmentId") ?: ""
-                EditAppointmentScreen(navController, appointmentId)
+            composable("add_user") {
+                AddUserScreen(navController, adminViewModel)
             }
 
-            // ───── DYNAMIC ROUTE: Appointment Selection ─────
-            composable(
-                route = "appointment_selection/{hospitalName}",
-                arguments = listOf(
-                    navArgument("hospitalName") { type = NavType.StringType }
-                )
-            ) { backStackEntry ->
-                val hospitalName = backStackEntry.arguments?.getString("hospitalName") ?: ""
-                AppointmentSelectionScreen(
-                    navController = navController,
-                    hospitalName = hospitalName
-                )
+            // Dynamic route for User Details
+            composable("user_detail/{userId}") { backStackEntry ->
+                val userId = backStackEntry.arguments?.getString("userId") ?: ""
+                UserDetailScreen(userId, navController, adminViewModel)
             }
         }
     }

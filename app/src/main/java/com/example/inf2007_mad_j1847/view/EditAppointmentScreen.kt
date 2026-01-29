@@ -145,7 +145,7 @@ fun EditAppointmentScreen(
                                 text = "Select Appointment Time",
                                 style = MaterialTheme.typography.labelMedium
                             )
-                            TimeSlotPicker(selectedTimeSlot = timeSlot) { timeSlot = it }
+                            //TimeSlotPicker(selectedTimeSlot = timeSlot) { timeSlot = it }
                         }
                     }
 

@@ -20,8 +20,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import java.util.Locale
 
+import com.google.firebase.Timestamp
+import java.text.SimpleDateFormat
+
 @Composable
-fun TimeSlotPicker(selectedTimeSlot: String, onTimeSelected: (String) -> Unit) {
+fun TimeSlotPicker(
+    selectedTimeSlot: String,
+    onTimeSelected: (String) -> Unit,
+    disabledSlots: Set<String> = emptySet() // ✅ NEW
+) {
     val morningSlots = listOf(
         "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00"
     )
@@ -30,9 +37,7 @@ fun TimeSlotPicker(selectedTimeSlot: String, onTimeSelected: (String) -> Unit) {
         "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00"
     )
 
-    Column(
-        modifier = Modifier.fillMaxWidth()
-    ) {
+    Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = "Morning Slots",
             style = MaterialTheme.typography.labelMedium,
@@ -47,6 +52,7 @@ fun TimeSlotPicker(selectedTimeSlot: String, onTimeSelected: (String) -> Unit) {
                 TimeSlotChip(
                     timeSlot = timeSlot,
                     isSelected = selectedTimeSlot == timeSlot,
+                    isDisabled = disabledSlots.contains(timeSlot), // ✅ NEW
                     onTimeSelected = onTimeSelected
                 )
             }
@@ -68,6 +74,7 @@ fun TimeSlotPicker(selectedTimeSlot: String, onTimeSelected: (String) -> Unit) {
                 TimeSlotChip(
                     timeSlot = timeSlot,
                     isSelected = selectedTimeSlot == timeSlot,
+                    isDisabled = disabledSlots.contains(timeSlot), // ✅ NEW
                     onTimeSelected = onTimeSelected
                 )
             }
@@ -80,23 +87,46 @@ fun TimeSlotPicker(selectedTimeSlot: String, onTimeSelected: (String) -> Unit) {
 fun TimeSlotChip(
     timeSlot: String,
     isSelected: Boolean,
+    isDisabled: Boolean,                 // ✅ NEW
     onTimeSelected: (String) -> Unit
 ) {
     val displayTime = convertToReadableTime(timeSlot)
 
+    val bgColor =
+        when {
+            isDisabled -> MaterialTheme.colorScheme.surfaceVariant
+            isSelected -> MaterialTheme.colorScheme.primary
+            else -> MaterialTheme.colorScheme.surface
+        }
+
+    val borderColor =
+        when {
+            isDisabled -> MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
+            isSelected -> MaterialTheme.colorScheme.primary
+            else -> MaterialTheme.colorScheme.outline
+        }
+
+    val textColor =
+        when {
+            isDisabled -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.35f)
+            isSelected -> Color.White
+            else -> MaterialTheme.colorScheme.onSurface
+        }
+
     Surface(
         shape = MaterialTheme.shapes.small,
-        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
-        border = BorderStroke(
-            width = 1.dp,
-            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
-        ),
-        modifier = Modifier.clickable { onTimeSelected(timeSlot) }
+        color = bgColor,
+        border = BorderStroke(width = 1.dp, color = borderColor),
+        modifier = Modifier
+            // ✅ Only clickable if NOT disabled
+            .clickable(enabled = !isDisabled) {
+                onTimeSelected(timeSlot)
+            }
     ) {
         Text(
             text = displayTime,
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-            color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface
+            color = textColor
         )
     }
 }
@@ -117,23 +147,20 @@ fun convertToReadableTime(time24h: String): String {
 }
 
 // helper function to combine date and time into a firebase Timestamp
-fun createTimestamp(dateString: String, timeString: String): com.google.firebase.Timestamp? {
-    if (dateString.isBlank() || timeString.isBlank()) {
-        return null // Prevents crashes by returning null
-    }
+fun createTimestamp(dateString: String, timeString: String): Timestamp? {
+    if (dateString.isBlank() || timeString.isBlank()) return null
 
     return try {
-        val dateTimeString = "$dateString $timeString:00"
-        val sdf = java.text.SimpleDateFormat("yyyy-M-d HH:mm:ss", Locale.getDefault())
-        val date = sdf.parse(dateTimeString)
-
-        if (date != null) {
-            com.google.firebase.Timestamp(date.time / 1000, 0)
-        } else {
-            null // Return null if parsing fails
+        // Expect exact padded format: 2026-01-30 and 08:30
+        val dateTimeString = "$dateString $timeString"
+        val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).apply {
+            isLenient = false
         }
+
+        val date = sdf.parse(dateTimeString) ?: return null
+        Timestamp(date) // ✅ simplest and correct
     } catch (e: Exception) {
         e.printStackTrace()
-        null // Return null if an exception occurs
+        null
     }
 }
