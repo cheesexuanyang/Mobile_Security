@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import com.example.inf2007_mad_j1847.model.Role
+import com.google.firebase.auth.GoogleAuthProvider
 
 class AuthViewModel(
     private val auth: FirebaseAuth = FirebaseAuth.getInstance(),
@@ -43,6 +44,46 @@ class AuthViewModel(
             }
             .addOnFailureListener { e ->
                 onError(e.message ?: "Login failed")
+            }
+    }
+
+    fun signInWithGoogle(idToken: String) {
+        _uiState.value = AuthUiState.Loading
+
+        val credential = GoogleAuthProvider.getCredential(idToken, null)
+
+        auth.signInWithCredential(credential)
+            .addOnSuccessListener { authResult ->
+                val user = authResult.user
+
+                if (user != null) {
+                    handleGoogleUserProvisioning(user.uid, user.email ?: "", user.displayName ?: "")
+                }
+            }
+            .addOnFailureListener { e ->
+                _uiState.value = AuthUiState.Error(e.message ?: "Google Sign-In failed")
+            }
+    }
+
+    private fun handleGoogleUserProvisioning(uid: String, email: String, name: String) {
+        db.collection("users").document(uid).get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    // User already exists, just fetch the profile
+                    fetchUser(uid)
+                } else {
+                    // New user from Google - provision as PATIENT by default
+                    val newUser = User(
+                        id = uid,
+                        name = name,
+                        email = email,
+                        username = email.substringBefore("@"), // Generate username from email
+                        role = Role.PATIENT
+                    )
+                    db.collection("users").document(uid).set(newUser)
+                        .addOnSuccessListener { fetchUser(uid) }
+                        .addOnFailureListener { _uiState.value = AuthUiState.Error("Failed to create profile") }
+                }
             }
     }
 
