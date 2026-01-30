@@ -44,6 +44,7 @@ android {
 
 dependencies {
     implementation("com.google.android.gms:play-services-maps:17.0.1")
+    implementation("com.google.android.gms:play-services-auth:21.3.0")
     implementation("com.google.android.libraries.places:places:2.5.0")
 
     implementation(libs.androidx.core.ktx)

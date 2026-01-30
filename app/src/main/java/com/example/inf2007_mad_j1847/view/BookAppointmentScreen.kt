@@ -134,7 +134,7 @@ fun BookAppointmentScreen(navController: NavController, viewModel: AppointmentVi
                 // Time slot picker - appears only after date is picked
                 if (date.isNotBlank()) {
                     Text(text = "Select Appointment Time", style = MaterialTheme.typography.labelMedium)
-                    TimeSlotPicker(selectedTimeSlot = timeSlot) { timeSlot = it }
+                    TimeSlotPicker(selectedTimeSlot = timeSlot, onTimeSelected = { timeSlot = it })
                     Spacer(modifier = Modifier.height(16.dp))
                 }
 
@@ -306,6 +306,3 @@ fun showCustomToast(context: Context, message: String) {
         message.startsWith("❌") || message.startsWith("⚠") -> SoundUtils.playErrorSound(context)  // Error & Warning
     }
 }
-
-
-
