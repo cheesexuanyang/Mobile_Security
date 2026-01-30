@@ -14,6 +14,7 @@ import com.example.inf2007_mad_j1847.view.admin.*
 import com.example.inf2007_mad_j1847.view.auth.*
 import com.example.inf2007_mad_j1847.view.doctor.*
 import com.example.inf2007_mad_j1847.view.patient.*
+import com.example.inf2007_mad_j1847.view.BookAppointmentScreen
 import com.example.inf2007_mad_j1847.viewmodel.AdminViewModel
 import com.example.inf2007_mad_j1847.viewmodel.AuthViewModel
 
