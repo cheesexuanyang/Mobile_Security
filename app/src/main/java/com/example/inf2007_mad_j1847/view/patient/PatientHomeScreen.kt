@@ -10,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.inf2007_mad_j1847.view.HomeScreenButton
 import com.example.inf2007_mad_j1847.viewmodel.AuthViewModel
 
 @Composable
@@ -75,38 +76,33 @@ fun PatientHomeScreen(
 
         Spacer(modifier = Modifier.height(48.dp))
 
-        // Big, squarish central buttons (vertical) like DoctorHomeScreen
-        Button(
-            onClick = { navController.navigate("booking_graph") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(90.dp),
-            shape = MaterialTheme.shapes.medium
+        // --- NEW BUTTONS IN A ROW, STYLED LIKE HomeScreen ---
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly // This spaces the buttons out evenly
         ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Icon(imageVector = Icons.Default.DateRange, contentDescription = null)
-                Spacer(modifier = Modifier.height(6.dp))
-                Text("Book Appointment")
-            }
+            // 1. Book Appointment Button (Styled)
+            HomeScreenButton(
+                title = "Book Appointment",
+                icon = Icons.Default.DateRange, // Using a suitable icon
+                onClick = {
+                    navController.navigate("booking_graph")
+                }
+            )
+
+            // 2. Message Button (Styled)
+            HomeScreenButton(
+                title = "Messages",
+                icon = Icons.Default.Email, // Using a suitable icon
+                onClick = {
+                    // TODO: Navigate to a future messaging screen
+                    navController.navigate("conversation_list_screen")
+                }
+            )
         }
+        // ---------------------------------------------------
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            onClick = { navController.navigate("patient_messaging") }, // change route if needed
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(90.dp),
-            shape = MaterialTheme.shapes.medium
-        ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Icon(imageVector = Icons.Default.Email, contentDescription = null)
-                Spacer(modifier = Modifier.height(6.dp))
-                Text("Messages")
-            }
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.weight(1f)) // Pushes the logout button to the bottom
 
         OutlinedButton(
             onClick = {

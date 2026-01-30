@@ -10,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.inf2007_mad_j1847.view.HomeScreenButton
 import com.example.inf2007_mad_j1847.viewmodel.AuthViewModel
 
 @Composable
@@ -20,23 +21,22 @@ fun DoctorHomeScreen(
     val user by authViewModel.currentUser.collectAsState()
 
     Column(
-        modifier = Modifier.Companion
+        modifier = Modifier
             .fillMaxSize()
             .padding(24.dp),
-        horizontalAlignment = Alignment.Companion.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text("Doctor Dashboard", style = MaterialTheme.typography.headlineLarge)
 
-        Spacer(modifier = Modifier.Companion.height(32.dp))
+        Spacer(modifier = Modifier.height(32.dp))
 
         // Doctor welcome (similar style to Admin)
         user?.let {
             Card(
-                modifier = Modifier.Companion.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
-                Column(modifier = Modifier.Companion.padding(20.dp)) {
+                Column(modifier = Modifier.padding(20.dp)) {
                     Text(
                         text = "Welcome Back,",
                         style = MaterialTheme.typography.labelLarge,
@@ -51,10 +51,10 @@ fun DoctorHomeScreen(
         } ?: run {
             // Fallback for debug bypass (no logged-in user yet)
             Card(
-                modifier = Modifier.Companion.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
-                Column(modifier = Modifier.Companion.padding(20.dp)) {
+                Column(modifier = Modifier.padding(20.dp)) {
                     Text(
                         text = "Welcome Back,",
                         style = MaterialTheme.typography.labelLarge,
@@ -68,40 +68,28 @@ fun DoctorHomeScreen(
             }
         }
 
-        Spacer(modifier = Modifier.Companion.height(48.dp))
+        Spacer(modifier = Modifier.height(48.dp))
 
-        // Big, squarish central buttons (vertical)
-        Button(
-            onClick = { navController.navigate("doctor_appointments") },
-            modifier = Modifier.Companion
-                .fillMaxWidth()
-                .height(90.dp),
-            shape = MaterialTheme.shapes.medium
+        // Buttons in a row
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            Column(horizontalAlignment = Alignment.Companion.CenterHorizontally) {
-                Icon(imageVector = Icons.Default.DateRange, contentDescription = null)
-                Spacer(modifier = Modifier.Companion.height(6.dp))
-                Text("Appointments")
-            }
+            HomeScreenButton(
+                title = "Appointments",
+                icon = Icons.Default.DateRange,
+                onClick = { navController.navigate("doctor_appointments") }
+            )
+
+            HomeScreenButton(
+                title = "Messages",
+                icon = Icons.Default.Email,
+                onClick = { navController.navigate("conversation_list_screen") }
+            )
         }
 
-        Spacer(modifier = Modifier.Companion.height(16.dp))
 
-        Button(
-            onClick = { navController.navigate("doctor_messaging") },
-            modifier = Modifier.Companion
-                .fillMaxWidth()
-                .height(90.dp),
-            shape = MaterialTheme.shapes.medium
-        ) {
-            Column(horizontalAlignment = Alignment.Companion.CenterHorizontally) {
-                Icon(imageVector = Icons.Default.Email, contentDescription = null)
-                Spacer(modifier = Modifier.Companion.height(6.dp))
-                Text("Messages")
-            }
-        }
-
-        Spacer(modifier = Modifier.Companion.height(24.dp))
+        Spacer(modifier = Modifier.weight(1f))
 
         OutlinedButton(
             onClick = {
@@ -110,7 +98,7 @@ fun DoctorHomeScreen(
                     popUpTo(0) { inclusive = true }
                 }
             },
-            modifier = Modifier.Companion.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             shape = MaterialTheme.shapes.medium,
             colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
         ) {
