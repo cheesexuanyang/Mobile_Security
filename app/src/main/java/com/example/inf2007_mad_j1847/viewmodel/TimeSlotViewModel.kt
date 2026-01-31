@@ -162,7 +162,7 @@ class TimeSlotViewModel : ViewModel() {
 
                     val appointment = AppointmentSlot(
                         doctorUid = doctorId,
-                        PatientUid = patientUid,
+                        patientUid = patientUid,
                         date = date,
                         timeSlot = timeSlot,
                         status = "booked",

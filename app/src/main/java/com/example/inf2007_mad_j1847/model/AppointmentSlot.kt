@@ -4,9 +4,10 @@ import com.google.firebase.Timestamp
 
 data class AppointmentSlot(
     val doctorUid: String = "",
-    val PatientUid: String = "",
+    val patientUid: String = "",
     val date: String = "",        // yyyy-MM-dd
     val timeSlot: String = "",    // HH:mm
+    val remark: String = "",
     val status: String = "booked",
     val createdAt: Timestamp? = null
 
