@@ -21,7 +21,11 @@ import androidx.compose.ui.unit.dp
 import java.util.Locale
 
 @Composable
-fun TimeSlotPicker(selectedTimeSlot: String, onTimeSelected: (String) -> Unit) {
+fun TimeSlotPicker(
+    selectedTimeSlot: String, 
+    onTimeSelected: (String) -> Unit,
+    disabledSlots: List<String> = emptyList()
+) {
     val morningSlots = listOf(
         "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00"
     )
@@ -47,7 +51,8 @@ fun TimeSlotPicker(selectedTimeSlot: String, onTimeSelected: (String) -> Unit) {
                 TimeSlotChip(
                     timeSlot = timeSlot,
                     isSelected = selectedTimeSlot == timeSlot,
-                    onTimeSelected = onTimeSelected
+                    onTimeSelected = onTimeSelected,
+                    isEnabled = !disabledSlots.contains(timeSlot)
                 )
             }
         }
@@ -68,7 +73,8 @@ fun TimeSlotPicker(selectedTimeSlot: String, onTimeSelected: (String) -> Unit) {
                 TimeSlotChip(
                     timeSlot = timeSlot,
                     isSelected = selectedTimeSlot == timeSlot,
-                    onTimeSelected = onTimeSelected
+                    onTimeSelected = onTimeSelected,
+                    isEnabled = !disabledSlots.contains(timeSlot)
                 )
             }
         }
@@ -80,23 +86,36 @@ fun TimeSlotPicker(selectedTimeSlot: String, onTimeSelected: (String) -> Unit) {
 fun TimeSlotChip(
     timeSlot: String,
     isSelected: Boolean,
-    onTimeSelected: (String) -> Unit
+    onTimeSelected: (String) -> Unit,
+    isEnabled: Boolean = true
 ) {
     val displayTime = convertToReadableTime(timeSlot)
 
     Surface(
         shape = MaterialTheme.shapes.small,
-        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
+        color = when {
+            !isEnabled -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
+            isSelected -> MaterialTheme.colorScheme.primary
+            else -> MaterialTheme.colorScheme.surface
+        },
         border = BorderStroke(
             width = 1.dp,
-            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
+            color = when {
+                !isEnabled -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
+                isSelected -> MaterialTheme.colorScheme.primary
+                else -> MaterialTheme.colorScheme.outline
+            }
         ),
-        modifier = Modifier.clickable { onTimeSelected(timeSlot) }
+        modifier = Modifier.clickable(enabled = isEnabled) { onTimeSelected(timeSlot) }
     ) {
         Text(
             text = displayTime,
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-            color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface
+            color = when {
+                !isEnabled -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                isSelected -> Color.White
+                else -> MaterialTheme.colorScheme.onSurface
+            }
         )
     }
 }

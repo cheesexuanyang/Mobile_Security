@@ -79,11 +79,11 @@ fun EditAppointmentScreen(
             hospital = it.location
             service = it.type
             doctor = it.doctor
-            date = it.date?.toDate()?.let { date ->
-                java.text.SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(date)
+            date = it.date?.toDate()?.let {
+                java.text.SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(it)
             } ?: ""
-            timeSlot = it.date?.toDate()?.let { date ->
-                java.text.SimpleDateFormat("HH:mm", Locale.getDefault()).format(date)
+            timeSlot = it.date?.toDate()?.let {
+                java.text.SimpleDateFormat("HH:mm", Locale.getDefault()).format(it)
             } ?: ""
         }
     }
@@ -145,7 +145,7 @@ fun EditAppointmentScreen(
                                 text = "Select Appointment Time",
                                 style = MaterialTheme.typography.labelMedium
                             )
-                            TimeSlotPicker(selectedTimeSlot = timeSlot) { timeSlot = it }
+                            TimeSlotPicker(selectedTimeSlot = timeSlot, onTimeSelected = { timeSlot = it })
                         }
                     }
 
@@ -214,4 +214,3 @@ fun EditAppointmentScreen(
         }
     }
 }
-

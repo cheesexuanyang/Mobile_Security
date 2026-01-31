@@ -60,7 +60,14 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
         }
 
         // --- Doctor Graph ---
-        composable("doctor_home") { DoctorHomeScreen(navController, authViewModel) }
+        navigation(startDestination = "doctor_home", route = "doctor_graph") {
+            composable("doctor_home") { DoctorHomeScreen(navController, authViewModel) }
+            composable("doctor_appointments") { AppointmentScreen(navController) }
+            composable("appointment_details/{appointmentId}") { backStackEntry ->
+                val appointmentId = backStackEntry.arguments?.getString("appointmentId") ?: ""
+                AppointmentDetailsScreen(navController, appointmentId)
+            }
+        }
 
         // --- Admin Graph ---
         navigation(startDestination = "admin_home", route = "admin_graph") {
@@ -109,10 +116,6 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
         composable("book_appointment_screen") { BookAppointmentScreen(navController) }
         composable("appointments") { AppointmentScreen(navController) }
 
-        composable("appointment_details/{appointmentId}") { backStackEntry ->
-            val appointmentId = backStackEntry.arguments?.getString("appointmentId") ?: ""
-            AppointmentDetailsScreen(navController, appointmentId)
-        }
         composable("profile_screen") { com.example.inf2007_mad_j1847.screens.ProfileScreen(navController) }
         composable("chatbot_screen") { ChatbotScreen(navController) }
 
