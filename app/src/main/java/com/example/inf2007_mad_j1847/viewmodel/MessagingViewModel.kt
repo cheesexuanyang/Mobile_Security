@@ -1,24 +1,30 @@
 package com.example.inf2007_mad_j1847.viewmodel
 
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.inf2007_mad_j1847.model.Role
 import com.example.inf2007_mad_j1847.model.User
+import com.example.inf2007_mad_j1847.model.Message
+import com.example.inf2007_mad_j1847.model.MessageType
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import com.example.inf2007_mad_j1847.model.Message
-import com.google.firebase.Timestamp
-import com.google.firebase.firestore.Query
 
 class MessagingViewModel : ViewModel() {
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
+
+    // ✅ Firebase Storage for media uploads
+    private val storage = FirebaseStorage.getInstance()
 
     // List of available contacts (People I can message)
     private val _contacts = MutableStateFlow<List<User>>(emptyList())
@@ -57,21 +63,22 @@ class MessagingViewModel : ViewModel() {
                 }
 
                 if (snapshot != null) {
-                    val msgs = snapshot.documents.map { doc ->
-                        doc.toObject(Message::class.java)!!.copy(id = doc.id)
+                    val msgs = snapshot.documents.mapNotNull { doc ->
+                        doc.toObject(Message::class.java)?.copy(id = doc.id)
                     }
                     _messages.value = msgs
                 }
             }
     }
 
-    // 3. Send Message
+    // 3. Send TEXT Message
     fun sendMessage(recipientId: String, text: String) {
         val currentUserId = auth.currentUser?.uid ?: return
         val chatId = getChatId(currentUserId, recipientId)
 
         val newMessage = Message(
             senderId = currentUserId,
+            type = MessageType.TEXT.name,
             text = text,
             timestamp = Timestamp.now()
         )
@@ -88,6 +95,65 @@ class MessagingViewModel : ViewModel() {
             "timestamp" to Timestamp.now()
         )
         db.collection("chats").document(chatId).set(chatMeta)
+    }
+
+    // ✅ 4. Send MEDIA Message (uploads to Firebase Storage, stores URL in Firestore)
+    fun sendMediaMessage(
+        recipientId: String,
+        fileUri: Uri,
+        mimeType: String?,
+        fileName: String?
+    ) {
+        val currentUserId = auth.currentUser?.uid ?: return
+        val chatId = getChatId(currentUserId, recipientId)
+
+        viewModelScope.launch {
+            try {
+                val safeName = (fileName ?: "file")
+                    .replace("/", "_")
+                    .replace("\\", "_")
+
+                val objectName = "${System.currentTimeMillis()}_$safeName"
+
+                val storageRef = storage.reference
+                    .child("chat_media")
+                    .child(chatId)
+                    .child(objectName)
+
+                // 1) Upload
+                storageRef.putFile(fileUri).await()
+
+                // 2) Download URL
+                val downloadUrl = storageRef.downloadUrl.await().toString()
+
+                // 3) Save Firestore message
+                val mediaMessage = Message(
+                    senderId = currentUserId,
+                    type = MessageType.MEDIA.name,
+                    text = "",
+                    mediaUrl = downloadUrl,
+                    fileName = fileName,
+                    mimeType = mimeType,
+                    timestamp = Timestamp.now()
+                )
+
+                db.collection("chats").document(chatId)
+                    .collection("messages")
+                    .add(mediaMessage)
+                    .await()
+
+                // 4) Update chat preview
+                val chatMeta = mapOf(
+                    "participants" to listOf(currentUserId, recipientId),
+                    "lastMessage" to "📎 Media",
+                    "timestamp" to Timestamp.now()
+                )
+                db.collection("chats").document(chatId).set(chatMeta).await()
+
+            } catch (e: Exception) {
+                Log.e("MessagingVM", "sendMediaMessage failed", e)
+            }
+        }
     }
 
     init {
@@ -121,7 +187,7 @@ class MessagingViewModel : ViewModel() {
 
                 val fetchedContacts = result.documents.mapNotNull { doc ->
                     val user = doc.toObject(User::class.java)
-                    user?.copy(id = doc.id) // <--- This extracts the ID "83Klqc..." and puts it in the object
+                    user?.copy(id = doc.id)
                 }
                 _contacts.value = fetchedContacts
 

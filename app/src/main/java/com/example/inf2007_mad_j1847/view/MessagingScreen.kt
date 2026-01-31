@@ -1,9 +1,11 @@
 package com.example.inf2007_mad_j1847.view
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
+import android.provider.OpenableColumns
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -38,6 +40,9 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
+import com.example.inf2007_mad_j1847.model.Message
+import com.example.inf2007_mad_j1847.model.MessageType
 import com.example.inf2007_mad_j1847.viewmodel.MessagingViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
@@ -71,15 +76,31 @@ fun MessagingScreen(
     var userInput by remember { mutableStateOf("") }
     var showAttachmentOptions by remember { mutableStateOf(false) }
 
-    // Image picker launcher
-    val imagePickerLauncher = rememberLauncherForActivityResult(
+    // ✅ Media picker launcher (GENERAL FILES)
+    val mediaPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
-        uri?.let {
-            // TODO: Handle image upload to Firebase Storage and send as message
-            viewModel.sendMessage(recipientId = chatId, text = "📷 Image sent")
+        uri?.let { selectedUri ->
+            val mimeType = context.contentResolver.getType(selectedUri)
+
+            val fileName = run {
+                val cursor = context.contentResolver.query(selectedUri, null, null, null, null)
+                cursor?.use {
+                    val nameIndex = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                    if (it.moveToFirst() && nameIndex >= 0) it.getString(nameIndex) else null
+                }
+            }
+
+            // ✅ Upload to Firebase Storage and send as MEDIA message
+            viewModel.sendMediaMessage(
+                recipientId = chatId,
+                fileUri = selectedUri,
+                mimeType = mimeType,
+                fileName = fileName
+            )
+
             scope.launch {
-                snackbarHostState.showSnackbar("Image selected")
+                snackbarHostState.showSnackbar("Media selected")
             }
         }
     }
@@ -89,12 +110,11 @@ fun MessagingScreen(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
-            // Permission granted, launch image picker
-            imagePickerLauncher.launch("image/*")
+            // Permission granted, launch picker
+            mediaPickerLauncher.launch("*/*")
         } else {
-            // Permission denied
             scope.launch {
-                snackbarHostState.showSnackbar("Storage permission is required to access photos")
+                snackbarHostState.showSnackbar("Storage permission is required to access files")
             }
         }
     }
@@ -104,17 +124,16 @@ fun MessagingScreen(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
-            // Permission granted, launch image picker
-            imagePickerLauncher.launch("image/*")
+            // Permission granted, launch picker
+            mediaPickerLauncher.launch("*/*")
         } else {
-            // Permission denied
             scope.launch {
-                snackbarHostState.showSnackbar("Media permission is required to access photos")
+                snackbarHostState.showSnackbar("Media permission is required to access files")
             }
         }
     }
 
-    // Location permission launcher
+    // Location permission launcher (kept as your dummy behavior)
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
@@ -122,55 +141,48 @@ fun MessagingScreen(
         val coarseLocationGranted = permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
 
         if (fineLocationGranted || coarseLocationGranted) {
-            // Permission granted, get location
+            // Dummy location message (same as before)
             viewModel.sendMessage(recipientId = chatId, text = "📍 Location shared")
             scope.launch {
                 snackbarHostState.showSnackbar("Location permission granted")
             }
         } else {
-            // Permission denied
             scope.launch {
                 snackbarHostState.showSnackbar("Location permission is required to share location")
             }
         }
     }
 
-    // Function to check and request photo permissions
-    fun requestPhotoPermission() {
+    // ✅ Function to check and request media permissions (kept in your original style)
+    fun requestMediaPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            // Android 13+ (API 33+)
             when {
                 ContextCompat.checkSelfPermission(
                     context,
                     Manifest.permission.READ_MEDIA_IMAGES
                 ) == PackageManager.PERMISSION_GRANTED -> {
-                    // Permission already granted
-                    imagePickerLauncher.launch("image/*")
+                    mediaPickerLauncher.launch("*/*")
                 }
                 else -> {
-                    // Request permission
                     mediaPermissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
                 }
             }
         } else {
-            // Android 12 and below
             when {
                 ContextCompat.checkSelfPermission(
                     context,
                     Manifest.permission.READ_EXTERNAL_STORAGE
                 ) == PackageManager.PERMISSION_GRANTED -> {
-                    // Permission already granted
-                    imagePickerLauncher.launch("image/*")
+                    mediaPickerLauncher.launch("*/*")
                 }
                 else -> {
-                    // Request permission
                     storagePermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
                 }
             }
         }
     }
 
-    // Function to check and request location permissions
+    // Function to check and request location permissions (unchanged)
     fun requestLocationPermission() {
         val hasFineLocation = ContextCompat.checkSelfPermission(
             context,
@@ -184,14 +196,12 @@ fun MessagingScreen(
 
         when {
             hasFineLocation || hasCoarseLocation -> {
-                // Permission already granted
                 viewModel.sendMessage(recipientId = chatId, text = "📍 Location shared")
                 scope.launch {
                     snackbarHostState.showSnackbar("Location shared")
                 }
             }
             else -> {
-                // Request permissions
                 locationPermissionLauncher.launch(
                     arrayOf(
                         Manifest.permission.ACCESS_FINE_LOCATION,
@@ -213,9 +223,7 @@ fun MessagingScreen(
                 }
             )
         },
-        snackbarHost = {
-            SnackbarHost(hostState = snackbarHostState)
-        }
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -233,7 +241,7 @@ fun MessagingScreen(
             ) {
                 items(messages) { message ->
                     MessageBubble(
-                        text = message.text,
+                        message = message,
                         isMe = message.senderId == currentUserId
                     )
                 }
@@ -333,7 +341,7 @@ fun MessagingScreen(
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
 
-                // Location Option
+                // Location Option (unchanged dummy behavior)
                 AttachmentOption(
                     icon = Icons.Default.LocationOn,
                     title = "Location",
@@ -346,14 +354,14 @@ fun MessagingScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Gallery/Photo Option
+                // Gallery/Media Option (now general media)
                 AttachmentOption(
                     icon = Icons.Default.Person,
-                    title = "Gallery",
+                    title = "Gallery / Files",
                     iconBackgroundColor = Color(0xFF9C27B0),
                     onClick = {
                         showAttachmentOptions = false
-                        requestPhotoPermission()
+                        requestMediaPermission()
                     }
                 )
 
@@ -404,12 +412,15 @@ fun AttachmentOption(
     }
 }
 
-// Reusing the bubble UI logic
+// ✅ Updated bubble supports TEXT + MEDIA
 @Composable
-fun MessageBubble(text: String, isMe: Boolean) {
+fun MessageBubble(message: Message, isMe: Boolean) {
     val backgroundColor = if (isMe) MaterialTheme.colorScheme.primary else Color.LightGray
     val textColor = if (isMe) Color.White else Color.Black
     val alignment = if (isMe) Arrangement.End else Arrangement.Start
+    val context = LocalContext.current
+
+    val isMedia = message.type == MessageType.MEDIA.name && message.mediaUrl != null
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -421,12 +432,53 @@ fun MessageBubble(text: String, isMe: Boolean) {
                 .padding(12.dp)
                 .widthIn(min = 50.dp, max = 280.dp)
         ) {
-            Text(
-                text = text,
-                color = textColor,
-                fontSize = 16.sp,
-                textAlign = TextAlign.Start
-            )
+            if (isMedia) {
+                val url = message.mediaUrl!!
+                val mime = message.mimeType ?: ""
+
+                if (mime.startsWith("image/")) {
+                    AsyncImage(
+                        model = url,
+                        contentDescription = message.fileName ?: "Image",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 120.dp, max = 220.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = message.fileName ?: "Image",
+                        color = textColor,
+                        fontSize = 12.sp
+                    )
+                } else {
+                    Column(
+                        modifier = Modifier.clickable {
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                            context.startActivity(intent)
+                        }
+                    ) {
+                        Text(
+                            text = "📎 ${message.fileName ?: "File"}",
+                            color = textColor,
+                            fontSize = 16.sp,
+                            textAlign = TextAlign.Start
+                        )
+                        Text(
+                            text = "Tap to open",
+                            color = textColor,
+                            fontSize = 12.sp
+                        )
+                    }
+                }
+            } else {
+                Text(
+                    text = message.text,
+                    color = textColor,
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.Start
+                )
+            }
         }
     }
     Spacer(modifier = Modifier.height(8.dp))

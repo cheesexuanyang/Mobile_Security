@@ -85,6 +85,10 @@ dependencies {
 
     implementation("com.google.ai.client.generativeai:generativeai:0.6.0")
 
+    // Firebase Storage
+    implementation("com.google.firebase:firebase-storage")
+
+
     // qr code scanner libraries
     implementation("androidx.camera:camera-core:1.4.1")
     implementation("androidx.camera:camera-camera2:1.4.1")
