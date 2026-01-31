@@ -16,6 +16,10 @@ class PatientBookingViewModel(
     private val repo: AppointmentsRepository = AppointmentsRepository()
 ) : ViewModel() {
 
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading = _isLoading.asStateFlow()
+
     /* ===================== DOCTORS ===================== */
 
     private val _doctors = MutableStateFlow<List<User>>(emptyList())
@@ -23,8 +27,39 @@ class PatientBookingViewModel(
 
     fun loadDoctors() {
         viewModelScope.launch {
-            _doctors.value = repo.fetchDoctors()
+            _isLoading.value = true
+            try {
+                _doctors.value = repo.fetchDoctors()
+            } finally {
+                _isLoading.value = false
+            }
         }
+    }
+
+    // Full doctor object (for UI display only)
+    private val _selectedDoctor = MutableStateFlow<User?>(null)
+    val selectedDoctor = _selectedDoctor.asStateFlow()
+
+    // Doctor ID (used for booking & queries)
+    private val _selectedDoctorId = MutableStateFlow("")
+    val selectedDoctorId = _selectedDoctorId.asStateFlow()
+
+    // Optional snapshot for easy display
+    private val _selectedDoctorName = MutableStateFlow("")
+    val selectedDoctorName = _selectedDoctorName.asStateFlow()
+
+
+
+
+    fun setSelectedDoctor(doctor: User) {
+        _selectedDoctor.value = doctor
+        _selectedDoctorId.value = doctor.id
+        _selectedDoctorName.value = doctor.name ?: ""
+
+        // Reset downstream state when doctor changes
+        _selectedTimeSlot.value = ""
+        _bookedSlots.value = emptySet()
+        _error.value = null
     }
 
     /* ===================== DATE & TIME ===================== */
@@ -34,6 +69,9 @@ class PatientBookingViewModel(
 
     private val _selectedTimeSlot = MutableStateFlow("")
     val selectedTimeSlot: StateFlow<String> = _selectedTimeSlot.asStateFlow()
+
+    private val _dateError = MutableStateFlow<String?>(null)
+    val dateError: StateFlow<String?> = _dateError.asStateFlow()
 
     private val _bookedSlots = MutableStateFlow<Set<String>>(emptySet())
     val bookedSlots: StateFlow<Set<String>> = _bookedSlots.asStateFlow()

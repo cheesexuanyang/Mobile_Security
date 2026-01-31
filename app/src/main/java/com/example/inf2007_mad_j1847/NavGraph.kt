@@ -1,6 +1,7 @@
 package com.example.inf2007_mad_j1847
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -9,6 +10,7 @@ import androidx.navigation.navArgument
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.inf2007_mad_j1847.ui.patient.booking.SelectDoctorScreen
 import com.example.inf2007_mad_j1847.view.*
 import com.example.inf2007_mad_j1847.view.admin.*
 import com.example.inf2007_mad_j1847.view.auth.*
@@ -16,6 +18,7 @@ import com.example.inf2007_mad_j1847.view.doctor.*
 import com.example.inf2007_mad_j1847.view.patient.*
 import com.example.inf2007_mad_j1847.viewmodel.AdminViewModel
 import com.example.inf2007_mad_j1847.viewmodel.AuthViewModel
+import com.example.inf2007_mad_j1847.viewmodel.PatientBookingViewModel
 
 
 @Composable
@@ -45,16 +48,30 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
                 startDestination = "select_doctor",
                 route = "booking_graph"
             ) {
-                composable("select_doctor") {
-                    SelectDoctorScreen(navController = navController)
+                composable("select_doctor"){ backStackEntry ->
+                    val parentEntry = remember(backStackEntry) {
+                        navController.getBackStackEntry("booking_graph")
+                    }
+                    val vm: PatientBookingViewModel =
+                        androidx.lifecycle.viewmodel.compose.viewModel(parentEntry)
+
+                    SelectDoctorScreen(
+                        navController = navController,
+                        vm = vm
+                    )
                 }
 
-                composable(
-                    route = "select_time_slot/{doctorId}",
-                    arguments = listOf(navArgument("doctorId") { type = NavType.StringType })
-                ) { backStackEntry ->
-                    val doctorId = backStackEntry.arguments?.getString("doctorId").orEmpty()
-                    SelectTimeSlotScreen(navController = navController, doctorId = doctorId)
+                composable("select_time_slot") { backStackEntry ->
+                    val parentEntry = remember(backStackEntry) {
+                        navController.getBackStackEntry("booking_graph")
+                    }
+                    val vm: PatientBookingViewModel =
+                        androidx.lifecycle.viewmodel.compose.viewModel(parentEntry)
+
+                    SelectTimeSlotScreen(
+                        navController = navController,
+                        vm = vm
+                    )
                 }
             }
         }
