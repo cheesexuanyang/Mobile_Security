@@ -54,29 +54,34 @@ class AppointmentsRepository(
         date: String,
         timeSlot: String
     ) {
-        val safeSlot = timeSlot.replace(":", "")
-        val docId = "${doctorId}_${date}_$safeSlot"
-        val docRef = db.collection("appointments").document(docId)
+        //  Query OUTSIDE transaction
+        val conflictSnap = db.collection("appointments")
+            .whereEqualTo("doctorUid", doctorId)
+            .whereEqualTo("date", date)
+            .whereEqualTo("timeSlot", timeSlot)
+            .whereEqualTo("status", "booked")
+            .get()
+            .await()
 
+        if (!conflictSnap.isEmpty) {
+            throw IllegalStateException("Slot already booked")
+        }
+
+        //  Write INSIDE transaction
         db.runTransaction { txn ->
-            val snap = txn.get(docRef)
-            if (snap.exists()) {
-                val status = snap.getString("status") ?: "booked"
-                if (status.lowercase() != "cancelled") {
-                    throw IllegalStateException("Slot already booked")
-                }
-            }
-
+            val docRef = db.collection("appointments").document()
             val appointment = AppointmentSlot(
+                appointmentId = docRef.id,
                 doctorUid = doctorId,
-                PatientUid = patientUid,
+                patientUid = patientUid,
                 date = date,
                 timeSlot = timeSlot,
                 status = "booked",
-                createdAt = Timestamp.now()
+                createdAt = Timestamp.now(),
+                updatedAt = Timestamp.now()
             )
-
             txn.set(docRef, appointment)
         }.await()
     }
+
 }
