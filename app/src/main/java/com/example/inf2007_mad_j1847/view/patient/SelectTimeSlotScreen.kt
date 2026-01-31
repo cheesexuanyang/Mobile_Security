@@ -9,35 +9,37 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.inf2007_mad_j1847.components.TimeSlotPicker
-import com.example.inf2007_mad_j1847.viewmodel.TimeSlotViewModel
 import com.google.firebase.auth.FirebaseAuth
 import java.util.Calendar
 import java.util.Locale
 import android.widget.Toast
+import com.example.inf2007_mad_j1847.viewmodel.PatientBookingViewModel
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelectTimeSlotScreen(
     navController: NavController,
-    doctorId: String,
-    viewModel: TimeSlotViewModel = viewModel()
+    vm: PatientBookingViewModel
 ) {
     val context = LocalContext.current
 
-    val selectedDate by viewModel.selectedDate.collectAsState()
-    val dateError by viewModel.dateError.collectAsState()
-    val selectedTimeSlot by viewModel.selectedTimeSlot.collectAsState()
-    val bookedSlots by viewModel.bookedSlots.collectAsState()
-    val loading by viewModel.loading.collectAsState()
-    val error by viewModel.error.collectAsState()
+    val selectedDate by vm.selectedDate.collectAsState()
+    val dateError by vm.dateError.collectAsState()
+    val selectedTimeSlot by vm.selectedTimeSlot.collectAsState()
+    val bookedSlots by vm.bookedSlots.collectAsState()
+    val isloading by vm.isLoading.collectAsState()
+    val error by vm.error.collectAsState()
+
+    val doctor by vm.selectedDoctor.collectAsState()
+    val doctorId by vm.selectedDoctorId.collectAsState()
 
     // load booked slots whenever doctorId + date changes and date is valid
     LaunchedEffect(doctorId, selectedDate, dateError) {
         if (doctorId.isNotBlank() && selectedDate.isNotBlank() && dateError == null) {
-            viewModel.loadBookedSlots(doctorId)
+            vm.loadBookedSlots(doctorId)
         }
     }
 
@@ -55,7 +57,7 @@ fun SelectTimeSlotScreen(
             context,
             { _, y, m, d ->
                 val formatted = String.format(Locale.US, "%04d-%02d-%02d", y, m + 1, d)
-                viewModel.setDate(formatted) // ✅ update via VM (also clears time)
+                vm.setDate(formatted) // ✅ update via VM (also clears time)
             },
             year, month, day
         ).apply {
@@ -68,7 +70,7 @@ fun SelectTimeSlotScreen(
                 dateError == null &&
                 selectedTimeSlot.isNotBlank() &&
                 !bookedSlots.contains(selectedTimeSlot) &&
-                !loading
+                !isloading
 
     Scaffold(
         topBar = {
@@ -88,7 +90,8 @@ fun SelectTimeSlotScreen(
                 .padding(innerPadding)
                 .padding(16.dp)
         ) {
-            Text("Doctor ID: $doctorId", style = MaterialTheme.typography.bodySmall)
+            Text(text = "Doctor: ${doctor?.name ?: ""}", style = MaterialTheme.typography.bodySmall)
+
 
             Spacer(Modifier.height(12.dp))
 
@@ -110,7 +113,7 @@ fun SelectTimeSlotScreen(
 
             Spacer(Modifier.height(12.dp))
 
-            if (loading) {
+            if (isloading) {
                 Row {
                     CircularProgressIndicator(modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(10.dp))
@@ -130,7 +133,7 @@ fun SelectTimeSlotScreen(
 
                 TimeSlotPicker(
                     selectedTimeSlot = selectedTimeSlot,
-                    onTimeSelected = { viewModel.setTimeSlot(it) },
+                    onTimeSelected = { vm.setTimeSlot(it) },
                     disabledSlots = bookedSlots.toList()
                 )
 
@@ -153,7 +156,7 @@ fun SelectTimeSlotScreen(
                 enabled = canConfirm,
                 onClick = {
                     // next step: write booking doc (doctorId + selectedDate + selectedTimeSlot)
-                    viewModel.confirmBooking(
+                    vm.confirmBooking(
                         doctorId = doctorId,
                         patientUid = FirebaseAuth.getInstance().currentUser?.uid.orEmpty(),
                         onSuccess = { Toast.makeText(
