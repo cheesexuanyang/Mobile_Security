@@ -79,7 +79,7 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
         // --- Doctor Graph ---
         navigation(startDestination = "doctor_home", route = "doctor_graph") {
             composable("doctor_home") { DoctorHomeScreen(navController, authViewModel) }
-            composable("doctor_appointments") { AppointmentScreen(navController) }
+            composable("doctor_appointments") { DoctorAppointmentsScreen(navController) }
             composable("appointment_details/{appointmentId}") { backStackEntry ->
                 val appointmentId = backStackEntry.arguments?.getString("appointmentId") ?: ""
                 AppointmentDetailsScreen(navController, appointmentId)
