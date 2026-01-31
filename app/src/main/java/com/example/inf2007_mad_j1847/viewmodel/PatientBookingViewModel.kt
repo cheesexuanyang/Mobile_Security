@@ -82,8 +82,11 @@ class PatientBookingViewModel(
     fun setDate(date: String) {
         _selectedDate.value = date
         _selectedTimeSlot.value = ""
-        _error.value = validateDateTomorrowOnwards(date)
+
+        _dateError.value = validateDateTomorrowOnwards(date) // ✅ correct
+        _error.value = null // optional: clear general error
     }
+
 
     fun setTimeSlot(slot: String) {
         _selectedTimeSlot.value = slot
@@ -137,16 +140,19 @@ class PatientBookingViewModel(
     private fun validateDateTomorrowOnwards(dateStr: String): String? {
         if (dateStr.isBlank()) return "Please select a date"
 
-        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.US).apply {
-            isLenient = false
-        }
+        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.US).apply { isLenient = false }
         val picked = try { sdf.parse(dateStr) } catch (_: Exception) { null }
-            ?: return "Invalid date format"
+            ?: return "Invalid date format (yyyy-MM-dd)"
 
         val min = Calendar.getInstance().apply {
-            add(Calendar.DAY_OF_MONTH, 1)
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+            add(Calendar.DAY_OF_MONTH, 1) // tomorrow 00:00
         }.time
 
         return if (picked.before(min)) "Date must be tomorrow onwards" else null
     }
+
 }
