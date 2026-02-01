@@ -95,6 +95,22 @@ fun PatientHomeScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
+            onClick = { navController.navigate("view_appointment_graph") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(90.dp),
+            shape = MaterialTheme.shapes.medium
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Icon(imageVector = Icons.Default.DateRange, contentDescription = null)
+                Spacer(modifier = Modifier.height(6.dp))
+                Text("View Appointment")
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
             onClick = { navController.navigate("conversation_list_screen") },
             modifier = Modifier
                 .fillMaxWidth()
@@ -107,27 +123,12 @@ fun PatientHomeScreen(
                 Text("Messages")
             }
         }
+
+
         Spacer(modifier = Modifier.height(48.dp))
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly // This spaces the buttons out evenly
-        ){
-        HomeScreenButton(
-            title = "View Appointment",
-            icon = Icons.Default.DateRange, // Using a suitable icon
-            onClick = {
-                navController.navigate("view_appointment_graph")
-            }
-        )
-        HomeScreenButton(
-            title = "",
-            icon = Icons.Default.DateRange, // Using a suitable icon
-            onClick = {
-                //navController.navigate("view_appointment_graph")
-            }
-        )
-        }
+
+
         // ---------------------------------------------------
 
         Spacer(modifier = Modifier.height(24.dp))
