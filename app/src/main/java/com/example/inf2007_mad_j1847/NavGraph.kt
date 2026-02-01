@@ -90,6 +90,7 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
                     PatientAppointmentsScreen(
                         navController = navController,
                         vm = vm,
+                        authViewModel = authViewModel,
                         onAppointmentClick = { appointmentId ->
                             navController.navigate("patient_appointment_detail/$appointmentId")
                         }
