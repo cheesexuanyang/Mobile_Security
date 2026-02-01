@@ -5,12 +5,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.inf2007_mad_j1847.view.HomeScreenButton
 import com.example.inf2007_mad_j1847.viewmodel.AuthViewModel
 
 @Composable
@@ -27,7 +28,7 @@ fun PatientHomeScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text("Patient Dashboard", style = MaterialTheme.typography.headlineLarge)
+        Text("Patient Home", style = MaterialTheme.typography.headlineLarge)
 
         Spacer(modifier = Modifier.height(32.dp))
 
@@ -76,29 +77,35 @@ fun PatientHomeScreen(
 
         Spacer(modifier = Modifier.height(48.dp))
 
-        // --- NEW BUTTONS IN A ROW, STYLED LIKE HomeScreen ---
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly // This spaces the buttons out evenly
+        // Big, squarish central buttons (vertical)
+        Button(
+            onClick = { navController.navigate("booking_graph") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(90.dp),
+            shape = MaterialTheme.shapes.medium
         ) {
-            // 1. Book Appointment Button (Styled)
-            HomeScreenButton(
-                title = "Book Appointment",
-                icon = Icons.Default.DateRange, // Using a suitable icon
-                onClick = {
-                    navController.navigate("booking_graph")
-                }
-            )
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Icon(imageVector = Icons.Default.DateRange, contentDescription = null)
+                Spacer(modifier = Modifier.height(6.dp))
+                Text("Book Appointment")
+            }
+        }
 
-            // 2. Message Button (Styled)
-            HomeScreenButton(
-                title = "Messages",
-                icon = Icons.Default.Email, // Using a suitable icon
-                onClick = {
-                    // TODO: Navigate to a future messaging screen
-                    navController.navigate("conversation_list_screen")
-                }
-            )
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = { navController.navigate("conversation_list_screen") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(90.dp),
+            shape = MaterialTheme.shapes.medium
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Icon(imageVector = Icons.Default.Email, contentDescription = null)
+                Spacer(modifier = Modifier.height(6.dp))
+                Text("Messages")
+            }
         }
         Spacer(modifier = Modifier.height(48.dp))
 
@@ -123,7 +130,7 @@ fun PatientHomeScreen(
         }
         // ---------------------------------------------------
 
-        Spacer(modifier = Modifier.weight(1f)) // Pushes the logout button to the bottom
+        Spacer(modifier = Modifier.height(24.dp))
 
         OutlinedButton(
             onClick = {
