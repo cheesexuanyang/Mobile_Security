@@ -21,8 +21,17 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    buildFeatures {
+        buildConfig = true
+    }
+
     buildTypes {
+
+        debug {
+            buildConfigField("boolean", "DEV_MODE", "true")
+        }
         release {
+            buildConfigField("boolean", "DEV_MODE", "false")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),

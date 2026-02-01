@@ -17,6 +17,7 @@ import com.example.inf2007_mad_j1847.viewmodel.AuthViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+import com.example.inf2007_mad_j1847.BuildConfig
 
 @Composable
 fun LoginScreen(navController: NavHostController, authViewModel: AuthViewModel) {
@@ -103,6 +104,23 @@ fun LoginScreen(navController: NavHostController, authViewModel: AuthViewModel) 
 
         TextButton(onClick = { navController.navigate("signup_screen") }) {
             Text("Don't have an account? Sign Up")
+        }
+
+
+        if (BuildConfig.DEV_MODE) {
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Button(onClick = {
+                authViewModel.login("xuanyang@mobsec.com", "securepassword")
+            }) {
+                Text("DEV: patient login")
+            }
+
+            Button(onClick = {
+                authViewModel.login("diniezikry@mobsec.com", "securepassword")
+            }) {
+                Text("DEV: Doctor login")
+            }
         }
 
         if (uiState is AuthViewModel.AuthUiState.Error) {
