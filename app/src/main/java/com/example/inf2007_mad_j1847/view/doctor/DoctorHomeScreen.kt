@@ -12,7 +12,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.inf2007_mad_j1847.view.HomeScreenButton
 import com.example.inf2007_mad_j1847.viewmodel.AuthViewModel
 
 @Composable
@@ -29,36 +28,42 @@ fun DoctorHomeScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(
-            text = "Doctor Dashboard",
-            style = MaterialTheme.typography.headlineLarge
-        )
+        Text("Doctor Dashboard", style = MaterialTheme.typography.headlineLarge)
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-        ) {
-            Column(modifier = Modifier.padding(20.dp)) {
-                Text(
-                    text = "Welcome Back,",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.primary
-                )
-
-                // If your doctor user object has name/email, it will show here
-                Text(
-                    text = user?.name ?: "Doctor",
-                    style = MaterialTheme.typography.headlineSmall
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                user?.email?.let {
+        user?.let {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {
+                Column(modifier = Modifier.padding(20.dp)) {
                     Text(
-                        text = it,
-                        style = MaterialTheme.typography.bodyMedium
+                        text = "Welcome Back,",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = "Dr. ${it.name}",
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                }
+            }
+        } ?: run {
+            // Fallback for debug bypass (no logged-in user yet)
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {
+                Column(modifier = Modifier.padding(20.dp)) {
+                    Text(
+                        text = "Welcome Back,",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = "Doctor",
+                        style = MaterialTheme.typography.headlineSmall
                     )
                 }
             }
@@ -66,30 +71,37 @@ fun DoctorHomeScreen(
 
         Spacer(modifier = Modifier.height(48.dp))
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
+        Button(
+            onClick = { navController.navigate("doctor_appointments") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(90.dp),
+            shape = MaterialTheme.shapes.medium
         ) {
-            HomeScreenButton(
-                title = "Appointments",
-                icon = Icons.Default.DateRange,
-                onClick = {
-                    // change route name if yours is different
-                    navController.navigate("doctor_appointments")
-                }
-            )
-
-            HomeScreenButton(
-                title = "Messages",
-                icon = Icons.Default.Email,
-                onClick = {
-                    // change route name if yours is different
-                    navController.navigate("conversation_list_screen")
-                }
-            )
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Icon(imageVector = Icons.Default.DateRange, contentDescription = null)
+                Spacer(modifier = Modifier.height(6.dp))
+                Text("Appointments")
+            }
         }
 
-        Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = { navController.navigate("conversation_list_screen") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(90.dp),
+            shape = MaterialTheme.shapes.medium
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Icon(imageVector = Icons.Default.Email, contentDescription = null)
+                Spacer(modifier = Modifier.height(6.dp))
+                Text("Messages")
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
 
         OutlinedButton(
             onClick = {

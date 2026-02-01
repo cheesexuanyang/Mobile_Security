@@ -1,6 +1,9 @@
 package com.example.inf2007_mad_j1847.view.admin
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -52,10 +55,16 @@ fun AdminHomeScreen(navController: NavHostController, authViewModel: AuthViewMod
         // Menu Actions
         Button(
             onClick = { navController.navigate("user_management") },
-            modifier = Modifier.Companion.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(90.dp),
             shape = MaterialTheme.shapes.medium
         ) {
-            Text("Manage All Users")
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Icon(imageVector = Icons.Default.Person, contentDescription = null)
+                Spacer(modifier = Modifier.height(6.dp))
+                Text("Manage Users")
+            }
         }
 
         Spacer(modifier = Modifier.Companion.height(16.dp))
@@ -67,9 +76,11 @@ fun AdminHomeScreen(navController: NavHostController, authViewModel: AuthViewMod
                     popUpTo(0) { inclusive = true }
                 }
             },
-            modifier = Modifier.Companion.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             shape = MaterialTheme.shapes.medium,
-            colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
+            colors = ButtonDefaults.outlinedButtonColors(
+                contentColor = MaterialTheme.colorScheme.error
+            )
         ) {
             Text("Logout")
         }
