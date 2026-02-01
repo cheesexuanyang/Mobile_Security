@@ -18,6 +18,7 @@ import com.example.inf2007_mad_j1847.view.doctor.*
 import com.example.inf2007_mad_j1847.view.patient.*
 import com.example.inf2007_mad_j1847.viewmodel.AdminViewModel
 import com.example.inf2007_mad_j1847.viewmodel.AuthViewModel
+import com.example.inf2007_mad_j1847.viewmodel.PatientAppointmentDetailViewModel
 import com.example.inf2007_mad_j1847.viewmodel.PatientAppointmentsViewModel
 import com.example.inf2007_mad_j1847.viewmodel.PatientBookingViewModel
 
@@ -97,22 +98,22 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
                     )
                 }
 
-//                composable("patient_appointment_detail/{appointmentId}") { backStackEntry ->
-//                    val appointmentId = backStackEntry.arguments?.getString("appointmentId")!!
-//
-//                    val parentEntry = remember(backStackEntry) {
-//                        navController.getBackStackEntry("view_appointment_graph")
-//                    }
-//                    val vm: AppointmentDetailViewModel =
-//                        androidx.lifecycle.viewmodel.compose.viewModel(parentEntry)
-//
-//                    AppointmentDetailScreen(
-//                        navController = navController,
-//                        vm = vm,
-//                        appointmentId = appointmentId,
-//                        onBack = { navController.popBackStack() }
-//                    )
-//                }
+                composable("patient_appointment_detail/{appointmentId}") { backStackEntry ->
+                    val appointmentId = backStackEntry.arguments?.getString("appointmentId")!!
+
+                    val parentEntry = remember(backStackEntry) {
+                        navController.getBackStackEntry("view_appointment_graph")
+                    }
+                    val vm: PatientAppointmentDetailViewModel =
+                        androidx.lifecycle.viewmodel.compose.viewModel(parentEntry)
+
+                    PatientAppointmentDetailScreen(
+                        navController = navController,
+                        vm = vm,
+                        appointmentId = appointmentId,
+                        onCancelled = { navController.popBackStack() }
+                    )
+                }
             }
 
         }

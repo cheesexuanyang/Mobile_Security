@@ -102,4 +102,17 @@ class AppointmentsRepository(
     }
 
 
+    suspend fun fetchAppointmentById(appointmentId: String): AppointmentSlot? {
+        val doc = db.collection("appointments").document(appointmentId).get().await()
+        if (!doc.exists()) return null
+        return doc.toObject(AppointmentSlot::class.java)?.copy(appointmentId = doc.id)
+    }
+
+    suspend fun cancelAppointment(appointmentId: String) {
+        db.collection("appointments")
+            .document(appointmentId)
+            .update("status", "CANCELLED")
+            .await()
+    }
+
 }

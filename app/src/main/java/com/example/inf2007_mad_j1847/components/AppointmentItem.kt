@@ -15,7 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.inf2007_mad_j1847.model.AppointmentSlot
 
-
 @Composable
 fun AppointmentItem(
     appointment: AppointmentSlot,
@@ -30,24 +29,26 @@ fun AppointmentItem(
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
+
+            // Date • Time (same visual hierarchy as doctor card)
             Text(
-                text = "Date: ${appointment.date}",
+                text = "${appointment.date} • ${appointment.timeSlot}",
                 style = MaterialTheme.typography.titleMedium
             )
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(6.dp))
 
-            Text(
-                text = "Time: ${appointment.timeSlot}",
-                style = MaterialTheme.typography.bodyMedium
-            )
 
-            Spacer(modifier = Modifier.height(4.dp))
 
+            // Status
             Text(
                 text = "Status: ${appointment.status}",
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.primary
+                color = when (appointment.status) {
+                    "CANCELLED" -> MaterialTheme.colorScheme.error
+                    "BOOKED" -> MaterialTheme.colorScheme.primary
+                    else -> MaterialTheme.colorScheme.onSurfaceVariant
+                }
             )
         }
     }
