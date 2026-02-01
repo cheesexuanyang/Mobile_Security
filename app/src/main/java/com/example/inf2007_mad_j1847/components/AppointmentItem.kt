@@ -14,23 +14,36 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.inf2007_mad_j1847.model.AppointmentSlot
+import com.example.inf2007_mad_j1847.model.AppointmentStatus
+
 
 @Composable
 fun AppointmentItem(
     appointment: AppointmentSlot,
     onClick: () -> Unit
 ) {
+    val isCancelled = appointment.statusEnum == AppointmentStatus.CANCELLED
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() },
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            .let {
+                if (!isCancelled) {
+                    it.clickable { onClick() }
+                } else {
+                    it // no click
+                }
+            },
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isCancelled)
+                MaterialTheme.colorScheme.surfaceVariant
+            else
+                MaterialTheme.colorScheme.surface
+        )
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
+        Column(modifier = Modifier.padding(16.dp)) {
 
-            // Date • Time (same visual hierarchy as doctor card)
             Text(
                 text = "${appointment.date} • ${appointment.timeSlot}",
                 style = MaterialTheme.typography.titleMedium
@@ -38,18 +51,23 @@ fun AppointmentItem(
 
             Spacer(modifier = Modifier.height(6.dp))
 
-
-
-            // Status
             Text(
                 text = "Status: ${appointment.status}",
                 style = MaterialTheme.typography.bodySmall,
-                color = when (appointment.status) {
-                    "CANCELLED" -> MaterialTheme.colorScheme.error
-                    "BOOKED" -> MaterialTheme.colorScheme.primary
-                    else -> MaterialTheme.colorScheme.onSurfaceVariant
-                }
+                color = if (isCancelled)
+                    MaterialTheme.colorScheme.error
+                else
+                    MaterialTheme.colorScheme.primary
             )
+
+            if (isCancelled) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "This appointment has been cancelled",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
     }
 }

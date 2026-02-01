@@ -111,7 +111,7 @@ class AppointmentsRepository(
     suspend fun cancelAppointment(appointmentId: String) {
         db.collection("appointments")
             .document(appointmentId)
-            .update("status", "CANCELLED")
+            .update("status", AppointmentStatus.CANCELLED.wire)
             .await()
     }
 
