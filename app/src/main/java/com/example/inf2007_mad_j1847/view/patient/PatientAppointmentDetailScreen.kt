@@ -44,6 +44,8 @@ fun PatientAppointmentDetailScreen(
     val cancelSuccess by vm.cancelSuccess.collectAsState()
 
     var showCancelDialog by remember { mutableStateOf(false) }
+    var showRebookDialog by remember { mutableStateOf(false) }
+    var cancelThenGoBooking by remember { mutableStateOf(false) }
 
     LaunchedEffect(appointmentId) {
         vm.load(appointmentId)
@@ -52,9 +54,16 @@ fun PatientAppointmentDetailScreen(
     LaunchedEffect(cancelSuccess) {
         if (cancelSuccess) {
             vm.consumeCancelSuccess()
-            onCancelled()
+
+            if (cancelThenGoBooking) {
+                cancelThenGoBooking = false
+                navController.navigate("booking_graph")
+            } else {
+                onCancelled()
+            }
         }
     }
+
 
     BackTopBarScreen(
         title = "Appointment Details",
@@ -103,6 +112,13 @@ fun PatientAppointmentDetailScreen(
                         ) {
                             Text("Cancel Appointment")
                         }
+
+                        Button(
+                            onClick = { showRebookDialog = true },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Rebook")
+                        }
                     }
                 }
             }
@@ -124,6 +140,28 @@ fun PatientAppointmentDetailScreen(
             },
             dismissButton = {
                 TextButton(onClick = { showCancelDialog = false }) {
+                    Text("Keep")
+                }
+            }
+        )
+    }
+
+    if (showRebookDialog) {
+        AlertDialog(
+            onDismissRequest = { showRebookDialog = false },
+            title = { Text("Rebook appointment?") },
+            text = { Text("Your current appointment will be cancelled, then you will be sent to booking to create a new one.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showRebookDialog = false
+                    cancelThenGoBooking = true     // ✅ IMPORTANT
+                    vm.cancel(appointmentId)       // reuse existing cancel logic
+                }) {
+                    Text("Cancel & Rebook")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showRebookDialog = false }) {
                     Text("Keep")
                 }
             }

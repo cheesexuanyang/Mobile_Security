@@ -35,6 +35,7 @@ class AppointmentsRepository(
         val snap = db.collection("appointments")
             .whereEqualTo("doctorUid", doctorId)
             .whereEqualTo("date", date)
+            .whereEqualTo("status", AppointmentStatus.BOOKED.wire)
             .get()
             .await()
 
