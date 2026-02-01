@@ -2,6 +2,7 @@ package com.example.inf2007_mad_j1847.repo
 
 import android.util.Log
 import com.example.inf2007_mad_j1847.model.AppointmentSlot
+import com.example.inf2007_mad_j1847.model.AppointmentStatus
 import com.example.inf2007_mad_j1847.model.Role
 import com.example.inf2007_mad_j1847.model.User
 import com.google.firebase.Timestamp
@@ -59,7 +60,7 @@ class AppointmentsRepository(
             .whereEqualTo("doctorUid", doctorId)
             .whereEqualTo("date", date)
             .whereEqualTo("timeSlot", timeSlot)
-            .whereEqualTo("status", "booked")
+            .whereEqualTo("status", AppointmentStatus.BOOKED.wire)
             .get()
             .await()
 
@@ -76,12 +77,29 @@ class AppointmentsRepository(
                 patientUid = patientUid,
                 date = date,
                 timeSlot = timeSlot,
-                status = "booked",
+                status = AppointmentStatus.BOOKED.wire,
                 createdAt = Timestamp.now(),
                 updatedAt = Timestamp.now()
             )
             txn.set(docRef, appointment)
         }.await()
     }
+
+    // view appointment
+
+    suspend fun fetchPatientAppointments(patientUid: String): List<AppointmentSlot> {
+        val snap = db.collection("appointments")
+            .whereEqualTo("patientUid", patientUid)
+            .orderBy("date")      // requires index if combined with where in some cases
+            .orderBy("timeSlot")  // optional but nice
+            .get()
+            .await()
+
+        return snap.documents.mapNotNull { doc ->
+            doc.toObject(AppointmentSlot::class.java)
+                ?.copy(appointmentId = doc.id)
+        }
+    }
+
 
 }

@@ -18,6 +18,7 @@ import com.example.inf2007_mad_j1847.view.doctor.*
 import com.example.inf2007_mad_j1847.view.patient.*
 import com.example.inf2007_mad_j1847.viewmodel.AdminViewModel
 import com.example.inf2007_mad_j1847.viewmodel.AuthViewModel
+import com.example.inf2007_mad_j1847.viewmodel.PatientAppointmentsViewModel
 import com.example.inf2007_mad_j1847.viewmodel.PatientBookingViewModel
 
 
@@ -74,6 +75,45 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
                     )
                 }
             }
+
+            navigation(
+                startDestination = "patient_appointments_list",
+                route = "view_appointment_graph"
+            ) {
+                composable("patient_appointments_list") { backStackEntry ->
+                    val parentEntry = remember(backStackEntry) {
+                        navController.getBackStackEntry("view_appointment_graph")
+                    }
+                    val vm: PatientAppointmentsViewModel =
+                        androidx.lifecycle.viewmodel.compose.viewModel(parentEntry)
+
+                    PatientAppointmentsScreen(
+                        navController = navController,
+                        vm = vm,
+                        onAppointmentClick = { appointmentId ->
+                            navController.navigate("patient_appointment_detail/$appointmentId")
+                        }
+                    )
+                }
+
+//                composable("patient_appointment_detail/{appointmentId}") { backStackEntry ->
+//                    val appointmentId = backStackEntry.arguments?.getString("appointmentId")!!
+//
+//                    val parentEntry = remember(backStackEntry) {
+//                        navController.getBackStackEntry("view_appointment_graph")
+//                    }
+//                    val vm: AppointmentDetailViewModel =
+//                        androidx.lifecycle.viewmodel.compose.viewModel(parentEntry)
+//
+//                    AppointmentDetailScreen(
+//                        navController = navController,
+//                        vm = vm,
+//                        appointmentId = appointmentId,
+//                        onBack = { navController.popBackStack() }
+//                    )
+//                }
+            }
+
         }
 
         // --- Doctor Graph ---

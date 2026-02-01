@@ -100,6 +100,27 @@ fun PatientHomeScreen(
                 }
             )
         }
+        Spacer(modifier = Modifier.height(48.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly // This spaces the buttons out evenly
+        ){
+        HomeScreenButton(
+            title = "View Appointment",
+            icon = Icons.Default.DateRange, // Using a suitable icon
+            onClick = {
+                navController.navigate("view_appointment_graph")
+            }
+        )
+        HomeScreenButton(
+            title = "",
+            icon = Icons.Default.DateRange, // Using a suitable icon
+            onClick = {
+                //navController.navigate("view_appointment_graph")
+            }
+        )
+        }
         // ---------------------------------------------------
 
         Spacer(modifier = Modifier.weight(1f)) // Pushes the logout button to the bottom
