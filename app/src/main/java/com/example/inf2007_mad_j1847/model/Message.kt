@@ -1,14 +1,16 @@
 package com.example.inf2007_mad_j1847.model
 
 import com.google.firebase.Timestamp
+import com.google.firebase.firestore.PropertyName
 
 enum class MessageType {
     TEXT,
-    MEDIA
+    MEDIA,
+    LIVE_LOCATION
 }
 
 data class Message(
-    val id: String = "",
+    var id: String = "",
     val senderId: String = "",
 
     // TEXT or MEDIA (stored as String for Firestore)
@@ -24,5 +26,13 @@ data class Message(
     val fileName: String? = null,
     val mimeType: String? = null,
 
-    val timestamp: Timestamp = Timestamp.now()
+    val timestamp: Timestamp = Timestamp.now(),
+
+    // Live Location
+    val latitude: Double? = null,
+    val longitude: Double? = null,
+
+    @get:PropertyName("isLive")
+    @set:PropertyName("isLive")
+    var isLive: Boolean = false
 )

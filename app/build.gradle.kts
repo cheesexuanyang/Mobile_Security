@@ -12,7 +12,7 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.inf2007_mad_j1847"
+        applicationId = "com.example.inf2007_mad_j1847.mobSec"
         minSdk = 26
         targetSdk = 34
         versionCode = 1
@@ -55,6 +55,7 @@ dependencies {
     implementation("com.google.android.gms:play-services-maps:17.0.1")
     implementation("com.google.android.gms:play-services-auth:21.3.0")
     implementation("com.google.android.libraries.places:places:2.5.0")
+    implementation("com.google.android.gms:play-services-location:21.0.1")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
