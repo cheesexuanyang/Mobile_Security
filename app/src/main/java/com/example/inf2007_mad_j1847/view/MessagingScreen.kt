@@ -451,7 +451,7 @@ fun FullScreenMap(message: Message, chatName: String, onDismiss: () -> Unit) {
         )
     ) {
         Box(
-            modifier = Modifier.fillMaxSize().padding(top = 22.dp)
+            modifier = Modifier.fillMaxSize().padding(top = 24.dp)
         ) {
             Scaffold(
                 modifier = Modifier.fillMaxSize().statusBarsPadding(),
@@ -465,7 +465,8 @@ fun FullScreenMap(message: Message, chatName: String, onDismiss: () -> Unit) {
                                     contentDescription = "Back"
                                 )
                             }
-                        }
+                        },
+                        colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
                     )
                 }
             ) { innerPadding ->
