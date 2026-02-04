@@ -238,7 +238,7 @@ class MessagingViewModel : ViewModel() {
                 db.collection("chats").document(chatId).set(chatMeta)
             }
             .addOnFailureListener { e ->
-                Log.e("MessagingVM", "❌ Failed to send live location message", e)
+                Log.e("MessagingVM", "Failed to send live location message", e)
             }
     }
 
