@@ -2,6 +2,7 @@ package com.example.inf2007_mad_j1847.view
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
@@ -39,6 +40,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -356,6 +358,64 @@ fun MessageBubble(
 }
 
 @Composable
+fun MediaMessageBubble(message: Message, isMe: Boolean) {
+    val context = LocalContext.current
+    val backgroundColor = if (isMe) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant
+    val textColor = if (isMe) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
+
+    val url = message.mediaUrl ?: ""
+    val mime = message.mimeType ?: ""
+    val fileName = message.fileName ?: "File"
+
+    Box(
+        modifier = Modifier
+            .padding(horizontal = 8.dp)
+            .background(backgroundColor, shape = RoundedCornerShape(12.dp))
+            .padding(12.dp)
+            .widthIn(min = 50.dp, max = 280.dp)
+    ) {
+        if (mime.startsWith("image/")) {
+            // --- Image Display Logic from MessagingScreen (1) ---
+            Column {
+                coil.compose.AsyncImage(
+                    model = url,
+                    contentDescription = fileName,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 120.dp, max = 220.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = fileName,
+                    color = textColor,
+                    fontSize = 12.sp
+                )
+            }
+        } else {
+            // --- General File Logic ---
+            Column(
+                modifier = Modifier.clickable {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                    context.startActivity(intent)
+                }
+            ) {
+                Text(
+                    text = "📎 $fileName",
+                    color = textColor,
+                    fontSize = 16.sp
+                )
+                Text(
+                    text = "Tap to open",
+                    color = textColor.copy(alpha = 0.7f),
+                    fontSize = 12.sp
+                )
+            }
+        }
+    }
+}
+
+@Composable
 fun LiveLocationBubble(
     message: Message,
     isMe: Boolean,
@@ -536,19 +596,5 @@ fun AttachmentOption(
         }
         Spacer(modifier = Modifier.width(16.dp))
         Text(title, style = MaterialTheme.typography.bodyLarge)
-    }
-}
-
-@Composable
-fun MediaMessageBubble(message: Message, isMe: Boolean) {
-    val bubbleColor = if (isMe) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant
-    val contentColor = if (isMe) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
-    Column(
-        modifier = Modifier
-            .widthIn(max = 260.dp)
-            .background(bubbleColor, RoundedCornerShape(12.dp))
-            .padding(8.dp)
-    ) {
-        Text(text = "📎 ${message.fileName ?: "Media"}", color = contentColor)
     }
 }
