@@ -98,6 +98,9 @@ dependencies {
     // Firebase Storage
     implementation("com.google.firebase:firebase-storage")
 
+    implementation("com.google.firebase:firebase-auth")
+
+    implementation("com.google.firebase:firebase-messaging")
 
     // qr code scanner libraries
     implementation("androidx.camera:camera-core:1.4.1")

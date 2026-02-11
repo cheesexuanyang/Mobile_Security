@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import com.example.inf2007_mad_j1847.model.Role
 import com.google.firebase.auth.GoogleAuthProvider
+import com.example.inf2007_mad_j1847.notifications.FCMTokenManager
 
 class AuthViewModel(
     private val auth: FirebaseAuth = FirebaseAuth.getInstance(),
@@ -111,6 +112,7 @@ class AuthViewModel(
     }
 
     fun logout() {
+        FCMTokenManager.clearToken()
         auth.signOut()
         _currentUser.value = null
         _uiState.value = AuthUiState.Idle
@@ -129,6 +131,7 @@ class AuthViewModel(
                 val user = doc.toObject(User::class.java)
                 _currentUser.value = user
                 _uiState.value = AuthUiState.Success(role = user?.role?.name ?: Role.PATIENT.name)
+                FCMTokenManager.registerToken()
             }
             .addOnFailureListener { e ->
                 _uiState.value = AuthUiState.Error(e.message ?: "Failed to fetch user profile")

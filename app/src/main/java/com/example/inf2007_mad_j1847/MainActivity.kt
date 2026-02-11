@@ -32,6 +32,12 @@ import com.example.inf2007_mad_j1847.experiments.AppointmentBookingTest
 import com.example.inf2007_mad_j1847.experiments.AuthPerformanceTest
 import com.example.inf2007_mad_j1847.experiments.ChatbotPerformanceTest
 import com.example.inf2007_mad_j1847.experiments.QRCheckInTest
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
+import com.example.inf2007_mad_j1847.notifications.MyFirebaseMessagingService
 
 
 class MainActivity : ComponentActivity() {
@@ -39,9 +45,29 @@ class MainActivity : ComponentActivity() {
         private const val TAG = "MainActivity"
     }
 
+    private val requestNotificationPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                Log.d(TAG, "Notification permission granted")
+            } else {
+                Log.w(TAG, "Notification permission denied")
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        // Create notification channels
+        MyFirebaseMessagingService.createNotificationChannels(this)
+
+        // Request notification permission (Android 13+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED) {
+                requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
 
         // EXPERIMENTS
         // Run appointment booking performance test
