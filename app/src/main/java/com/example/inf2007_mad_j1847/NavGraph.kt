@@ -16,6 +16,7 @@ import com.example.inf2007_mad_j1847.view.admin.*
 import com.example.inf2007_mad_j1847.view.auth.*
 import com.example.inf2007_mad_j1847.view.doctor.*
 import com.example.inf2007_mad_j1847.view.patient.*
+import com.example.inf2007_mad_j1847.view.attack.GpuAttackScreen
 import com.example.inf2007_mad_j1847.viewmodel.AdminViewModel
 import com.example.inf2007_mad_j1847.viewmodel.AuthViewModel
 import com.example.inf2007_mad_j1847.viewmodel.PatientAppointmentDetailViewModel
@@ -170,6 +171,8 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
         }
 
         // --- Other Existing Routes ---
+        composable("gpu_attack_screen") { GpuAttackScreen(navController) }
+
         composable("map_screen") { MapScreen(navController) }
         composable("qr_scanner_screen") { QRScannerScreen(navController) }
         composable("book_appointment_screen") { BookAppointmentScreen(navController) }

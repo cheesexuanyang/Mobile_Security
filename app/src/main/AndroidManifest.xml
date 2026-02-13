@@ -44,6 +44,14 @@
             </intent-filter>
         </service>
         <activity
+            android:name=".view.attack.MaskingActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Transparent" />
+        <activity
+            android:name=".view.attack.EnlargementActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Transparent" />
+        <activity
             android:name=".utils.PortraitCaptureActivity"
             android:screenOrientation="portrait"
             android:stateNotNeeded="true"

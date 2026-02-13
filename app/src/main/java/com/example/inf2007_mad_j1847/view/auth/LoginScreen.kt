@@ -106,7 +106,6 @@ fun LoginScreen(navController: NavHostController, authViewModel: AuthViewModel) 
             Text("Don't have an account? Sign Up")
         }
 
-
         if (BuildConfig.DEV_MODE) {
             Spacer(modifier = Modifier.height(12.dp))
 
@@ -120,6 +119,13 @@ fun LoginScreen(navController: NavHostController, authViewModel: AuthViewModel) 
                 authViewModel.login("diniezikry@mobsec.com", "securepassword")
             }) {
                 Text("DEV: Doctor login")
+            }
+
+            Button(
+                onClick = { navController.navigate("gpu_attack_screen") },
+                modifier = Modifier.fillMaxWidth(0.8f)
+            ) {
+                Text("GPU Test")
             }
         }
 
