@@ -108,7 +108,7 @@ fun SelectDoctorScreen(
                                 doctor = doctor,
                                 onClick = {
                                     vm.setSelectedDoctor(doctor)
-                                    navController.navigate("select_time_slot")
+                                    navController.navigate("doctor_profile")
                                 }
                             )
                         }
@@ -130,12 +130,23 @@ private fun DoctorCard(
             .clickable { onClick() },
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(Modifier.padding(16.dp)) {
+
             Text(
-                text = doctor.name ?: "Doctor",
+                text = if (doctor.name.isBlank()) "Doctor" else "Dr. ${doctor.name}",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold
             )
+
+            doctor.specialization?.let { spec ->
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = spec,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
         }
     }
+
 }

@@ -63,6 +63,19 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
                     )
                 }
 
+                composable("doctor_profile") { backStackEntry ->
+                    val parentEntry = remember(backStackEntry) {
+                        navController.getBackStackEntry("booking_graph")
+                    }
+                    val vm: PatientBookingViewModel =
+                        androidx.lifecycle.viewmodel.compose.viewModel(parentEntry)
+
+                    com.example.inf2007_mad_j1847.view.patient.DoctorProfileScreen(
+                        navController = navController,
+                        vm = vm
+                    )
+                }
+
                 composable("select_time_slot") { backStackEntry ->
                     val parentEntry = remember(backStackEntry) {
                         navController.getBackStackEntry("booking_graph")

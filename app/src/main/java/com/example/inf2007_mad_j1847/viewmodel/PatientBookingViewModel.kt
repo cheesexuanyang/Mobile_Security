@@ -28,8 +28,11 @@ class PatientBookingViewModel(
     fun loadDoctors() {
         viewModelScope.launch {
             _isLoading.value = true
+            _error.value = null
             try {
                 _doctors.value = repo.fetchDoctors()
+            } catch (e: Exception) {
+                _error.value = e.message ?: "Failed to load doctors"
             } finally {
                 _isLoading.value = false
             }

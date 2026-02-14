@@ -13,4 +13,8 @@ data class User(
     val username: String = "",
     val email: String = "",
     val role: Role = Role.PATIENT , // default value will be patient, other roles are "DOCTOR", "ADMIN"
+
+    // Doctor-only fields
+    val specialization: String? = null,
+    val bio: String? = null
 )
