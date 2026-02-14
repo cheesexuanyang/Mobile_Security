@@ -48,11 +48,6 @@ fun PatientHomeScreen(
                         text = it.name,
                         style = MaterialTheme.typography.headlineSmall
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = it.email,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
                 }
             }
         } ?: run {
