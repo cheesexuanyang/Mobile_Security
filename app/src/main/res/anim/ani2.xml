@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <set xmlns:android="http://schemas.android.com/apk/res/android">
     <alpha
-        android:fromAlpha="0.4"
-        android:toAlpha="0.4"
+        android:fromAlpha="1.0"
+        android:toAlpha="0.5"
         android:duration="3000"
-        android:fillAfter="true"
-        android:fillEnabled="true" />
+        android:fillAfter="true" />
 </set>
