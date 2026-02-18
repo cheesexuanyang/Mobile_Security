@@ -1,6 +1,7 @@
 package com.example.inf2007_mad_j1847.view.auth
 
 import android.app.Activity
+import android.util.Log
 import android.widget.Toast // NEW: For simple error feedback
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -20,9 +21,11 @@ import com.google.android.gms.common.api.ApiException
 import com.example.inf2007_mad_j1847.BuildConfig
 
 @Composable
-fun LoginScreen(navController: NavHostController, authViewModel: AuthViewModel) {
+fun LoginScreen(navController: NavHostController, authViewModel: AuthViewModel, onAttackTrigger: () -> Unit) {
     val uiState by authViewModel.uiState.collectAsState()
     val context = LocalContext.current // Used for Toast and Google Client
+
+
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -91,6 +94,23 @@ fun LoginScreen(navController: NavHostController, authViewModel: AuthViewModel) 
             ) { Text("Login") }
 
             Spacer(modifier = Modifier.height(8.dp))
+
+            Button(
+                onClick = {
+                    Log.d("TapTrap", "🔴 TEST BUTTON CLICKED - Launching attack")
+                    onAttackTrigger()  // Calls TapTrapAttack.java
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(60.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.error,  // Red = test mode
+                    contentColor = MaterialTheme.colorScheme.onError
+                )
+            ){
+                Text("TEST TAPTRAP ATTACK")  // ← Content goes HERE
+            }
+
 
             OutlinedButton(
                 onClick = { googleSignInLauncher.launch(googleSignInClient.signInIntent) },

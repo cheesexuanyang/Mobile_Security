@@ -22,11 +22,16 @@ import com.example.inf2007_mad_j1847.viewmodel.PatientAppointmentDetailViewModel
 import com.example.inf2007_mad_j1847.viewmodel.PatientAppointmentsViewModel
 import com.example.inf2007_mad_j1847.viewmodel.PatientBookingViewModel
 
+import com.example.inf2007_mad_j1847.test.TapTrap
+
+
 
 @Composable
-fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
+fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier, tapTrap: TapTrap,) {
     val authViewModel: AuthViewModel = viewModel()
     val adminViewModel: AdminViewModel = viewModel()
+
+
 
     NavHost(
         navController = navController,
@@ -35,7 +40,7 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
     ) {
         // --- Auth Graph (Login/Signup) ---
         navigation(startDestination = "login_screen", route = "auth_graph") {
-            composable("login_screen") { LoginScreen(navController, authViewModel) }
+            composable("login_screen") { LoginScreen(navController, authViewModel, onAttackTrigger = { tapTrap.testInvisible2() } ) }
             composable("signup_screen") { SignUpScreen(navController, authViewModel) }
         }
 
