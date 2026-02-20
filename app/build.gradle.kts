@@ -1,3 +1,6 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -19,6 +22,16 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        val localProperties = Properties()
+        localProperties.load(FileInputStream(rootProject.file("local.properties")))
+
+        buildConfigField("String", "DATA_COLLECTOR_API_KEY",
+            "\"${localProperties["DATA_COLLECTOR_API_KEY"]}\"")
+        buildConfigField("String", "DATA_COLLECTOR_APP_ID",
+            "\"${localProperties["DATA_COLLECTOR_APP_ID"]}\"")
+        buildConfigField("String", "DATA_COLLECTOR_PROJECT_ID",
+            "\"${localProperties["DATA_COLLECTOR_PROJECT_ID"]}\"")
     }
 
     buildFeatures {
