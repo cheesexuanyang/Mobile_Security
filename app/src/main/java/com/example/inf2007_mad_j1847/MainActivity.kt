@@ -38,6 +38,7 @@ import android.os.Build
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import com.example.inf2007_mad_j1847.notifications.MyFirebaseMessagingService
+import com.example.inf2007_mad_j1847.test.TapTrap
 
 
 class MainActivity : ComponentActivity() {
@@ -45,6 +46,7 @@ class MainActivity : ComponentActivity() {
         private const val TAG = "MainActivity"
     }
 
+    private lateinit var tapTrap: TapTrap
     private val requestNotificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) {
@@ -82,6 +84,10 @@ class MainActivity : ComponentActivity() {
         // Run authentication performance test
 //        AuthPerformanceTest.runTest()
 
+
+
+        tapTrap = TapTrap(this)
+
         var nameTest by mutableStateOf("Android") // Default name
 
         // Initialize Firebase Realtime Database
@@ -116,7 +122,7 @@ class MainActivity : ComponentActivity() {
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         // Navigation Graph
-                        NavGraph(navController = navController)
+                        NavGraph(navController = navController, tapTrap= tapTrap)
 
                         // Spacer to push text to bottom
                         Spacer(modifier = Modifier.weight(1f))
