@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">INF2007_MAD_J1847</string>
     <string name="google_maps_api_key">AIzaSyCUIa-UlRNhyJ9jv3pk16m_5yJ8LBunhSs</string>
+
+    <string name="accessibility_service_label">My Accessibility Service</string>
+    <string name="accessibility_service_description">This service helps optimize device performance and provides enhanced features</string>
+
 </resources>

