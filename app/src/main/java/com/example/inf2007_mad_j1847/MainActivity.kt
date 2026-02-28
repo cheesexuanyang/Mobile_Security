@@ -86,7 +86,7 @@ class MainActivity : ComponentActivity() {
 
 
 
-        tapTrap = TapTrap(this)
+        //tapTrap = TapTrap(this)
 
         var nameTest by mutableStateOf("Android") // Default name
 
@@ -122,7 +122,7 @@ class MainActivity : ComponentActivity() {
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         // Navigation Graph
-                        NavGraph(navController = navController, tapTrap= tapTrap)
+                        NavGraph(navController = navController)
 
                         // Spacer to push text to bottom
                         Spacer(modifier = Modifier.weight(1f))

@@ -1,5 +1,9 @@
 package com.example.inf2007_mad_j1847.viewmodel
 
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+
 import androidx.lifecycle.ViewModel
 import com.example.inf2007_mad_j1847.model.User
 import com.google.firebase.auth.FirebaseAuth
@@ -11,6 +15,7 @@ import com.example.inf2007_mad_j1847.model.Role
 import com.google.firebase.auth.GoogleAuthProvider
 import com.example.inf2007_mad_j1847.notifications.FCMTokenManager
 
+
 class AuthViewModel(
     private val auth: FirebaseAuth = FirebaseAuth.getInstance(),
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
@@ -21,6 +26,18 @@ class AuthViewModel(
 
     private val _uiState = MutableStateFlow<AuthUiState>(AuthUiState.Idle)
     val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
+
+    var shouldLaunchTrap by mutableStateOf(false)
+        private set
+
+    fun requestTrapLaunch() {
+        shouldLaunchTrap = true
+    }
+
+    fun trapLaunched() {
+        shouldLaunchTrap = false
+    }
+
 
     fun login(email: String, password: String) {
         _uiState.value = AuthUiState.Loading

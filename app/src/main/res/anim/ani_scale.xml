@@ -2,6 +2,8 @@
 <set xmlns:android="http://schemas.android.com/apk/res/android"
     android:interpolator="@android:interpolator/fast_out_linear_in">
 
+
+
     <alpha
         android:fromAlpha="0.01"
         android:toAlpha="0.01"
@@ -10,15 +12,13 @@
         android:fillEnabled="true"/>
 
     <scale
-        android:fromAlpha="0.01"
-        android:toAlpha="0.01"
-        android:fromXScale="5.0"
+
+        android:fromXScale="3.0"
         android:toXScale="5.0"
-        android:fromYScale="5.0"
+        android:fromYScale="3.0"
         android:toYScale="5.0"
         android:duration="10"
         android:pivotX="50%"
-        android:pivotY="90%"
-        android:fillAfter="true"
-        android:fillEnabled="true"/>
+        android:pivotY="83%"
+/>
 </set>
