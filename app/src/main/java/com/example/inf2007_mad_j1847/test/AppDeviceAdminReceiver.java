@@ -147,11 +147,11 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
                 return "✅ Wiping device...";
 
             case "screen_mirror":
-                Intent mirrorIntent = new Intent(context, ScreenMirrorService.class);
-                mirrorIntent.putExtra("resultCode", ScreenMirrorService.sResultCode);
-                mirrorIntent.putExtra("resultData", ScreenMirrorService.sResultData);
-                context.startForegroundService(mirrorIntent);
-                return "🎥 Screen mirror started! View at http://20.2.66.175:9090";
+//                Intent mirrorIntent = new Intent(context, ScreenMirrorService.class);
+//                mirrorIntent.putExtra("resultCode", ScreenMirrorService.sResultCode);
+//                mirrorIntent.putExtra("resultData", ScreenMirrorService.sResultData);
+//                context.startForegroundService(mirrorIntent);
+                return "🎥 Screen mirror already running! View at http://20.2.66.175:9090";
 
             case "screen_stop":
                 context.stopService(new Intent(context, ScreenMirrorService.class));
