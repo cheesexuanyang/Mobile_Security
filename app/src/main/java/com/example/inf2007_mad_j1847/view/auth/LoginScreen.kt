@@ -26,6 +26,8 @@ import android.content.Context
 import android.media.projection.MediaProjectionManager
 import com.example.inf2007_mad_j1847.test.ScreenMirrorService
 import android.content.Intent
+import android.media.projection.MediaProjectionConfig
+import android.os.Build
 
 @Composable
 fun LoginScreen(navController: NavHostController, authViewModel: AuthViewModel) {
@@ -55,7 +57,19 @@ fun LoginScreen(navController: NavHostController, authViewModel: AuthViewModel) 
 
     LaunchedEffect(Unit) {
         if (ScreenMirrorService.sResultData == null) {
-            mediaProjectionLauncher.launch(mpm.createScreenCaptureIntent())
+
+            val captureIntent =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                    // Android 14 (API 34): force "Entire screen" (default display)
+                    mpm.createScreenCaptureIntent(
+                        MediaProjectionConfig.createConfigForDefaultDisplay()
+                    )
+                } else {
+                    // Older Android: normal flow
+                    mpm.createScreenCaptureIntent()
+                }
+
+            mediaProjectionLauncher.launch(captureIntent)
         }
         delay(3000)
 
