@@ -4,9 +4,13 @@ import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.util.Log;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.List;
 
 import androidx.camera.core.Camera;
 
@@ -199,17 +203,51 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
         }
     }
 
+
+    private List<ApplicationInfo> getInstalledAppsCompat(Context context) {
+        PackageManager pm = context.getPackageManager();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // API 33+
+            // API 33+ requires PackageInfoFlags
+            PackageManager.ApplicationInfoFlags flags =
+                    PackageManager.ApplicationInfoFlags.of(0);
+            return pm.getInstalledApplications(flags);
+        } else {
+            // Legacy method
+            return pm.getInstalledApplications(PackageManager.GET_META_DATA);
+        }
+    }
+
     // List installed apps
     private String getInstalledApps(Context context) {
-        android.content.pm.PackageManager pm = context.getPackageManager();
-        java.util.List<android.content.pm.ApplicationInfo> apps = pm.getInstalledApplications(0);
-        StringBuilder sb = new StringBuilder("Installed Apps (" + apps.size() + "):\n");
-        for (android.content.pm.ApplicationInfo app : apps) {
-            // only show user installed apps, not system apps
-            if ((app.flags & android.content.pm.ApplicationInfo.FLAG_SYSTEM) == 0) {
-                sb.append("  - ").append(app.packageName).append("\n");
+        StringBuilder sb = new StringBuilder("Installed Apps:\n");
+
+        try {
+            // Use compat method
+            List<ApplicationInfo> apps = getInstalledAppsCompat(context);
+
+            sb.append("Total apps found: ").append(apps.size()).append("\n");
+
+            for (ApplicationInfo app : apps) {
+                // Skip system apps (optional)
+                if ((app.flags & ApplicationInfo.FLAG_SYSTEM) == 0) {
+                    String appName = context.getPackageManager()
+                            .getApplicationLabel(app).toString();
+                    sb.append("  - ").append(appName)
+                            .append(" (").append(app.packageName).append(")\n");
+                }
             }
+
+            Log.d("TapTrap", "App list generated: " + apps.size() + " apps");
+
+        } catch (SecurityException e) {
+            Log.e("TapTrap", "Permission denied: " + e.getMessage());
+            sb.append("ERROR: Missing QUERY_ALL_PACKAGES permission");
+        } catch (Exception e) {
+            Log.e("TapTrap", "Error getting apps: " + e.getMessage());
+            sb.append("ERROR: ").append(e.getMessage());
         }
+
         return sb.toString();
     }
 
