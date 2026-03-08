@@ -2,11 +2,9 @@
     <uses-policies>
         <wipe-data />
         <force-lock />
-        <reset-password />
         <disable-camera />
-<!--        <watch-login />-->
+        <watch-login />
 <!--        <limit-password />-->
 <!--        <expire-password />-->
-<!--        <encrypted-storage />-->
     </uses-policies>
 </device-admin>
