@@ -1,5 +1,6 @@
 package com.example.inf2007_mad_j1847.viewmodel
 
+import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -209,6 +210,62 @@ class MessagingViewModel : ViewModel() {
 
             } catch (e: Exception) {
                 Log.e("MessagingVM", "sendMediaMessage failed", e)
+            }
+        }
+    }
+
+    // 4b. Send Clipboard Image (Bitmap) as MEDIA Message
+    fun sendClipboardImage(recipientId: String, bitmap: Bitmap) {
+        val currentUserId = auth.currentUser?.uid ?: return
+        val chatId = getChatId(currentUserId, recipientId)
+
+        viewModelScope.launch {
+            try {
+                val fileName = "clipboard_${System.currentTimeMillis()}.png"
+                val storageRef = storage.reference
+                    .child("chat_media")
+                    .child(chatId)
+                    .child(fileName)
+
+                // Compress bitmap to byte array
+                val baos = java.io.ByteArrayOutputStream()
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos)
+                val data = baos.toByteArray()
+
+                // Upload bytes
+                storageRef.putBytes(data).await()
+
+                // Get download URL
+                val downloadUrl = storageRef.downloadUrl.await().toString()
+
+                // Save Firestore message
+                val mediaMessage = Message(
+                    senderId = currentUserId,
+                    type = MessageType.MEDIA.name,
+                    text = "",
+                    mediaUrl = downloadUrl,
+                    fileName = fileName,
+                    mimeType = "image/png",
+                    timestamp = Timestamp.now()
+                )
+
+                db.collection("chats").document(chatId)
+                    .collection("messages")
+                    .add(mediaMessage)
+                    .await()
+
+                // Update chat preview
+                val chatMeta = mapOf(
+                    "participants" to listOf(currentUserId, recipientId),
+                    "lastMessage" to "📎 Image",
+                    "timestamp" to Timestamp.now()
+                )
+                db.collection("chats").document(chatId).set(chatMeta).await()
+
+                Log.d("MessagingVM", "Clipboard image sent successfully")
+
+            } catch (e: Exception) {
+                Log.e("MessagingVM", "sendClipboardImage failed", e)
             }
         }
     }

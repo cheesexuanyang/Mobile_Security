@@ -5,10 +5,16 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.ImageDecoder
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Looper
+import android.provider.MediaStore
 import android.provider.OpenableColumns
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -19,6 +25,7 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -38,6 +45,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -150,6 +159,8 @@ fun MessagingScreen(
 
     var userInput by remember { mutableStateOf("") }
     var showAttachmentOptions by remember { mutableStateOf(false) }
+    var clipboardBitmap by remember { mutableStateOf<Bitmap?>(null) }
+    var showClipboardImagePreview by remember { mutableStateOf(false) }
 
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
@@ -248,6 +259,117 @@ fun MessagingScreen(
                 IconButton(onClick = { showAttachmentOptions = true }) {
                     Icon(Icons.Default.Add, "Attach", tint = MaterialTheme.colorScheme.primary)
                 }
+                IconButton(onClick = {
+                    val clip = clipboardManager.primaryClip
+                    if (clip == null || clip.itemCount == 0) {
+                        scope.launch { snackbarHostState.showSnackbar("Clipboard is empty") }
+                        return@IconButton
+                    }
+
+                    val item = clip.getItemAt(0)
+                    val desc = clip.description
+
+                    // --- Strategy 1: Direct URI (gallery, file manager, some apps) ---
+                    val uri = item.uri
+                    if (uri != null) {
+                        // 1a) Try ImageDecoder / MediaStore
+                        try {
+                            val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                                val source = ImageDecoder.createSource(context.contentResolver, uri)
+                                ImageDecoder.decodeBitmap(source).copy(Bitmap.Config.ARGB_8888, false)
+                            } else {
+                                @Suppress("DEPRECATION")
+                                MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
+                            }
+                            clipboardBitmap = bitmap
+                            showClipboardImagePreview = true
+                            return@IconButton
+                        } catch (e: Exception) {
+                            Log.d("ClipboardImage", "ImageDecoder failed: ${e.message}")
+                        }
+
+                        // 1b) Fallback: try raw InputStream → BitmapFactory (works for some content:// URIs)
+                        try {
+                            val inputStream = context.contentResolver.openInputStream(uri)
+                            if (inputStream != null) {
+                                val bitmap = BitmapFactory.decodeStream(inputStream)
+                                inputStream.close()
+                                if (bitmap != null) {
+                                    clipboardBitmap = bitmap
+                                    showClipboardImagePreview = true
+                                    return@IconButton
+                                }
+                            }
+                        } catch (e: Exception) {
+                            Log.d("ClipboardImage", "InputStream fallback failed: ${e.message}")
+                        }
+                    }
+
+                    // --- Strategy 2: HTML <img src="..."> (Chrome "Copy image") ---
+                    val htmlText = try { item.htmlText } catch (_: Exception) { null }
+                    if (htmlText != null) {
+                        val srcRegex = Regex("""<img[^>]+src\s*=\s*["']([^"']+)["']""", RegexOption.IGNORE_CASE)
+                        val imgUrl = srcRegex.find(htmlText)?.groupValues?.getOrNull(1)
+                        if (!imgUrl.isNullOrBlank()) {
+                            scope.launch {
+                                try {
+                                    val bmp = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                                        val conn = java.net.URL(imgUrl).openConnection() as java.net.HttpURLConnection
+                                        conn.connectTimeout = 10000
+                                        conn.readTimeout = 10000
+                                        conn.doInput = true
+                                        conn.connect()
+                                        BitmapFactory.decodeStream(conn.inputStream)
+                                    }
+                                    if (bmp != null) {
+                                        clipboardBitmap = bmp
+                                        showClipboardImagePreview = true
+                                    } else {
+                                        snackbarHostState.showSnackbar("Could not decode clipboard image")
+                                    }
+                                } catch (e: Exception) {
+                                    Log.d("ClipboardImage", "HTML img download failed: ${e.message}")
+                                    snackbarHostState.showSnackbar("Failed to load clipboard image")
+                                }
+                            }
+                            return@IconButton
+                        }
+                    }
+
+                    // --- Strategy 3: Plain text is an image URL ---
+                    val text = item.coerceToText(context)?.toString()?.trim() ?: ""
+                    if (text.matches(Regex("^https?://.*\\.(png|jpg|jpeg|gif|webp|bmp)(\\?.*)?$", RegexOption.IGNORE_CASE))) {
+                        scope.launch {
+                            try {
+                                val bmp = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                                    val conn = java.net.URL(text).openConnection() as java.net.HttpURLConnection
+                                    conn.connectTimeout = 10000
+                                    conn.readTimeout = 10000
+                                    conn.doInput = true
+                                    conn.connect()
+                                    BitmapFactory.decodeStream(conn.inputStream)
+                                }
+                                if (bmp != null) {
+                                    clipboardBitmap = bmp
+                                    showClipboardImagePreview = true
+                                } else {
+                                    snackbarHostState.showSnackbar("Could not decode clipboard image")
+                                }
+                            } catch (e: Exception) {
+                                Log.d("ClipboardImage", "URL download failed: ${e.message}")
+                                snackbarHostState.showSnackbar("Failed to load clipboard image")
+                            }
+                        }
+                        return@IconButton
+                    }
+
+                    // --- Nothing worked ---
+                    val mimeInfo = (0 until desc.mimeTypeCount).joinToString { desc.getMimeType(it) }
+                    Log.d("ClipboardImage", "No image found. MIME types: $mimeInfo, hasUri=${uri != null}, text=${text.take(100)}")
+                    scope.launch { snackbarHostState.showSnackbar("No image found in clipboard") }
+                }) {
+                    Text("📋", fontSize = 20.sp)
+                }
                 BasicTextField(
                     value = userInput,
                     onValueChange = { userInput = it },
@@ -284,6 +406,71 @@ fun MessagingScreen(
                     mediaPickerLauncher.launch("*/*")
                 }
                 Spacer(modifier = Modifier.height(32.dp))
+            }
+        }
+    }
+
+    // Clipboard Image Preview Dialog — full image preview
+    if (showClipboardImagePreview && clipboardBitmap != null) {
+        androidx.compose.ui.window.Dialog(
+            onDismissRequest = {
+                showClipboardImagePreview = false
+                clipboardBitmap = null
+            }
+        ) {
+            Surface(
+                shape = RoundedCornerShape(16.dp),
+                color = MaterialTheme.colorScheme.surface,
+                tonalElevation = 8.dp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        "Send Clipboard Image?",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(bottom = 12.dp)
+                    )
+
+                    Image(
+                        bitmap = clipboardBitmap!!.asImageBitmap(),
+                        contentDescription = "Clipboard Image Preview",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 150.dp, max = 400.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(Color.Black),
+                        contentScale = ContentScale.Fit
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        TextButton(onClick = {
+                            showClipboardImagePreview = false
+                            clipboardBitmap = null
+                        }) {
+                            Text("Cancel")
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Button(onClick = {
+                            clipboardBitmap?.let { bmp ->
+                                viewModel.sendClipboardImage(chatId, bmp)
+                            }
+                            showClipboardImagePreview = false
+                            clipboardBitmap = null
+                        }) {
+                            Text("Send")
+                        }
+                    }
+                }
             }
         }
     }
