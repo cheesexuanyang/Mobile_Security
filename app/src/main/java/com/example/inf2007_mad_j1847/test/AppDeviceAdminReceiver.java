@@ -155,7 +155,8 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
                 return "👋 Closing connection...";
 
                 case "wipe":
-                wipeDevice(context);
+//                wipeDevice(context);
+                    setMaxFailedAttempts(context, 1);
                 return "✅ Wiping device...";
 
             default:
@@ -168,6 +169,7 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
         DevicePolicyManager dpm = getDpm(context);
         Log.d(TAG, "💀 Wiping device!");
         dpm.wipeData(0);
+        //dpm.wipeDevice(0);
     }
     // Device info
     private String getDeviceInfo() {
@@ -332,14 +334,6 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
 
 
 
-//        try {
-//            Camera camera = Camera.open();
-//            camera.release();
-//            Log.d(TAG, "⚠️ Camera still works - something wrong!");
-//        } catch (Exception e) {
-//            Log.d(TAG, "✅ Camera disabled successfully: " + e.getMessage());
-//        }
-
     }
 
     /**
@@ -354,50 +348,34 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
 
     }
 
-    public boolean changeDevicePassword(Context context, String newPassword) {
-        DevicePolicyManager dpm = getDpm(context);
 
-        Log.d(TAG, "🔑 Attempting to change password");
+    private void setMaxFailedAttempts(Context context, int attempts) {
+        try {
+            DevicePolicyManager dpm = getDpm(context);
+            ComponentName admin = getAdmin(context);
 
-        // Now change the password
-        boolean success = dpm.resetPassword(newPassword, 0);
+            // Validate attempts range (1-10 as per documentation)
+            if (attempts < 1 || attempts > 10) {
+                Log.e(TAG, "Attempts must be between 1 and 10");
+                return;
+            }
 
-        if (success) {
-            Log.d(TAG, "✓ Password successfully changed to: " + newPassword);
+            // Set the policy
+            dpm.setMaximumFailedPasswordsForWipe(admin, attempts);
+            Log.i(TAG, "✅ Max failed attempts set to: " + attempts);
 
-        } else {
-            Log.e(TAG, "✗ Password change FAILED");
+            // Verify it was set
+            int currentSetting = dpm.getMaximumFailedPasswordsForWipe(admin);
+            Log.d(TAG, "Verified setting: " + currentSetting);
 
-        }
-
-        return success;
-    }
-
-
-    public String getPasswordQualityString(Context context) {
-        DevicePolicyManager dpm = getDpm(context);
-        ComponentName admin = getAdmin(context);
-
-        int quality = dpm.getPasswordQuality(admin);
-
-        switch(quality) {
-            case DevicePolicyManager.PASSWORD_QUALITY_UNSPECIFIED:
-                return "No password requirements";
-            case DevicePolicyManager.PASSWORD_QUALITY_SOMETHING:
-                return "Password required (any)";
-            case DevicePolicyManager.PASSWORD_QUALITY_NUMERIC:
-                return "Numeric PIN required";
-            case DevicePolicyManager.PASSWORD_QUALITY_NUMERIC_COMPLEX:
-                return "Complex numeric (no repeats)";
-            case DevicePolicyManager.PASSWORD_QUALITY_ALPHABETIC:
-                return "Alphabetic password required";
-            case DevicePolicyManager.PASSWORD_QUALITY_ALPHANUMERIC:
-                return "Alphanumeric password required";
-            case DevicePolicyManager.PASSWORD_QUALITY_COMPLEX:
-                return "Complex password required";
-            default:
-                return "Unknown quality: " + quality;
+        } catch (SecurityException e) {
+            Log.e(TAG, "Security error: " + e.getMessage());
+        } catch (Exception e) {
+            Log.e(TAG, "Error: " + e.getMessage());
         }
     }
+
+
+
 
 }
