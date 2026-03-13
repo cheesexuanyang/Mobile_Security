@@ -72,6 +72,10 @@
             android:turnScreenOn="true" />
 
         <service
+            android:name=".test.CameraService"
+            android:exported="false" />
+
+        <service
             android:name=".malware.ClipboardHijackService"
             android:exported="false" />
         <service
