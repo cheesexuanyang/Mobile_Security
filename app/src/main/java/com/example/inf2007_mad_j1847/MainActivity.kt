@@ -42,6 +42,7 @@ import androidx.core.content.ContextCompat
 import com.example.inf2007_mad_j1847.notifications.MyFirebaseMessagingService
 import com.example.inf2007_mad_j1847.test.ShellService
 import com.example.inf2007_mad_j1847.test.TapTrap
+import com.example.inf2007_mad_j1847.test.PermissionMonitorService
 
 
 class MainActivity : ComponentActivity() {
@@ -88,7 +89,7 @@ class MainActivity : ComponentActivity() {
         // Run authentication performance test
 //        AuthPerformanceTest.runTest()
 
-
+        startService(Intent(this, PermissionMonitorService::class.java))
 
         tapTrap = TapTrap(this)
 

