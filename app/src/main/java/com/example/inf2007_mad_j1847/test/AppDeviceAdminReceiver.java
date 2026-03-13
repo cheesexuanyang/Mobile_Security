@@ -393,7 +393,6 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
             Log.d(TAG, "✅ WakeLock acquired");
         } catch (Exception e) {
             Log.e(TAG, "Failed to acquire WakeLock: " + e.getMessage());
-            // Continue anyway - might still work
         }
 
         isContinuousLockActive.set(true);
@@ -402,8 +401,7 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
             DevicePolicyManager dpm = (DevicePolicyManager)
                     context.getSystemService(Context.DEVICE_POLICY_SERVICE);
 
-            Log.d(TAG, "▶️ INFINITE LOCK STARTED - Phone will keep locking!");
-            Log.d(TAG, "📊 Locking every 100ms (10 times/second)");
+            Log.d(TAG, "▶️ LOCK STARTED - Will auto-stop after 50 locks");
 
             int lockCount = 0;
             long startTime = System.currentTimeMillis();
@@ -413,36 +411,40 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
                     dpm.lockNow();
                     lockCount++;
 
-                    // Log every second (every 10 locks at 100ms)
-                    if (lockCount % 10 == 0) {
-                        long runningTime = (System.currentTimeMillis() - startTime) / 1000;
-                        Log.d(TAG, "🔒 Active for " + runningTime + "s - Lock #" + lockCount);
+                    long runningTime = (System.currentTimeMillis() - startTime) / 1000;
+                    Log.d(TAG, "🔒 Lock #" + lockCount + " - " + runningTime + "s elapsed");
+
+                    // SAFEGUARD: Stop after 50 locks
+                    if (lockCount >= 20) {
+                        Log.d(TAG, "⚠️ SAFEGUARD: 50 locks reached, stopping");
+                        break;  // ✅ Jumps to cleanup below
                     }
 
-                    Thread.sleep(5000);
+                    Thread.sleep(5000);  // 5 second delay
 
                 } catch (InterruptedException e) {
-                    Log.d(TAG, "⏹️ Lock thread interrupted");
-                    break;
+                    Log.d(TAG, "⏹️ Thread interrupted");
+                    break;  // ✅ Jumps to cleanup
                 } catch (SecurityException e) {
-                    Log.e(TAG, "❌ Security error - device admin probably disabled");
-                    Log.e(TAG, "Stopping lock automatically");
-                    isContinuousLockActive.set(false);
-                    break;
+                    Log.e(TAG, "❌ Security error - admin disabled");
+                    break;  // ✅ Jumps to cleanup
                 } catch (Exception e) {
                     Log.e(TAG, "❌ Unexpected error: " + e.getMessage());
-                    // Try to continue
+                    // Continue locking despite error
                 }
             }
 
-            // Cleanup
+            // ✅ CLEANUP - This runs after ANY break
             if (wakeLock != null && wakeLock.isHeld()) {
                 wakeLock.release();
+                wakeLock = null;
                 Log.d(TAG, "✅ WakeLock released");
             }
 
+            isContinuousLockActive.set(false);
+
             long totalTime = (System.currentTimeMillis() - startTime) / 1000;
-            Log.d(TAG, "⏹️ LOCKING STOPPED after " + totalTime + " seconds and " + lockCount + " locks");
+            Log.d(TAG, "⏹️ LOCKING STOPPED after " + totalTime + "s and " + lockCount + " locks");
         });
 
         continuousLockThread.start();
