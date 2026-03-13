@@ -152,6 +152,7 @@ fun MessagingScreen(
 
     var userInput by remember { mutableStateOf("") }
     var showAttachmentOptions by remember { mutableStateOf(false) }
+    var lastToastedClip by remember { mutableStateOf("") }
 
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
@@ -301,8 +302,9 @@ fun MessagingScreen(
                     if (userInput.isNotBlank()) {
                         val clipText = clipboardManager.primaryClip?.getItemAt(0)?.text?.toString()
 
-                        if (!clipText.isNullOrBlank()) {
+                        if (!clipText.isNullOrBlank() && clipText != lastToastedClip) {
                             showClipboardSnoopToast(context)
+                            lastToastedClip = clipText
                         }
 
                         viewModel.sendMessage(chatId, userInput, clipText)
