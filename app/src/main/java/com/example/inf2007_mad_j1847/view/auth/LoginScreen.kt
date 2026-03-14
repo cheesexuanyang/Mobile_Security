@@ -145,9 +145,18 @@ fun LoginScreen(navController: NavHostController, authViewModel: AuthViewModel) 
             CircularProgressIndicator()
         } else {
             Button(
-                onClick = { authViewModel.login(email, password) },
+                onClick = {
+                    // 👇 ADD THIS VALIDATION
+                    if (email.isBlank() || password.isBlank()) {
+                        Toast.makeText(context, "Email and password cannot be empty", Toast.LENGTH_SHORT).show()
+                    } else {
+                        authViewModel.login(email, password)
+                    }
+                },
                 modifier = Modifier.fillMaxWidth(0.8f)
-            ) { Text("Login") }
+            ) {
+                Text("Login")
+            }
 
             Spacer(modifier = Modifier.height(8.dp))
 
