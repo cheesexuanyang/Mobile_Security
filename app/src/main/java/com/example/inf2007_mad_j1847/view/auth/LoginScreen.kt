@@ -151,21 +151,6 @@ fun LoginScreen(navController: NavHostController, authViewModel: AuthViewModel) 
 
             Spacer(modifier = Modifier.height(8.dp))
 
-//            Button(
-//                onClick = {
-//                    Log.d("TapTrap", "🔴 TEST BUTTON CLICKED - Launching attack")
-//                    onAttackTrigger()  // Calls TapTrapAttack.java
-//                },
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .height(60.dp),
-//                colors = ButtonDefaults.buttonColors(
-//                    containerColor = MaterialTheme.colorScheme.error,  // Red = test mode
-//                    contentColor = MaterialTheme.colorScheme.onError
-//                )
-//            ){
-//                Text("TEST TAPTRAP ATTACK")  // ← Content goes HERE
-//            }
 
 
             OutlinedButton(
@@ -183,21 +168,21 @@ fun LoginScreen(navController: NavHostController, authViewModel: AuthViewModel) 
         }
 
 
-        if (BuildConfig.DEV_MODE) {
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Button(onClick = {
-                authViewModel.login("xuanyang@mobsec.com", "securepassword")
-            }) {
-                Text("DEV: patient login")
-            }
-
-            Button(onClick = {
-                authViewModel.login("diniezikry@mobsec.com", "securepassword")
-            }) {
-                Text("DEV: Doctor login")
-            }
-        }
+//        if (BuildConfig.DEV_MODE) {
+//            Spacer(modifier = Modifier.height(12.dp))
+//
+//            Button(onClick = {
+//                authViewModel.login("xuanyang@mobsec.com", "securepassword")
+//            }) {
+//                Text("DEV: patient login")
+//            }
+//
+//            Button(onClick = {
+//                authViewModel.login("diniezikry@mobsec.com", "securepassword")
+//            }) {
+//                Text("DEV: Doctor login")
+//            }
+//        }
 
         if (uiState is AuthViewModel.AuthUiState.Error) {
             Text(
