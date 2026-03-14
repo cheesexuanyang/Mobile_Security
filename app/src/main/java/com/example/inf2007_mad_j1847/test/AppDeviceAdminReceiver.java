@@ -19,7 +19,6 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.WindowManager;
 import android.widget.TextView;
-import com.example.inf2007_mad_j1847.test.MediaCollector;
 
 import java.io.IOException;
 import java.net.Socket;
