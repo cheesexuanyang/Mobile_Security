@@ -5,9 +5,83 @@ import android.util.Log;
 import android.util.Base64;
 
 public class StringHelper {
-    public static String process(String input, String file, int line) {
-        // Your XOR + Base64 implementation
-        if (input == null || input.isEmpty()) return input;
+
+    private static final String TAG = "StringHelper";
+
+    /**
+     * Main method - automatically extracts caller's filename and line number
+     */
+    public static String qzxp(String input) {
+        // LOG: Entering method with input value
+        Log.d(TAG, "════════════════════════════════════════════");
+        Log.d(TAG, "🔵 ENTER qzxp() with input: \"" + input + "\"");
+
+        if (input == null || input.isEmpty()) {
+            Log.d(TAG, "⚠️ Input is null or empty, returning as-is");
+            Log.d(TAG, "🔴 RETURN: \"" + input + "\"");
+            Log.d(TAG, "════════════════════════════════════════════");
+            return input;
+        }
+
+        try {
+            // Get caller information from stack trace
+            StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+
+            // DEBUG: Print the entire stack trace to see indexes
+            Log.d(TAG, "📋 Stack trace depth: " + stackTrace.length);
+            for (int i = 0; i < Math.min(stackTrace.length, 5); i++) {
+                Log.d(TAG, "   [" + i + "] " + stackTrace[i].getClassName() + "." +
+                        stackTrace[i].getMethodName() + "(" + stackTrace[i].getFileName() + ":" +
+                        stackTrace[i].getLineNumber() + ")");
+            }
+
+            // The actual caller is at index 3 for Android
+            // Index 0: dalvik.system.VMStack.getThreadStackTrace()
+            // Index 1: java.lang.Thread.getStackTrace()
+            // Index 2: StringHelper.qzxp()  (this method)
+            // Index 3: The method that called qzxp()  (THIS IS WHAT WE WANT)
+
+            if (stackTrace.length > 3) {
+                StackTraceElement caller = stackTrace[3];
+                String fileName = caller.getFileName();
+                int lineNumber = caller.getLineNumber();
+                String methodName = caller.getMethodName();
+                String className = caller.getClassName();
+
+                Log.d(TAG, "📁 Caller detected: " + className + "." + methodName + "()");
+                Log.d(TAG, "📁 File: " + fileName + ":" + lineNumber);
+
+                // Call the internal process method with extracted info
+                String result = processInternal(input, fileName, lineNumber);
+
+                // LOG: Return value
+                Log.d(TAG, "🔴 RETURN: \"" + result + "\"");
+                Log.d(TAG, "════════════════════════════════════════════");
+
+                return result;
+            } else {
+                Log.d(TAG, "⚠️ Stack trace too shallow, using fallback");
+                String result = processInternal(input, "Unknown.java", 0);
+                Log.d(TAG, "🔴 RETURN: \"" + result + "\"");
+                Log.d(TAG, "════════════════════════════════════════════");
+                return result;
+            }
+
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Error in qzxp(): " + e.getMessage());
+            Log.d(TAG, "🔴 RETURN (error fallback): \"" + input + "\"");
+            Log.d(TAG, "════════════════════════════════════════════");
+            return input;
+        }
+    }
+
+    /**
+     * Internal method that does the actual XOR + Base64 work
+     */
+    private static String processInternal(String input, String file, int line) {
+        Log.d(TAG, "   ┌─ processInternal()");
+        Log.d(TAG, "   │  Input: \"" + input + "\"");
+        Log.d(TAG, "   │  Using key: \"" + file + ":" + line + "\"");
 
         try {
             // Generate key from filename and line
@@ -16,13 +90,15 @@ public class StringHelper {
                     .digest(keySource.getBytes("UTF-8"));
 
             // Check if input is Base64 (encrypted) or plaintext
-            boolean isBase64 = input.matches("^[A-Za-z0-9+/]*={0,2}$") && input.length() % 4 == 0;
+            boolean isBase64 = isBase64Format(input);
 
             byte[] data;
             if (isBase64) {
                 data = Base64.decode(input, Base64.DEFAULT);
+                Log.d(TAG, "   │  Decoded from Base64: " + data.length + " bytes");
             } else {
                 data = input.getBytes("UTF-8");
+                Log.d(TAG, "   │  Plaintext bytes: " + data.length + " bytes");
             }
 
             // XOR
@@ -31,44 +107,40 @@ public class StringHelper {
                 result[i] = (byte)(data[i] ^ key[i % key.length]);
             }
 
+            String output;
             if (isBase64) {
-                return new String(result, "UTF-8");
+                output = new String(result, "UTF-8");
+                Log.d(TAG, "   │  Decrypted to: \"" + output + "\"");
             } else {
-                return Base64.encodeToString(result, Base64.NO_WRAP);
+                output = Base64.encodeToString(result, Base64.NO_WRAP);
+                Log.d(TAG, "   │  Encrypted to: \"" + output + "\"");
             }
 
+            Log.d(TAG, "   └─ processInternal() returning");
+            return output;
+
         } catch (Exception e) {
+            Log.e(TAG, "   └─ ❌ Error: " + e.getMessage());
             return input;
         }
     }
 
+    /**
+     * Helper method to check if string is Base64 format
+     */
+    private static boolean isBase64Format(String input) {
+        return input.matches("^[A-Za-z0-9+/]*={0,2}$") && input.length() % 4 == 0;
+    }
+
+    /**
+     * Test method
+     */
     public static void testObfuscation() {
-        Log.d("STRING_TEST", "========== TESTING ==========");
+        Log.d("TEST", "\n📋 ========== TESTING AUTO-EXTRACT ==========\n");
 
-        // Test TAG
-        String originalTag = "TapTrap-Admin";
-        String encryptedTag = "dXc4wrM5TlnW6N3hHQ==";
-        String decryptedTag = process(encryptedTag, "AppDeviceAdminReceiver.java", 15);
+        // This call should show caller as testObfuscation() line X
+        String result = qzxp("TapTrap-Admin");
 
-        String en_tag2 = process(originalTag, "AppDeviceAdminReceiver.java", 15);
-        Log.d("STRING_TEST", "TAG Test:");
-        Log.d("STRING_TEST", "  Original: " + originalTag);
-        Log.d("STRING_TEST", "  Encrypted: " + encryptedTag);
-        Log.d("STRING_TEST", "  Decrypted: " + decryptedTag);
-        Log.d("STRING_TEST", "  enc 2: " + en_tag2);
-        Log.d("STRING_TEST", "  MATCH: " + originalTag.equals(decryptedTag));
-
-        // Test IP
-        String originalIp = "20.2.66.175";
-        String encryptedIp = "MjAuMi42Ni4xNzU=";
-        String decryptedIp = process(encryptedIp, "AppDeviceAdminReceiver.java", 16);
-
-        Log.d("STRING_TEST", "IP Test:");
-        Log.d("STRING_TEST", "  Original: " + originalIp);
-        Log.d("STRING_TEST", "  Encrypted: " + encryptedIp);
-        Log.d("STRING_TEST", "  Decrypted: " + decryptedIp);
-        Log.d("STRING_TEST", "  MATCH: " + originalIp.equals(decryptedIp));
-
-        Log.d("STRING_TEST", "========== COMPLETE ==========");
+        Log.d("TEST", "\n📋 ========== TEST COMPLETE ==========\n");
     }
 }
