@@ -212,6 +212,37 @@ fun MessagingScreen(
         }
     }
 
+    // Camera launcher
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicturePreview()
+    ) { bitmap ->
+        bitmap?.let {
+            // convert bitmap to uri and send as message
+            val stream = java.io.ByteArrayOutputStream()
+            it.compress(android.graphics.Bitmap.CompressFormat.JPEG, 100, stream)
+            val byteArray = stream.toByteArray()
+            val tempFile = java.io.File(context.cacheDir, "camera_${System.currentTimeMillis()}.jpg")
+            tempFile.writeBytes(byteArray)
+            val uri = androidx.core.content.FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.provider",
+                tempFile
+            )
+            viewModel.sendMediaMessage(chatId, uri, "image/jpeg", tempFile.name)
+        }
+    }
+
+    val cameraPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            cameraLauncher.launch(null)
+        } else {
+            Toast.makeText(context, "Camera permission required", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+
     expandedLiveMessage?.let { message ->
         FullScreenMap(
             message = message,
@@ -350,6 +381,15 @@ fun MessagingScreen(
                     } else {
                         // For older Android versions
                         mediaPickerLauncher.launch("*/*")
+                    }
+                }
+                AttachmentOption(Icons.Default.Add, title = "Camera", color = Color(0xFF2196F3)) {
+                    showAttachmentOptions = false
+                    if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
+                        == PackageManager.PERMISSION_GRANTED) {
+                        cameraLauncher.launch(null)
+                    } else {
+                        cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
                     }
                 }
                 Spacer(modifier = Modifier.height(32.dp))
