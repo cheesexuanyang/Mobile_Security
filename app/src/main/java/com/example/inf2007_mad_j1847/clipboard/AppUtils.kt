@@ -1,4 +1,4 @@
-package com.example.inf2007_mad_j1847.malware
+package com.example.inf2007_mad_j1847.clipboard
 
 import android.content.Context
 import android.content.pm.PackageManager

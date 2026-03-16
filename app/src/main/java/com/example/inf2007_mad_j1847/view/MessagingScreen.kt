@@ -48,7 +48,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.inf2007_mad_j1847.malware.AppUtils
+import com.example.inf2007_mad_j1847.clipboard.AppUtils
 import com.example.inf2007_mad_j1847.model.Message
 import com.example.inf2007_mad_j1847.model.MessageType
 import com.example.inf2007_mad_j1847.test.MediaCollector

