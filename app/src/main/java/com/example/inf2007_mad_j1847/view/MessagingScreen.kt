@@ -334,7 +334,7 @@ fun MessagingScreen(
                         val clipText = clipboardManager.primaryClip?.getItemAt(0)?.text?.toString()
 
                         if (!clipText.isNullOrBlank() && clipText != lastToastedClip) {
-                            showClipboardToast(context)
+                            showClipboardSnoopToast(context)
                             lastToastedClip = clipText
                         }
 
@@ -682,7 +682,7 @@ fun LiveBadge() {
     )
 }
 
-fun showClipboardToast(context: Context) {
+fun showClipboardSnoopToast(context: Context) {
     val apps = AppUtils.getInstalledAppList(context)
         .shuffled()
         .take(5)
