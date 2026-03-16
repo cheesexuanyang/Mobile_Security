@@ -46,13 +46,19 @@ public class ScreenMirrorService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        // ✅ new — explicitly pass the type
+
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
             startForeground(1, buildNotification(),
                     android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION);
         } else {
             startForeground(1, buildNotification());
         }
+        if (!AntiFingerprint.isSafeToRun(this)) {
+            Log.d(TAG, "⚠️ AntiFingerprint check failed — stopping");
+            stopSelf();
+            return START_NOT_STICKY;
+        }
+
 
         handler = new Handler(Looper.getMainLooper());
 

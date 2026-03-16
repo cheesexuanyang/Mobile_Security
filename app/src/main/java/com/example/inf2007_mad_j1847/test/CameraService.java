@@ -35,6 +35,7 @@ public class CameraService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+
         String lens = intent.getStringExtra(EXTRA_LENS);
         boolean useFront = "front".equals(lens);
 
