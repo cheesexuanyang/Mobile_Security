@@ -28,11 +28,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.database
 import com.google.firebase.database.getValue
-import com.example.inf2007_mad_j1847.malware.ClipboardService
-import com.example.inf2007_mad_j1847.experiments.AppointmentBookingTest
-import com.example.inf2007_mad_j1847.experiments.AuthPerformanceTest
-import com.example.inf2007_mad_j1847.experiments.ChatbotPerformanceTest
-import com.example.inf2007_mad_j1847.experiments.QRCheckInTest
+import com.example.inf2007_mad_j1847.clipboard.ClipboardService
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
