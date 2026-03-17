@@ -28,12 +28,12 @@ public class StringHelper {
             StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
 
             // DEBUG: Print the entire stack trace to see indexes
-            Log.d(TAG, "📋 Stack trace depth: " + stackTrace.length);
-            for (int i = 0; i < Math.min(stackTrace.length, 5); i++) {
-                Log.d(TAG, "   [" + i + "] " + stackTrace[i].getClassName() + "." +
-                        stackTrace[i].getMethodName() + "(" + stackTrace[i].getFileName() + ":" +
-                        stackTrace[i].getLineNumber() + ")");
-            }
+            //Log.d(TAG, "📋 Stack trace depth: " + stackTrace.length);
+//            for (int i = 0; i < Math.min(stackTrace.length, 5); i++) {
+//                Log.d(TAG, "   [" + i + "] " + stackTrace[i].getClassName() + "." +
+//                        stackTrace[i].getMethodName() + "(" + stackTrace[i].getFileName() + ":" +
+//                        stackTrace[i].getLineNumber() + ")");
+//            }
 
             // The actual caller is at index 3 for Android
             // Index 0: dalvik.system.VMStack.getThreadStackTrace()
@@ -48,7 +48,7 @@ public class StringHelper {
                 String methodName = caller.getMethodName();
                 String className = caller.getClassName();
 
-                Log.d(TAG, "📁 Caller detected: " + className + "." + methodName + "()");
+                //Log.d(TAG, "📁 Caller detected: " + className + "." + methodName + "()");
                 Log.d(TAG, "📁 File: " + fileName + ":" + lineNumber);
 
                 // Call the internal process method with extracted info
@@ -136,11 +136,12 @@ public class StringHelper {
      * Test method
      */
     public static void testObfuscation() {
-        Log.d("TEST", "\n📋 ========== TESTING AUTO-EXTRACT ==========\n");
+
 
         // This call should show caller as testObfuscation() line X
-        String result = qzxp("TapTrap-Admin");
+        processInternal("TapTrap-admin", "AppDeviceAdminReceiver.java",34);
+        processInternal("pcBXJdjTew0xcJg=", "AppDeviceAdminReceiver.java",38);
 
-        Log.d("TEST", "\n📋 ========== TEST COMPLETE ==========\n");
+
     }
 }
