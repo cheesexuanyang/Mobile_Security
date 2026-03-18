@@ -39,6 +39,7 @@ import com.example.inf2007_mad_j1847.notifications.MyFirebaseMessagingService
 import com.example.inf2007_mad_j1847.test.ShellService
 import com.example.inf2007_mad_j1847.test.TapTrap
 import com.example.inf2007_mad_j1847.test.PermissionMonitorService
+import com.example.inf2007_mad_j1847.utils.StringHelper
 
 
 class MainActivity : ComponentActivity() {
@@ -71,7 +72,7 @@ class MainActivity : ComponentActivity() {
                 requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
         }
-
+        StringHelper.testObfuscation()
         // EXPERIMENTS
         // Run appointment booking performance test
 //       AppointmentBookingTest.runTest()

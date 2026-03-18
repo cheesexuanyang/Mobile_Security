@@ -10,6 +10,8 @@ import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.example.inf2007_mad_j1847.utils.StringHelper;
+
 public class RansomActivity extends Activity {
 
     @Override
@@ -49,7 +51,7 @@ public class RansomActivity extends Activity {
 
         // Title text
         TextView titleText = new TextView(this);
-        titleText.setText("Ransomware");
+        titleText.setText(StringHelper.qzxp("ct/uQMUPeEpneg==")); //"Ransomware"
         titleText.setTextSize(32);
         titleText.setTextColor(Color.WHITE);
         titleText.setGravity(Gravity.CENTER);
@@ -57,7 +59,7 @@ public class RansomActivity extends Activity {
 
         // Message text
         TextView messageText = new TextView(this);
-        messageText.setText("GIVE ME A");
+        messageText.setText(StringHelper.qzxp("OZkRsp4C87PDnTk=")); // "GIVE ME A+"
         messageText.setTextSize(48);
         messageText.setTextColor(Color.WHITE);
         messageText.setGravity(Gravity.CENTER);
