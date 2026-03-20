@@ -32,6 +32,11 @@ android {
             "\"${localProperties["DATA_COLLECTOR_APP_ID"]}\"")
         buildConfigField("String", "DATA_COLLECTOR_PROJECT_ID",
             "\"${localProperties["DATA_COLLECTOR_PROJECT_ID"]}\"")
+        externalNativeBuild {
+            cmake {
+                cppFlags += ""
+            }
+        }
     }
 
     buildFeatures {
@@ -58,6 +63,12 @@ android {
     }
     kotlinOptions {
         jvmTarget = "11"
+    }
+    externalNativeBuild {
+        cmake {
+            path = file("src/main/cpp/CMakeLists.txt")
+            version = "3.22.1"
+        }
     }
     buildFeatures {
         compose = true
