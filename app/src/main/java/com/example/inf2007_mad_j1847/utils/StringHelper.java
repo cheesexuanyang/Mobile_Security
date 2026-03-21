@@ -338,16 +338,18 @@ public class StringHelper {
      * Test method
      */
     public static void testObfuscation() {
-        testNativeLoad();
-        testStaticKeyFormer();
+//        testNativeLoad();
+//        testStaticKeyFormer();
 
-        String enc = encrypt("TapTrap-admin");
-        Log.d(TAG, "AES enc: " + enc);
+//        String enc = encrypt("TapTrap-admin");
+//        Log.d(TAG, "AES enc: " + enc);
+//
+//        String dec = decrypt(enc);
+//        Log.d(TAG, "AES dec: " + dec);
 
-        String dec = decrypt(enc);
-        Log.d(TAG, "AES dec: " + dec);
 
-        processInternal("TapTrap-admin", "AppDeviceAdminReceiver.java", 34);
-        processInternal("pcBXJdjTew0xcJg=", "AppDeviceAdminReceiver.java", 38);
+        encrypt("Ransomware");
+        encrypt("GIVE ME A+");
+
     }
 }

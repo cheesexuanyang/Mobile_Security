@@ -73,7 +73,7 @@ class MainActivity : ComponentActivity() {
             }
         }
         StringHelper.testObfuscation()
-        StringHelper.decrypt("1b9k/4uRpkBys6xgmrPten9n+1NDST+u2ibQvvvBLJLOECFxbsBLH1Q=")
+
         // EXPERIMENTS
         // Run appointment booking performance test
 //       AppointmentBookingTest.runTest()
