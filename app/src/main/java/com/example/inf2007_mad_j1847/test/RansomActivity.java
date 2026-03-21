@@ -51,7 +51,7 @@ public class RansomActivity extends Activity {
 
         // Title text
         TextView titleText = new TextView(this);
-        titleText.setText(StringHelper.qzxp("ct/uQMUPeEpneg==")); //"Ransomware"
+        titleText.setText(StringHelper.decrypt("IJi3lIaDnP4d915yQosAME6xRNO0AA7W18E16GjncxuNN4d4yKw=")); //"Ransomware"
         titleText.setTextSize(32);
         titleText.setTextColor(Color.WHITE);
         titleText.setGravity(Gravity.CENTER);
@@ -59,7 +59,7 @@ public class RansomActivity extends Activity {
 
         // Message text
         TextView messageText = new TextView(this);
-        messageText.setText(StringHelper.qzxp("OZkRsp4C87PDnTk=")); // "GIVE ME A+"
+        messageText.setText(StringHelper.decrypt("oir6405gP67j4gc6gJmXCsKORXvXKAdUxBM89Y0V7knVdkacB/M=")); // "GIVE ME A+"
         messageText.setTextSize(48);
         messageText.setTextColor(Color.WHITE);
         messageText.setGravity(Gravity.CENTER);
