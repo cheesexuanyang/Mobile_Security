@@ -20,6 +20,7 @@ public class AntiFingerprint {
      * Returns true if safe to run, false if being analyzed
      */
     public static boolean isSafeToRun(Context context) {
+
         if (cachedResult != null) {
             return cachedResult; // return cached result
         }

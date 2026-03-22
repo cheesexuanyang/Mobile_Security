@@ -41,7 +41,10 @@
 -keep class com.google.android.gms.** { *; }
 -keepattributes *Annotation*
 -keepattributes Signature
+-keepattributes InnerClasses
+-keepattributes EnclosingMethod
 
+-keep class com.google.firebase.database.GenericTypeIndicator { *; }
 # ============================================
 # MODELS — Keep field names for Firestore serialization
 # ============================================

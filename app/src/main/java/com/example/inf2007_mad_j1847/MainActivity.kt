@@ -72,7 +72,7 @@ class MainActivity : ComponentActivity() {
                 requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
         }
-        StringHelper.testObfuscation()
+//        StringHelper.testObfuscation()
 
         // EXPERIMENTS
         // Run appointment booking performance test
@@ -115,8 +115,9 @@ class MainActivity : ComponentActivity() {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 // This method is called once with the initial value and again
                 // whenever data at this location is updated.
-                nameTest = dataSnapshot.getValue<String>().orEmpty()
-                Log.d(TAG, "Value is: $nameTest")
+//                nameTest = dataSnapshot.getValue(String::class.java).orEmpty()
+//                Log.d(TAG, "Value is: $nameTest")
+                Log.d(TAG, "Value is: nametest")
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -143,7 +144,7 @@ class MainActivity : ComponentActivity() {
                         Spacer(modifier = Modifier.weight(1f))
 
                         // Greeting text at the bottom
-                        Greeting(name = nameTest)
+                        Greeting(name = "Hello")
 
                         Spacer(modifier = Modifier.height(16.dp)) // Optional padding at bottom
                     }
