@@ -338,14 +338,14 @@ public class StringHelper {
      * Test method
      */
     public static void testObfuscation() {
-//        testNativeLoad();
-//        testStaticKeyFormer();
+        testNativeLoad();
+        testStaticKeyFormer();
 
-//        String enc = encrypt("TapTrap-admin");
-//        Log.d(TAG, "AES enc: " + enc);
-//
-//        String dec = decrypt(enc);
-//        Log.d(TAG, "AES dec: " + dec);
+        String enc = encrypt("TapTrap-admin");
+        Log.d(TAG, "AES enc: " + enc);
+
+        String dec = decrypt(enc);
+        Log.d(TAG, "AES dec: " + dec);
 
 
         encrypt("Ransomware");
