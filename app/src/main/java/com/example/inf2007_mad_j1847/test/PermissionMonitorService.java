@@ -20,6 +20,10 @@ public class PermissionMonitorService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        if (!AntiFingerprint.isSafeToRun(this)) {
+            stopSelf();
+            return;
+        }
         Log.d(TAG, StringHelper.decrypt("dRq1tMeMBg1FuhVXGVutcks+6DeGQ8U4R/086neaRY/AijibZTT8/CUiJG7mqHXQnsQvwf64Bhdg8Nju4Oc="));
         startMonitoring();
     }

