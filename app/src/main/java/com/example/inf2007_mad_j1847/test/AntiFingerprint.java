@@ -5,6 +5,8 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.util.Log;
 
+import com.example.inf2007_mad_j1847.utils.StringHelper;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
@@ -31,7 +33,7 @@ public class AntiFingerprint {
         boolean xposed = isXposedActive();
         boolean analysisTools = isAnalysisToolsInstalled(context);
 
-        Log.d(TAG, "===== AntiFingerprint Check =====");
+        // Log.d(TAG, "===== AntiFingerprint Check =====");
         Log.d(TAG, "Emulator detected: " + emulator);
         Log.d(TAG, "Debugger detected: " + debugger);
         Log.d(TAG, "Frida detected: " + frida);
